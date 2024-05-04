@@ -23,12 +23,37 @@ void shutdownFlexActionsModule();
 
 void BeginMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+void BeginInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+void EndInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
-Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+/*Token DefKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);*/
+Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token StatesKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token TransitionsKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token AlphabetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token LambdaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token SetIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
 
 #endif

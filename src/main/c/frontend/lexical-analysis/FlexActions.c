@@ -48,6 +48,18 @@ void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCon
 	}
 }
 
+void BeginInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	if (_logIgnoredLexemes) {
+		_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	}
+}
+
+void EndInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	if (_logIgnoredLexemes) {
+		_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	}
+}
+
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	if (_logIgnoredLexemes) {
 		_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
