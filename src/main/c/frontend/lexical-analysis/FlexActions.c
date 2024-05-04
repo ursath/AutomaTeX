@@ -66,24 +66,41 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	}
 }
 
-Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	Token token;
 	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case '-': token = SUB; break;
-		case '*': token = MUL; break;
-		case '/': token = DIV; break;
-		case '+': token = ADD; break;
+		case 'DFA': token = DFA; break;
+		case 'NFA': token = NFA; break;
+		case 'LNFA': token = LNFA; break;
 	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
 
-Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+
+Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
-	return INTEGER;
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case '{': token = OPEN_BRACE; break;
+		case '}': token = CLOSE_BRACE; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
 }
+
+Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case '[': token = OPEN_BRACKET; break;
+		case ']': token = CLOSE_BRACKET; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
 
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
@@ -96,7 +113,107 @@ Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return token;
 }
 
+Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = COLON;
+	return lexicalAnalyzerContext->semanticValue->token ;	
+}
+
+Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = COMMA;
+	return lexicalAnalyzerContext->semanticValue->token;	
+}
+
+Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case '-': token = DIFFERENCE; break;
+		case '+': token = UNION; break;
+		case '*': token = INTERSECTION; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+Token LambdaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = LAMBDA;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch(lexicalAnalyzerContext->lexeme[0]){
+		case '->': token = END_RIGHT_TRANSITION; break;
+		case '<-': token = END_LEFT_TRANSITION; break;
+		case '|-': token = BEGIN_RIGHT_TRANSITION; break;
+		case '-|': token = BEGIN_LEFT_TRANSITION; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+
+Token TransitionsKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = TRANSITIONS_KEYWORD;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+
+Token StatesKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = STATES_KEYWORD;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+
+Token AlphabetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = ALPHABET_KEYWORD;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch(lexicalAnalyzerContext->lexeme[0]){
+		case 'regular': token = REGULAR_STATES_KEYWORD; break;
+		case 'final': token = FINAL_STATES_KEYWORD; break;
+		case 'initial': token = INITIAL_STATE_KEYWORD; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	return UNKNOWN;
+}
+
+Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch(lexicalAnalyzerContext->lexeme[0]){
+		case '*': token = FINAL_STATE; break;
+		case '>': token = INITIAL_STATE; break;
+		default: token = REGULAR_STATE; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = SYMBOL;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+Token SetIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = SET_IDENTIFIER;
+	return lexicalAnalyzerContext->semanticValue->token;
 }
