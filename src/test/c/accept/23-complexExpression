@@ -1,0 +1,3 @@
+states A: {a}
+states B: {b}
+states S: (A + (B - {b,c}))

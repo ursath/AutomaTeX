@@ -1,0 +1,4 @@
+DFA automata [
+    alphabet: {a},
+    transitions: { q0|-a->q0}
+]
