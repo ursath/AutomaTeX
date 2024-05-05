@@ -209,6 +209,8 @@ Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = SYMBOL;
+	// * guardo valor del symbol
+	lexicalAnalyzerContext->semanticValue->value = lexicalAnalyzerContext->lexeme[0];
 	return lexicalAnalyzerContext->semanticValue->token;
 }
 
