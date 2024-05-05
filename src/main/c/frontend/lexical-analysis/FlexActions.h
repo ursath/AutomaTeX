@@ -51,7 +51,7 @@ Token LambdaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
-Token SetIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 

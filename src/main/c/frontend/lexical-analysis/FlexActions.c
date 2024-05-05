@@ -212,7 +212,7 @@ Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return lexicalAnalyzerContext->semanticValue->token;
 }
 
-Token SetIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = SET_IDENTIFIER;
 	return lexicalAnalyzerContext->semanticValue->token;
