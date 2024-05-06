@@ -41,6 +41,12 @@ Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set)
 	return definition;
 }
 
+Definition * SingularStateSetDefinitionSemanticAction(char * identifier, State* state) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StateSet * set = SingularStateSetSemanticAction(state);
+	return StateSetDefinitionSemanticAction(identifier, set);
+}
+
 Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * set) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Definition * definition = calloc(1, sizeof(Definition));
@@ -49,12 +55,25 @@ Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * se
 	return definition;
 }
 
+Definition * SingularSymbolSetDefinitionSemanticAction(char * identifier, Symbol * symbol) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	SymbolSet * set = SingularSymbolSetSemanticAction(symbol);
+	return SymbolSetDefinitionSemanticAction(identifier, set);
+}
+
 Definition * TransitionSetDefinitionSemanticAction(char * identifier, TransitionSet * set) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Definition * definition = calloc(1, sizeof(Definition));
 	set->identifier = identifier;
 	definition->transitionSet = set;
 	return definition;
+}
+
+Definition * SingularTransitionSetDefinitionSemanticAction(char * identifier, Transition * transition){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Definition * definition = calloc(1, sizeof(Definition));
+	TransitionSet * set	= SingularTransitionSetSemanticAction(transition);
+	return TransitionSetDefinitionSemanticAction(identifier, set);
 }
 
 Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifier, Automata * automata ) {
@@ -70,7 +89,7 @@ Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifi
 /* ------------------------------------------------- AUTOMATA ------------------------------------------------- */
 
 
-Automata * AutomataSemanticAction(StateSet * states, SymbolSet * alphabet, TransitionSet * transitions) {
+Automata * AutomataSemanticAction( StateSet * states, SymbolSet * alphabet, TransitionSet * transitions) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Automata * automata = calloc(1, sizeof(Automata));
 	automata->states = states;
@@ -139,17 +158,42 @@ SymbolExpression * ArithmeticSymbolSetSemanticAction(SymbolSet * symbolSet) {
 	return expression;
 }
 
+TransitionExpression * ArithmeticSingularSymbolSetSemanticAction(Transition * transition) {
+_logSyntacticAnalyzerAction(__FUNCTION__);
+	TransitionSet * transitionSet = SingularStateSetSemanticAction(transition);
+	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
+	expression->transitionSet = transitionSet;
+	expression->type = SET;
+	return expression;
+}
 
+SymbolExpression * ArithmeticSingularSymbolSetSemanticAction(Symbol * symbol) {
+_logSyntacticAnalyzerAction(__FUNCTION__);
+	SymbolSet * symbolSet = SingularSymbolSetSemanticAction(symbol);
+	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
+	expression->symbolSet = symbolSet;
+	expression->type = SET;
+	return expression;
+}
+
+StateExpression * ArithmeticSingularStateSetSemanticAction(State * state) {
+_logSyntacticAnalyzerAction(__FUNCTION__);
+	StateSet * stateSet = SingularStateSetSemanticAction(state);
+	StateExpression * expression = calloc(1, sizeof(StateExpression));
+	expression->stateSet = stateSet;
+	expression->type = SET;
+	return expression;
+}
 /* ------------------------------------------------- SETS ------------------------------------------------- */
 
-
+/*
 StateSet * StateSetSemanticAction(StateSet * stateSet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * state = calloc(1, sizeof(StateSet));
 	state = stateSet;
 	return state;
 }
-
+*/
 StateSet * SingularStateSetSemanticAction(State * state){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
@@ -166,6 +210,12 @@ StateSet * StateSetSemanticAction(StateSet * stateSet1, StateSet * stateSet2){
 	stateSet->states = stateSet1->states;
 	stateSet1->tail->next = stateSet2->states;
 	stateSet->tail = stateSet2->tail;
+	return stateSet;
+}
+
+StateSet *  EmptyStateSetSemanticAction(){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	return stateSet;
 }
 
@@ -188,13 +238,19 @@ SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet1, SymbolSet * symbolSe
 	return symbolSet;
 }
 
+SymbolSet * EmptySymbolSetSemanticAction(){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	SymbolSet * symbolSet = calloc(1, sizeof(SymbolSet));
+	return symbolSet;
+}
+/*
 TransitionSet * TransitionSetSemanticAction(TransitionSet * set) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
 	transitionSet = set;
 	return transitionSet;
 }
-
+*/
 TransitionSet * SingularTransitionSetSemanticAction(Transition * transition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
@@ -214,6 +270,11 @@ TransitionSet * TransitionSetSemanticAction(TransitionSet * transitionSet1, Tran
 	return transitionSet;
 }
 
+TransitionSet * EmptyTransitionSetSemanticAction(){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
+	return transitionSet;
+}
 
 /* ------------------------------------------------- ELEMENTS ------------------------------------------------- */
 
@@ -273,7 +334,7 @@ Transition * BothSideTransitionSemanticAction(StateSet *leftSet, StateSet *right
 
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
-
+// se tendría que manejar un conjunto de definiciones como resultado de un programa que luego se resuelven en el back
 Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Definition * definition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
