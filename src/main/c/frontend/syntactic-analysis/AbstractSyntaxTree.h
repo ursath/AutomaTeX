@@ -188,7 +188,8 @@ struct Set {
 */
 
 /* ------------------------------------------------- NODES ------------------------------------------------- */
-
+//los nodos podrían tener un union que sirva para poder incluir subconjuntos (sino siempre se ignoran y se obtiene un conjunto con elementos sueltos)
+//además con esto se evita que el primer caso de cada action de los sets sea una función void
 struct SymbolNode {
 	Symbol symbol;
 	SymbolNode * next;
