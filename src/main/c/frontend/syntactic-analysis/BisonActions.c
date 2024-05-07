@@ -134,29 +134,36 @@ SymbolExpression * ArithmeticSymbolExpressionSemanticAction(SymbolExpression * l
 	return expression;
 }
 
-TransitionExpression * ArithmeticTransitionSetSemanticAction(TransitionSet * transitionSet) {
+
+TransitionSet * SingularExpressionTransitionSetSemanticAction(TransitionExpression* transitionExpression) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
-	expression->transitionSet = transitionSet;
-	expression->type = SET;
+	TransitionSet * expression = calloc(1, sizeof(TransitionSet));
+	TransitionNode * node = calloc(1, sizeof(TransitionNode));
+	node->transitionExpression = transitionExpression;
+	node->type = EXPRESSION;	
 	return expression;
 }
 
-StateExpression * ArithmeticStateSetSemanticAction(StateSet * stateSet) {
+StateSet * SingularExpressionStateSetSemanticAction(StateExpression * stateExpression) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	StateExpression * expression = calloc(1, sizeof(StateExpression));
-	expression->stateSet = stateSet;
-	expression->type = SET;
+	StateSet * expression = calloc(1, sizeof(StateSet));
+	StateNode * node = calloc(1, sizeof(StateNode));
+	node->stateExpression = stateExpression;
+	node->type = EXPRESSION;
 	return expression;
 }
 
-SymbolExpression * ArithmeticSymbolSetSemanticAction(SymbolSet * symbolSet) {
+SymbolSet * SingularExpressionSymbolSetSemanticAction(SymbolSet * symbolSet) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	expression->symbolSet = symbolSet;
 	expression->type = SET;
 	return expression;
 }
+
+
+/* ------------------------------------------------- SETS ------------------------------------------------- */
+
 
 TransitionExpression * ArithmeticSingularSymbolSetSemanticAction(Transition * transition) {
 _logSyntacticAnalyzerAction(__FUNCTION__);
@@ -184,7 +191,6 @@ _logSyntacticAnalyzerAction(__FUNCTION__);
 	expression->type = SET;
 	return expression;
 }
-/* ------------------------------------------------- SETS ------------------------------------------------- */
 
 /*
 StateSet * StateSetSemanticAction(StateSet * stateSet){
@@ -193,43 +199,32 @@ StateSet * StateSetSemanticAction(StateSet * stateSet){
 	state = stateSet;
 	return state;
 }
-*/
+
 StateSet * SingularStateSetSemanticAction(State * state){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	StateNode * node = calloc(1, sizeof(StateNode));
-	node->state = *state;
+	node->state = state;
 	stateSet->states = node;
 	stateSet->tail = node;
 	return stateSet;
 }
+*/
 
-StateSet * StateSetSemanticAction(StateSet * stateSet1, StateSet * stateSet2){
+StateSet * StateSetsSemanticAction(StateExpression * exp1, StateExpression * exp2){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
-	stateSet->states = stateSet1->states;
+	if(exp1->type == SET) {
+		stateSet->states = exp1->stateSet;
+	} else {
+		stateSet->states = exp1;
+	}
 	stateSet1->tail->next = stateSet2->states;
 	stateSet->tail = stateSet2->tail;
 	return stateSet;
 }
 
-StateSet *  EmptyStateSetSemanticAction(){
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	StateSet * stateSet = calloc(1, sizeof(StateSet));
-	return stateSet;
-}
-
-SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	SymbolSet * symbolSet = calloc(1, sizeof(SymbolSet));
-	SymbolNode * node = calloc(1, sizeof(SymbolNode));
-	node->symbol = *symbol;
-	symbolSet->alphabet = node;
-	symbolSet->tail = node;
-	return symbolSet;
-}
-
-SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet1, SymbolSet * symbolSet2) {
+SymbolSet * SymbolSetsSemanticAction(SymbolExpression * exp1, SymbolExpression * exp2) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolSet * symbolSet = calloc(1, sizeof(SymbolSet));
 	symbolSet->alphabet = symbolSet1->alphabet;
@@ -237,6 +232,36 @@ SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet1, SymbolSet * symbolSe
 	symbolSet->tail = symbolSet2->tail;
 	return symbolSet;
 }
+// todo
+TransitionSet * TransitionSetsSemanticAction(TransitionExpression * exp1, TransitionExpression * exp2) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
+	transitionSet->transitions = transitionSet1->transitions;
+	transitionSet1->tail->next = transitionSet2->transitions;
+	transitionSet->tail = transitionSet2->tail;
+	return transitionSet;
+}
+
+
+StateSet *  EmptyStateSetSemanticAction(){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StateSet * stateSet = calloc(1, sizeof(StateSet));
+	return stateSet;
+}
+
+/*
+SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	SymbolSet * symbolSet = calloc(1, sizeof(SymbolSet));
+	SymbolNode * node = calloc(1, sizeof(SymbolNode));
+	node->symbol = symbol;
+	symbolSet->alphabet = node;
+	symbolSet->tail = node;
+	return symbolSet;
+}
+*/
+
+
 
 SymbolSet * EmptySymbolSetSemanticAction(){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -250,31 +275,27 @@ TransitionSet * TransitionSetSemanticAction(TransitionSet * set) {
 	transitionSet = set;
 	return transitionSet;
 }
-*/
+
 TransitionSet * SingularTransitionSetSemanticAction(Transition * transition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
 	TransitionNode * node = calloc(1, sizeof(TransitionNode));
-	node->transition = *transition;
+	node->transition = transition;
 	transitionSet->transitions = node;
 	transitionSet->tail = node;
 	return transitionSet;
 }
+*/
 
-TransitionSet * TransitionSetSemanticAction(TransitionSet * transitionSet1, TransitionSet * transitionSet2) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
-	transitionSet->transitions = transitionSet1->transitions;
-	transitionSet1->tail->next = transitionSet2->transitions;
-	transitionSet->tail = transitionSet2->tail;
-	return transitionSet;
-}
 
+
+/*
 TransitionSet * EmptyTransitionSetSemanticAction(){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
 	return transitionSet;
 }
+*/
 
 /* ------------------------------------------------- ELEMENTS ------------------------------------------------- */
 
@@ -305,31 +326,28 @@ Symbol * SymbolSemanticAction(const char * value) {
 
 // se tiene que mandar un TransitionSet donde ya parseo las transitions en individuales (estado -simbolo-> estado) lo que me sirve para en el 
 // backend hacer el manejo de operaciones con conjuntos de transiciones 
-Transition * LeftTransitionSemanticAction(StateSet * leftSet, StateSet * rightSet, SymbolSet * alphabet){
+Transition * LeftTransitionSemanticAction(StateExpression * left, StateExpression * right, SymbolExpression * alphabet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Transition * transition = calloc(1, sizeof(Transition));	
-	transition->fromSet= rightSet;
-	transition->toSet = leftSet;
-	transition->symbolSet = alphabet;
+	transition->fromExpression= right;
+	transition->toExpression= left;
+	transition->symbolExpression = alphabet;
 	return transition;
 }
 
-Transition * RightTransitionSemanticAction(StateSet *leftSet, StateSet *rightSet, SymbolSet *alphabet){
+Transition * RightTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Transition * transition = calloc(1, sizeof(Transition));
-	transition->fromSet= leftSet;
-	transition->toSet = rightSet;
-	transition->symbolSet = alphabet;
+	transition->fromExpression= left;
+	transition->toExpression= right;
+	transition->symbolExpression = alphabet;
 	return transition;	
 }
-
-Transition * BothSideTransitionSemanticAction(StateSet *leftSet, StateSet *rightSet, SymbolSet *alphabet){
+TransitionSet * BothSideTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);	
-	Transition * transition = calloc(1, sizeof(Transition));
-	transition->fromSet= leftSet;
-	transition->toSet = rightSet;
-	transition->symbolSet = alphabet;
-	return transition;
+	Transition * transitionToLeft = LeftTransitionSemanticAction(left,right,alphabet);
+	Transition * transitionToRight = RightTransitionSemanticAction(left,right,alphabet);
+	return TransitionSetSemanticAction(transitionToLeft, transitionToRight);
 }
 
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
