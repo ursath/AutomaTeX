@@ -191,17 +191,17 @@ struct Set {
 //los nodos podrían tener un union que sirva para poder incluir subconjuntos (sino siempre se ignoran y se obtiene un conjunto con elementos sueltos)
 //además con esto se evita que el primer caso de cada action de los sets sea una función void
 struct SymbolNode {
-	Symbol symbol;
+	Symbol * symbol;
 	SymbolNode * next;
 };
 
 struct StateNode {
-	State state;
+	State * state;
 	StateNode * next;
 };
 
 struct TransitionNode {
-	Transition transition;
+	Transition * transition;
 	TransitionNode * next;
 };
 

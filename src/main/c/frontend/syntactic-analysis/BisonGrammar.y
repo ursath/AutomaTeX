@@ -9,14 +9,11 @@
 %union {
 	/** Terminals. */
 
-	int integer;
+	char * value;
 	Token token;
 
 	/** Non-terminals. */
 
-	Constant * constant;
-	Expression * expression;
-	Factor * factor;
 	Program * program;
 	Symbol * symbol;
 	Transition * transition;
@@ -71,9 +68,9 @@
 %token <token> DFA
 %token <token> NFA
 %token <token> LNFA
-//%token <token> REGULAR_STATES_KEYWORD
-//%token <token> FINAL_STATES_KEYWORD
-//%token <token> INITIAL_STATES_KEYWORD
+%token <token> REGULAR_STATES_KEYWORD
+%token <token> FINAL_STATES_KEYWORD
+%token <token> INITIAL_STATES_KEYWORD
 //acá serían de tipo state (tienen un valor asociado)
 %token <token> FINAL_STATE
 %token <token> INITIAL_STATE
