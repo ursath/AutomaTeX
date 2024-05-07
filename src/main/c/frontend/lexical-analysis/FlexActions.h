@@ -27,7 +27,12 @@ void BeginInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCont
 void EndInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-/*Token DefKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);*/
+// todo s:, for every, where and is /is not*/
+//todo: implement {
+Token DefKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token MinimalKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token EmptyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+//todo: }
 Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token StatesKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
