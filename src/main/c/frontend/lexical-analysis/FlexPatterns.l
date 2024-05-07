@@ -38,8 +38,10 @@
 <INLINE_COMMENT>"\n"				{ EndInlineCommentLexemeAction(createLexicalAnalyzerContext()); BEGIN(INITIAL); }
 <INLINE_COMMENT>[^\n]+				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
-/** todo "def"                               { return DefKeywordLexemeAction(createLexicalAnalyzerContext()); }*/
-/** todo s: minimize/minimal, EMPTY, for every, where and is /is not*/
+
+"def"                               { return DefKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"minimal"                           { return MinimalKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"EMPTY"                             { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
 
 "DFA"                               { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
 "NFA"                               { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
