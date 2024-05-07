@@ -41,7 +41,7 @@ SymbolExpression * ArithmeticSymbolSetSemanticAction(SymbolSet * symbolSet);
 SymbolExpression * ArithmeticSingularSymbolSetSemanticAction(Symbol * symbol);
 StateExpression * ArithmeticStateExpressionSemanticAction(StateExpression * leftExpression, StateExpression * rightExpression, ExpressionType type);
 StateExpression * ArithmeticStateSetSemanticAction(StateSet * stateSet);
-StateExpression * ArithmeticSingularStateSetSemanticAction(State * state)
+StateExpression * ArithmeticSingularStateSetSemanticAction(State * state);
 
 /*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
 TransitionSet * TransitionSetSemanticAction(TransitionSet * transitionSet1, TransitionSet * transitionSet2);
@@ -60,9 +60,9 @@ StateSet * EmptyStateSetSemanticAction();
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
 
-Transition * LeftTransitionSemanticAction(StateSet * leftSet, StateSet * rightSet, SymbolSet * alphabet);
-Transition * RightTransitionSemanticAction(StateSet *leftSet, StateSet *rightSet, SymbolSet *alphabet);
-Transition * BothSideTransitionSemanticAction(StateSet *leftSet, StateSet *rightSet, SymbolSet *alphabet); 
+Transition * LeftTransitionSemanticAction(StateExpression * leftSet, StateExpression * rightSet, SymbolExpression * alphabet);
+Transition * RightTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet);
+Transition * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 Symbol * LambdaSemanticAction();
 Symbol * SymbolSemanticAction(const char * value);

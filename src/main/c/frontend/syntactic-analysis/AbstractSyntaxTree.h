@@ -18,6 +18,7 @@ void shutdownAbstractSyntaxTreeModule();
 typedef enum ExpressionType ExpressionType;
 typedef enum AutomataType AutomataType;
 typedef enum SetType SetType;
+typedef enum NodeType NodeType;
 
 typedef struct Expression Expression;
 typedef struct Program Program;
@@ -53,7 +54,13 @@ enum ExpressionType {
 	UNION,
 	INTERSECTION,
 	DIFFERENCE,
-	SET
+	SET,
+	ELEMENT
+};
+
+enum NodeType {
+	EXPRESSION,
+	ELEMENT
 };
 
 enum AutomataType {
@@ -191,17 +198,29 @@ struct Set {
 //los nodos podrían tener un union que sirva para poder incluir subconjuntos (sino siempre se ignoran y se obtiene un conjunto con elementos sueltos)
 //además con esto se evita que el primer caso de cada action de los sets sea una función void
 struct SymbolNode {
-	Symbol * symbol;
+	union {
+		Symbol * symbol;
+		SymbolExpression * symbolExpression;
+	};
+	NodeType type;
 	SymbolNode * next;
 };
 
 struct StateNode {
-	State * state;
+	union {
+		State * state;
+		StateExpression * stateExpression;
+	};
+	NodeType type;
 	StateNode * next;
 };
 
 struct TransitionNode {
-	Transition * transition;
+	union {
+		Transition * transition;
+		TransitionExpression * transitionExpression;
+	};
+	NodeType type;
 	TransitionNode * next;
 };
 
@@ -220,9 +239,9 @@ struct State {
 
 //consultar
 struct Transition {
-		StateSet * fromSet;
-		SymbolSet * symbolSet;
-		StateSet * toSet;
+		StateExpression * fromExpression;
+		SymbolExpression * symbolExpression;
+		StateExpression * toExpression;
 };
 
 
