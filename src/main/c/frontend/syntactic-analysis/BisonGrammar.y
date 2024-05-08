@@ -68,9 +68,9 @@
 %token <token> DFA
 %token <token> NFA
 %token <token> LNFA
-%token <token> REGULAR_STATES_KEYWORD
-%token <token> FINAL_STATES_KEYWORD
-%token <token> INITIAL_STATES_KEYWORD
+//%token <token> REGULAR_STATES_KEYWORD
+//%token <token> FINAL_STATES_KEYWORD
+//%token <token> INITIAL_STATES_KEYWORD
 //acá serían de tipo state (tienen un valor asociado)
 %token <token> FINAL_STATE
 %token <token> INITIAL_STATE
@@ -115,8 +115,7 @@
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
  */
-%left DIFFERENCE UNION
-%left MUL DIV
+%left DIFFERENCE INTERSECTION UNION
 
 %%
 
@@ -125,20 +124,14 @@ program: definition															{ $$ = ExpressionProgramSemanticAction(current
 	/* EXPRESSION */
 	;
 
-definition: automataType IDENTIFIER OPEN_BRACKET automata CLOSE_BRACKET 							{ $$ = AutomataDefinitionSemanticAction($1, $2, $4); }
-	/*| DEF name function */
-	| STATES_KEYWORD IDENTIFIER COLON OPEN_BRACE stateSet CLOSE_BRACE  								{ $$ = StateSetDefinitionSemanticAction($2, $5); }	
-	| STATES_KEYWORD IDENTIFIER COLON state															{ $$ = SingularStateSetDefinitionSemanticAction($2, $4); }
-	| ALPHABET_KEYWORD IDENTIFIER COLON OPEN_BRACE symbolSet CLOSE_BRACE 							{ $$ = SymbolSetDefinitionSemanticAction($2, $5); }
-	| ALPHABET_KEYWORD IDENTIFIER COLON symbol 														{ $$ = SingularSymbolSetDefinitionSemanticAction($2, $4); }
-	| TRANSITIONS_KEYWORD IDENTIFIER COLON OPEN_BRACE transitionSet	CLOSE_BRACE						{ $$ = TransitionSetDefinitionSemanticAction($2, $5); }
-	| TRANSITIONS_KEYWORD IDENTIFIER COLON transition												{ $$ = SingularTransitionSetDefinitionSemanticAction($2, $4); }
-	/*
-	| STATES_KEYWORD IDENTIFIER COLON stateExpression															{ $$ = StateExpressionDefinitionSemanticAction($2, $5); }
-	| ALPHABET_KEYWORD IDENTIFIER COLON symbolExpression 														{ $$ = SymbolExpressionDefinitionSemanticAction($2, $5); }
-	| TRANSITIONS_KEYWORD IDENTIFIER COLON transitionExpression													{ $$ = TransitionExpressionDefinitionSemanticAction($2, $5); }
-	*/
-	| TRANSITIONS_KEYWORD IDENTIFIER COLON EMPTY													{ $$ = TransitionSetDefinitionSemanticAction($2, EmptyStateSetSemanticAction()); }
+definition: automataType[type] IDENTIFIER[identifier] OPEN_BRACKET automata[element] CLOSE_BRACKET 							{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
+	/*| DEF name function*/
+	| STATES_KEYWORD IDENTIFIER[identifier] COLON OPEN_BRACE stateSet[set] CLOSE_BRACE  										{ $$ = StateSetDefinitionSemanticAction($identifier, $set); }	
+	| STATES_KEYWORD IDENTIFIER[identifier] COLON state[element]																{ $$ = SingularStateSetDefinitionSemanticAction($identifier, $element); }
+	| ALPHABET_KEYWORD IDENTIFIER[identifier] COLON OPEN_BRACE symbolSet[set] CLOSE_BRACE 										{ $$ = SymbolSetDefinitionSemanticAction($identifier, $set); }
+	| ALPHABET_KEYWORD IDENTIFIER[identifier] COLON symbol[element] 															{ $$ = SingularSymbolSetDefinitionSemanticAction($identifier, $element); }
+	| TRANSITIONS_KEYWORD IDENTIFIER[identifier] COLON OPEN_BRACE transitionSet[set] CLOSE_BRACE								{ $$ = TransitionSetDefinitionSemanticAction($identifier, $set); }
+	| TRANSITIONS_KEYWORD IDENTIFIER[identifier] COLON transition[element]														{ $$ = SingularTransitionSetDefinitionSemanticAction($identifier, $element); }
 	;
 	
 automata: STATES_KEYWORD COLON stateExpression[states] COMMA ALPHABET_KEYWORD COLON symbolExpression[symbols] COMMA TRANSITIONS_KEYWORD COLON transitionExpression[transitions]						{ $$ = AutomataSemanticAction($states, $symbols, $transitions); }
@@ -153,32 +146,34 @@ automataType: DFA													{ $$ = AutomataTypeAction($1) }
 transitionExpression: OPEN_PARENTHESIS transitionExpression[left] UNION transitionExpression[right] CLOSE_PARENTHESIS			{ $$ = ArithmeticTransitionExpressionSemanticAction($left, $right, UNION); }
 	| OPEN_PARENTHESIS transitionExpression[left] DIFFERENCE transitionExpression[right] CLOSE_PARENTHESIS						{ $$ = ArithmeticTransitionExpressionSemanticAction($left, $right, DIFFERENCE); }
 	| OPEN_PARENTHESIS transitionExpression[left] INTERSECTION transitionExpression[right] CLOSE_PARENTHESIS					{ $$ = ArithmeticTransitionExpressionSemanticAction($left, $right, INTERSECTION); }																												
-	| OPEN_BRACE transitionSet CLOSE_BRACE																						{ $$ = ArithmeticTransitionSetSemanticAction($2); }
-	| transition																												{ $$ = ArithmeticSingularTransitionSetSemanticAction($1); }
-	/*| EMPTY							{ $$ = ArithmeticTransitionSetSemanticAction(EmptyTransitionSetSemanticAction()) ;}	*/
+	| OPEN_BRACE transitionSet CLOSE_BRACE																						{ $$ = ArithmeticSetTransitionExpressionSemanticAction($2); }
+	| transition 																												{ $$ = ArithmeticSingularTransitionExpressionSemanticAction($1); }	
+/*	| EMPTY 		{ $$ = ArithmeticEmptySetTransitionExpressionSemanticAction() ;}*/
 	;
 
 stateExpression: OPEN_PARENTHESIS stateExpression[left] UNION stateExpression[right] CLOSE_PARENTHESIS							{ $$ = ArithmeticStateExpressionSemanticAction($left, $right, UNION); }
 	| OPEN_PARENTHESIS stateExpression[left] DIFFERENCE stateExpression[right] CLOSE_PARENTHESIS								{ $$ = ArithmeticStateExpressionSemanticAction($left, $right, DIFFERENCE); }
 	| OPEN_PARENTHESIS stateExpression[left] INTERSECTION stateExpression[right] CLOSE_PARENTHESIS								{ $$ = ArithmeticStateExpressionSemanticAction($left, $right, INTERSECTION); }
-	| OPEN_BRACE stateSet CLOSE_BRACE																							{ $$ = ArithmeticStateSetSemanticAction($2); }
-	| state																														{ $$ = ArithmeticSingularStateSetSemanticAction($1); }	
-	| EMPTY 																													{ $$ = ArithmeticStateSetSemanticAction(EmptyStateSetSemanticAction()) ;}	
+	| OPEN_BRACE stateSet CLOSE_BRACE																							{ $$ = ArithmeticSetStateExpressionSemanticAction($2); }
+	| state																														{ $$ = ArithmeticSingularStateExpressionSemanticAction($1); }	
+	| EMPTY
+		{ $$ = ArithmeticEmptySetStateExpressionSemanticAction() ;}	
 	;
 
 symbolExpression: OPEN_PARENTHESIS symbolExpression[left] UNION symbolExpression[right] CLOSE_PARENTHESIS						{ $$ = ArithmeticSymbolExpressionSemanticAction($left, $right, UNION); }
 	| OPEN_PARENTHESIS symbolExpression[left] DIFFERENCE symbolExpression[right] CLOSE_PARENTHESIS								{ $$ = ArithmeticSymbolExpressionSemanticAction($left, $right, DIFFERENCE); }
 	| OPEN_PARENTHESIS symbolExpression[left] INTERSECTION symbolExpression[right] CLOSE_PARENTHESIS							{ $$ = ArithmeticSymbolExpressionSemanticAction($left, $right, INTERSECTION); }
-	| OPEN_BRACE symbolSet CLOSE_BRACE																							{ $$ = ArithmeticSymbolSetSemanticAction($2); }
-	| symbol																													{ $$ = ArithmeticSingularSymbolSetSemanticAction($1); }
-	| EMPTY 																							 						{ $$ = ArithmeticSymbolSetSemanticAction(EmptySymbolSetSemanticAction()) ;}	
+	| OPEN_BRACE symbolSet CLOSE_BRACE																							{ $$ = ArithmeticSetSymbolExpressionSemanticAction($2); }
+	| symbol																													{ $$ = ArithmeticSingularSymbolExpressionSemanticAction($1); }
+	| EMPTY
+		{ $$ = ArithmeticEmptySetSymbolExpressionSemanticAction() ;}	
 	;
 
 
 stateSet: /*OPEN_BRACE stateSet CLOSE_BRACE 							{ $$ = $2 }*/
-	stateExpression[left] COMMA stateExpression[right]				{ $$ = StateSetsSemanticAction($left, $right); }
-	| stateExpression												{ $$ = ArithmeticStateSetSemanticAction($1) }
-/*	| state 														{ $$ = StateExpressionSetSemanticAction($1) }
+	stateExpression[left] COMMA stateExpression[right]						{ $$ = StateExpressionsSemanticAction($left, $right); }
+	| stateExpression															{ $$ = SingularExpressionStateSetSemanticAction($1) }
+/*	| state 														{ $$ = SingularStateSetSemanticAction($1) }
 	| EMPTY															{ $$ = EmptyStateSetSemanticAction();}	*/
 	;
 
@@ -190,28 +185,27 @@ state: SYMBOL														{ $$ = StateSemanticAction(false, false, $1) }
 	;
 
 transitionSet: /*OPEN_BRACE transitionSet CLOSE_BRACE 				{ $$ = $2; }*/
-	transitionExpression[left] COMMA transitionExpression[right]				{ $$ = TransitionSetsSemanticAction($left, $right); }	
-	| transitionExpression											{ $$ = ArithmeticTransitionSetSemanticAction($1); }
-	| stateExpression[left] END_LEFT_TRANSITION symbolExpression[middle] END_RIGHT_TRANSITION stateExpression[right]				{ $$ = BothSideTransitionSemanticAction($left, $right, $middle); }
+	transitionExpression[left] COMMA transitionExpression[right]				{ $$ = TransitionExpressionsSemanticAction($left, $right); }	
+	| transitionExpression														{ $$ = SingularExpressionTransitionSetSemanticAction($1); }
 /*	| transition													{ $$ = SingularTransitionSetSemanticAction($1); }
 	| EMPTY															{ $$ = EmptyTransitionSetSemanticAction(); } */
 	;
 
+//lo pasaría a Transition Expression directamente porque con esto devolverían un set (aunque tenga un solo elemento) adentro de una expression (porque no devolvería una transition necesariamente y es preferible que sea uniforme lo que devuelva)
 transition: stateExpression[left] END_LEFT_TRANSITION symbolExpression[middle] BEGIN_LEFT_TRANSITION stateExpression[right]		{ $$ = LeftTransitionSemanticAction($left, $right, $middle); }
 	| stateExpression[left] BEGIN_RIGHT_TRANSITION symbolExpression[middle] END_RIGHT_TRANSITION stateExpression[right]			{ $$ = RightTransitionSemanticAction($left, $right, $middle); }
-	/* | stateExpression[left] END_LEFT_TRANSITION symbolExpression[middle] END_RIGHT_TRANSITION stateExpression[right]				{ $$ = BothSideTransitionSemanticAction($left, $right, $middle); } */
+	| stateExpression[left] END_LEFT_TRANSITION symbolExpression[middle] END_RIGHT_TRANSITION stateExpression[right]				{ $$ = BothSideTransitionSemanticAction($left, $right, $middle); }
 	;
-// <- -|
-// <- ->
-symbolSet: /*OPEN_BRACE symbolSet OPEN_BRACE							{ $$ = $2; } */
-	symbolExpression[left] COMMA symbolExpression[right]						{ $$ = SymbolSetsSemanticAction($left, $right); }
-	| symbolExpression												{ $$ = ArithmeticSymbolSetSemanticAction($1); }
+
+symbolSet: /*OPEN_BRACE symbolSet OPEN_BRACE							{ $$ = $2; }*/
+	symbolExpression[left] COMMA symbolExpression[right]						{ $$ = SymbolExpressionsSemanticAction($left, $right); }
+	| symbolExpression												{ $$ = SingularExpressionSymbolSetSemanticAction($1); }
 /*	| symbol 														{ $$ = SingularSymbolSetSemanticAction($1); }
 	| EMPTY															{ $$ = EmptySymbolSetSemanticAction(); } */
 	;
 
 symbol: SYMBOL 														{ $$ = SymbolSemanticAction($1); }
-	| LAMBDA 														{ $$ = LambdaSemanticAction(); }
+	| LAMBDA 														{ $$ = LambdaSemanticAction($1); }
 	;
 
 %%

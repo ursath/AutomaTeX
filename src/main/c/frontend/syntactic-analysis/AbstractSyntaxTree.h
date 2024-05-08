@@ -55,7 +55,7 @@ enum ExpressionType {
 	INTERSECTION,
 	DIFFERENCE,
 	SET,
-	ELEMENT
+	VOID
 };
 
 enum NodeType {
@@ -87,11 +87,11 @@ struct Definition
 
 struct Automata {
 	char * identifier;
-	StateSet * states;
-	StateSet * finals;
-	StateSet * initials;
-	SymbolSet * alphabet;
-	TransitionSet * transitions; 
+	StateExpression* states;
+	StateExpression* finals;
+	StateExpression* initials;
+	SymbolExpression* alphabet;
+	TransitionExpression* transitions; 
 	AutomataType automataType;
 };
 
@@ -155,13 +155,13 @@ struct Set {
 };
 
 struct SymbolSet {
-	SymbolNode * alphabet;				// ! TODO: no conviene poner first? así queda + claro qué es
+	SymbolNode * first;				// ! TODO: no conviene poner first? así queda + claro qué es
 	SymbolNode * tail;
 	char * identifier;
 };
 
 struct StateSet {
-	 StateNode * states;				// ! TODO: no conviene poner first? así queda + claro qué es
+	 StateNode * first;				// ! TODO: no conviene poner first? así queda + claro qué es
 	 StateNode * tail;
 	 char * identifier;
 	/* 
@@ -173,7 +173,7 @@ struct StateSet {
 };
 
 struct TransitionSet {
-	TransitionNode * transitions;		// ! TODO: no conviene poner first? así queda + claro qué es
+	TransitionNode * first;		// ! TODO: no conviene poner first? así queda + claro qué es
 	TransitionNode * tail;
 	char * identifier;
 };
