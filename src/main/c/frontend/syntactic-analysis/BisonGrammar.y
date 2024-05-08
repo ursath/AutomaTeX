@@ -27,6 +27,8 @@
 	StateExpression * stateExpression;
 	SymbolExpression * symbolExpression;
 	AutomataType * automataType;
+	DefinitionSet * definitionSet;
+	StateType stateType;
 }
 
 /**
@@ -68,14 +70,16 @@
 %token <token> DFA
 %token <token> NFA
 %token <token> LNFA
-//%token <token> REGULAR_STATES_KEYWORD
-//%token <token> FINAL_STATES_KEYWORD
-//%token <token> INITIAL_STATES_KEYWORD
+%token <token> REGULAR_STATES_KEYWORD
+%token <token> FINAL_STATES_KEYWORD
+%token <token> INITIAL_STATES_KEYWORD
 //acá serían de tipo state (tienen un valor asociado)
 %token <token> FINAL_STATE
 %token <token> INITIAL_STATE
 //identifier tendría un string
 %token <token> IDENTIFIER
+%token <token> NEW_LINE
+%token <token> PERIOD
 
 /*faltarían agregar a flex también
 %token <token> AND
@@ -106,6 +110,8 @@
 %type <automata> automata
 %type <definition> definition
 %type <automataType> automataType
+%type <definitionSet> definitionSet
+%type <stateType> stateType
 //revisar
 //%type <function> function
 //%type <forLoop> forLoop
@@ -120,11 +126,15 @@
 %%
 
  
-program: definition															{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
+program: definitionSet																		{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
 	/* EXPRESSION */
 	;
 
-definition: automataType[type] IDENTIFIER[identifier] OPEN_BRACKET automata[element] CLOSE_BRACKET 							{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
+definitionSet: definition[left] NEW_LINE definitionSet[right]								{ $$ = DefinitionSetSemanticAction($left, $right); }
+	| definition																			{ $$ = SingularDefinitionSetSemanticAction($1); }
+	;
+
+definition: automataType[type] IDENTIFIER[identifier] OPEN_BRACKET automata[element] CLOSE_BRACKET 								{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
 	/*| DEF name function*/
 	| STATES_KEYWORD IDENTIFIER[identifier] COLON OPEN_BRACE stateSet[set] CLOSE_BRACE  										{ $$ = StateSetDefinitionSemanticAction($identifier, $set); }	
 	| STATES_KEYWORD IDENTIFIER[identifier] COLON state[element]																{ $$ = SingularStateSetDefinitionSemanticAction($identifier, $element); }
@@ -137,9 +147,9 @@ definition: automataType[type] IDENTIFIER[identifier] OPEN_BRACKET automata[elem
 automata: STATES_KEYWORD COLON stateExpression[states] COMMA ALPHABET_KEYWORD COLON symbolExpression[symbols] COMMA TRANSITIONS_KEYWORD COLON transitionExpression[transitions]						{ $$ = AutomataSemanticAction($states, $symbols, $transitions); }
 	;
 
-automataType: DFA													{ $$ = AutomataTypeAction($1) }
-	| NFA															{ $$ = AutomataTypeAction($1) }
-	| LNFA															{ $$ = AutomataTypeAction($1) }
+automataType: DFA													{ $$ = $1; }
+	| NFA															{ $$ = $1; }
+	| LNFA															{ $$ = $1; }
 	;
 /* function:  OPEN_BRACKET block CLOSE_BRACKET; */				
 
@@ -155,6 +165,7 @@ stateExpression: OPEN_PARENTHESIS stateExpression[left] UNION stateExpression[ri
 	| OPEN_PARENTHESIS stateExpression[left] DIFFERENCE stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE); }
 	| OPEN_PARENTHESIS stateExpression[left] INTERSECTION stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION); }
 	| OPEN_BRACE stateSet CLOSE_BRACE																							{ $$ = SetStateExpressionSemanticAction($2); }
+	| IDENTIFIER[identifier] PERIOD stateType[typeSet]																			{ $$ = StateTypeSetSemanticAction($identifier, $typeSet); }	
 	| state																														{ $$ = SingularStateExpressionSemanticAction($1); }	
 	| EMPTY
 		{ $$ = EmptySetStateExpressionSemanticAction() ;}	
@@ -182,6 +193,11 @@ state: SYMBOL														{ $$ = StateSemanticAction(false, false, $1) }
 	| INITIAL_STATE	SYMBOL											{ $$ = StateSemanticAction(true, false, $2) }
 	| INITIAL_STATE FINAL_STATE SYMBOL								{ $$ = StateSemanticAction(true, true, $3) }
 	| FINAL_STATE INITIAL_STATE SYMBOL								{ $$ = StateSemanticAction(true, true, $3) }
+	;
+
+stateType: REGULAR_STATES_KEYWORD[regularStates]								{ $$ = stateTypeSemanticAction($regularStates); }
+	| INITIAL_STATES_KEYWORD[initialStates]										{ $$ = stateTypeSemanticAction($initialStates);}
+	| FINAL_STATES_KEYWORD[finalStates]											{ $$ = stateTypeSemanticAction($finalStates);}
 	;
 
 transitionSet: /*OPEN_BRACE transitionSet CLOSE_BRACE 				{ $$ = $2; }*/

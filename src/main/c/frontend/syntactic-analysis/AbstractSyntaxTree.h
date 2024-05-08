@@ -15,6 +15,7 @@ void shutdownAbstractSyntaxTreeModule();
  * This typedefs allows self-referencing types.
  */
 
+typedef enum DefinitionType DefinitionType;
 typedef enum ExpressionType ExpressionType;
 typedef enum AutomataType AutomataType;
 typedef enum SetType SetType;
@@ -37,12 +38,20 @@ typedef struct TransitionNode TransitionNode;
 typedef struct TransitionExpression TransitionExpression;
 typedef struct SymbolExpression SymbolExpression;
 typedef struct StateExpression StateExpression;
+typedef struct DefinitionSet DefinitionSet;
+typedef struct DefinitionNode DefinitionNode;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
  */
 
 /* ------------------------------------------------- ENUMS ------------------------------------------------- */
+enum DefinitionType {
+	AUTOMATA,
+	TRANSITION,
+	ALPHABET,
+	STATE
+};
 
 enum SetType {
 	TRANSITION,
@@ -69,6 +78,23 @@ enum AutomataType {
 	LNFA
 };
 
+enum StateType {
+	FINAL,
+	INITIAL,
+	REGULAR
+};
+
+/* ----------------------------------------------- DEFINITION SET ----------------------------------------------- */
+
+struct DefinitionSet {
+	DefinitionNode * first;
+	DefinitionNode * tail;
+};
+
+struct DefinitionNode {
+	Definition * definition;
+	DefinitionNode * next;
+};
 
 /* ------------------------------------------------- DEFINITION ------------------------------------------------- */
 
@@ -80,6 +106,7 @@ struct Definition
 		SymbolSet * symbolSet;
 		TransitionSet * transitionSet;
 	};
+	DefinitionType type; 
 };
 
 
@@ -248,7 +275,7 @@ struct Transition {
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
 struct Program {
-	Definition * definition;
+	DefinitionSet * definitionSet;
 };
 
 

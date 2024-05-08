@@ -61,10 +61,62 @@ void releaseFactor(Factor * factor) {
 	}
 }
 
+
+
+
+void releaseDefinition(Definition * definition) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (definition != NULL) {
+		switch (definition->type)
+		{
+		case /* constant-expression */:
+			/* code */
+			break;
+		
+		default:
+			break;
+		}
+		while ( currentDefinition != NULL ){
+			releaseDefinition(currentDefinition);
+			currentDefinition = currentDefinition->next;
+		}
+		
+		free(definitionNode);
+	}
+}
+
+void releaseDefinitionNode(DefinitionNode * definitionNode) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (definitionNode != NULL) {
+		Definition currentDefinition = definition->definition;
+		while ( currentDefinition != NULL ){
+			releaseDefinition(currentDefinition);
+			currentDefinition = currentDefinition->next;
+		}
+		
+		free(definitionNode);
+	}
+}
+
+void releaseDefinitionSet(DefinitionSet * definitionSet) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (definitionSet != NULL) {
+		DefinitionNode currentDefinitionNode = definitionSet->first;
+		while ( currentDefinitionNode != definitionSet->tail ){
+			releaseDefinitionNode(currentDefinitionNode);
+		}
+		if ( definitionSet->tail != NULL )
+			releaseDefinitionNode(currentDefinitionNode);
+
+		free(definitionSet);
+	}
+}
+
+
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
-		releaseExpression(program->expression);
+		releaseDefinitionSet(program->definitionSet);
 		free(program);
 	}
 }

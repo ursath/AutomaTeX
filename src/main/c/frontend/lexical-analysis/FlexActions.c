@@ -124,6 +124,11 @@ Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	lexicalAnalyzerContext->semanticValue->token = COMMA;
 	return lexicalAnalyzerContext->semanticValue->token;	
 }
+Token PeriodLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext){
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = PERIOD;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
 
 Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
@@ -183,7 +188,7 @@ Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerConte
 	switch(lexicalAnalyzerContext->lexeme[0]){
 		case 'regular': token = REGULAR_STATES_KEYWORD; break;
 		case 'final': token = FINAL_STATES_KEYWORD; break;
-		case 'initial': token = INITIAL_STATE_KEYWORD; break;
+		case 'initial': token = INITIAL_STATES_KEYWORD; break;
 	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
@@ -200,7 +205,7 @@ Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	switch(lexicalAnalyzerContext->lexeme[0]){
 		case '*': token = FINAL_STATE; break;
 		case '>': token = INITIAL_STATE; break;
-		default: token = REGULAR_STATE; break;
+		default: token = SYMBOL; break;
 	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
@@ -216,6 +221,25 @@ Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	lexicalAnalyzerContext->semanticValue->token = SET_IDENTIFIER;
+	lexicalAnalyzerContext->semanticValue->token = IDENTIFIER;
+	lexicalAnalyzerContext->semanticValue->value = lexicalAnalyzerContext->lexeme[0];
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+Token NewLineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = NEW_LINE;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+Token PeriodLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext){
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = PERIOD;
+	return lexicalAnalyzerContext->semanticValue->token;
+}
+
+Token EmptyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext){
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = EMPTY;
 	return lexicalAnalyzerContext->semanticValue->token;
 }

@@ -52,6 +52,7 @@ SymbolSet * SingularExpressionSymbolSetSemanticAction(SymbolExpression * symbolS
 TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * transitionSet);
 SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
 StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet);
+StateExpression * StateTypeSetSemanticAction(char * identifier, Token type);
 
 TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * transitionSet);
 StateExpression * SingularStateExpressionSemanticAction(State * stateSet);
@@ -64,6 +65,7 @@ SymbolExpression * EmptySetSymbolExpressionSemanticAction();
 /*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
 TransitionSet * TransitionExpressionsSemanticAction(TransitionExpression* transitionSet1, TransitionExpression* transitionSet2);
 TransitionSet * SingularTransitionSetSemanticAction(Transition * transition);
+TransitionSet * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 /*SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet); */
 SymbolSet * SymbolExpressionsSemanticAction(SymbolExpression* symbolSet1, SymbolExpression* symbolSet2);
@@ -74,14 +76,14 @@ StateSet * StateExpressionsSemanticAction(StateExpression* stateSet1, StateExpre
 StateSet * SingularStateSetSemanticAction(State * state);
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
+StateType stateTypeSemanticAction(Token * token);
 
 Transition * LeftTransitionSemanticAction(StateExpression * leftSet, StateExpression * rightSet, SymbolExpression * alphabet);
 Transition * RightTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet);
-Transition * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 Symbol * LambdaSemanticAction();
 Symbol * SymbolSemanticAction(const char * value);
 
 // TODO: PASAR SET DE DEFINITIONS 
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Definition * definition);
+Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet);
 #endif

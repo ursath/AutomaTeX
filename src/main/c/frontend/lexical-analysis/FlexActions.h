@@ -31,7 +31,6 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 //todo: implement {
 Token DefKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token MinimalKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
-Token EmptyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 //todo: }
 Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
@@ -48,6 +47,7 @@ Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token PeriodLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
@@ -58,7 +58,9 @@ Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
+Token EmptyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token NewLineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
-
-
 #endif
