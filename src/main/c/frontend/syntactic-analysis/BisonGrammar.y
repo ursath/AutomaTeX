@@ -143,30 +143,30 @@ automataType: DFA													{ $$ = AutomataTypeAction($1) }
 	;
 /* function:  OPEN_BRACKET block CLOSE_BRACKET; */				
 
-transitionExpression: OPEN_PARENTHESIS transitionExpression[left] UNION transitionExpression[right] CLOSE_PARENTHESIS			{ $$ = ArithmeticTransitionExpressionSemanticAction($left, $right, UNION); }
-	| OPEN_PARENTHESIS transitionExpression[left] DIFFERENCE transitionExpression[right] CLOSE_PARENTHESIS						{ $$ = ArithmeticTransitionExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| OPEN_PARENTHESIS transitionExpression[left] INTERSECTION transitionExpression[right] CLOSE_PARENTHESIS					{ $$ = ArithmeticTransitionExpressionSemanticAction($left, $right, INTERSECTION); }																												
-	| OPEN_BRACE transitionSet CLOSE_BRACE																						{ $$ = ArithmeticSetTransitionExpressionSemanticAction($2); }
-	| transition 																												{ $$ = ArithmeticSingularTransitionExpressionSemanticAction($1); }	
-/*	| EMPTY 		{ $$ = ArithmeticEmptySetTransitionExpressionSemanticAction() ;}*/
+transitionExpression: OPEN_PARENTHESIS transitionExpression[left] UNION transitionExpression[right] CLOSE_PARENTHESIS			{ $$ = TransitionExpressionSemanticAction($left, $right, UNION); }
+	| OPEN_PARENTHESIS transitionExpression[left] DIFFERENCE transitionExpression[right] CLOSE_PARENTHESIS						{ $$ = TransitionExpressionSemanticAction($left, $right, DIFFERENCE); }
+	| OPEN_PARENTHESIS transitionExpression[left] INTERSECTION transitionExpression[right] CLOSE_PARENTHESIS					{ $$ = TransitionExpressionSemanticAction($left, $right, INTERSECTION); }																												
+	| OPEN_BRACE transitionSet CLOSE_BRACE																						{ $$ = SetTransitionExpressionSemanticAction($2); }
+	| transition 																												{ $$ = SingularTransitionExpressionSemanticAction($1); }	
+/*	| EMPTY 		{ $$ = EmptySetTransitionExpressionSemanticAction() ;}*/
 	;
 
-stateExpression: OPEN_PARENTHESIS stateExpression[left] UNION stateExpression[right] CLOSE_PARENTHESIS							{ $$ = ArithmeticStateExpressionSemanticAction($left, $right, UNION); }
-	| OPEN_PARENTHESIS stateExpression[left] DIFFERENCE stateExpression[right] CLOSE_PARENTHESIS								{ $$ = ArithmeticStateExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| OPEN_PARENTHESIS stateExpression[left] INTERSECTION stateExpression[right] CLOSE_PARENTHESIS								{ $$ = ArithmeticStateExpressionSemanticAction($left, $right, INTERSECTION); }
-	| OPEN_BRACE stateSet CLOSE_BRACE																							{ $$ = ArithmeticSetStateExpressionSemanticAction($2); }
-	| state																														{ $$ = ArithmeticSingularStateExpressionSemanticAction($1); }	
+stateExpression: OPEN_PARENTHESIS stateExpression[left] UNION stateExpression[right] CLOSE_PARENTHESIS							{ $$ = StateExpressionSemanticAction($left, $right, UNION); }
+	| OPEN_PARENTHESIS stateExpression[left] DIFFERENCE stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE); }
+	| OPEN_PARENTHESIS stateExpression[left] INTERSECTION stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION); }
+	| OPEN_BRACE stateSet CLOSE_BRACE																							{ $$ = SetStateExpressionSemanticAction($2); }
+	| state																														{ $$ = SingularStateExpressionSemanticAction($1); }	
 	| EMPTY
-		{ $$ = ArithmeticEmptySetStateExpressionSemanticAction() ;}	
+		{ $$ = EmptySetStateExpressionSemanticAction() ;}	
 	;
 
-symbolExpression: OPEN_PARENTHESIS symbolExpression[left] UNION symbolExpression[right] CLOSE_PARENTHESIS						{ $$ = ArithmeticSymbolExpressionSemanticAction($left, $right, UNION); }
-	| OPEN_PARENTHESIS symbolExpression[left] DIFFERENCE symbolExpression[right] CLOSE_PARENTHESIS								{ $$ = ArithmeticSymbolExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| OPEN_PARENTHESIS symbolExpression[left] INTERSECTION symbolExpression[right] CLOSE_PARENTHESIS							{ $$ = ArithmeticSymbolExpressionSemanticAction($left, $right, INTERSECTION); }
-	| OPEN_BRACE symbolSet CLOSE_BRACE																							{ $$ = ArithmeticSetSymbolExpressionSemanticAction($2); }
-	| symbol																													{ $$ = ArithmeticSingularSymbolExpressionSemanticAction($1); }
+symbolExpression: OPEN_PARENTHESIS symbolExpression[left] UNION symbolExpression[right] CLOSE_PARENTHESIS						{ $$ = SymbolExpressionSemanticAction($left, $right, UNION); }
+	| OPEN_PARENTHESIS symbolExpression[left] DIFFERENCE symbolExpression[right] CLOSE_PARENTHESIS								{ $$ = SymbolExpressionSemanticAction($left, $right, DIFFERENCE); }
+	| OPEN_PARENTHESIS symbolExpression[left] INTERSECTION symbolExpression[right] CLOSE_PARENTHESIS							{ $$ = SymbolExpressionSemanticAction($left, $right, INTERSECTION); }
+	| OPEN_BRACE symbolSet CLOSE_BRACE																							{ $$ = SetSymbolExpressionSemanticAction($2); }
+	| symbol																													{ $$ = SingularSymbolExpressionSemanticAction($1); }
 	| EMPTY
-		{ $$ = ArithmeticEmptySetSymbolExpressionSemanticAction() ;}	
+		{ $$ = EmptySetSymbolExpressionSemanticAction() ;}	
 	;
 
 
