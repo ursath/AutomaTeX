@@ -108,7 +108,7 @@ AutomataType AutomataTypeAction(AutomataType type) {
 
 /*---------------------------EXPRESIONES QUE REPRESENTAN UNA OPERACIÓN ENTRE CONJUNTOS-------------*/
 
-TransitionExpression * ArithmeticTransitionExpressionSemanticAction(TransitionExpression * leftExpression, TransitionExpression * rightExpression, ExpressionType type) {
+TransitionExpression * TransitionExpressionSemanticAction(TransitionExpression * leftExpression, TransitionExpression * rightExpression, ExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
 	expression->leftExpression = leftExpression;
@@ -117,7 +117,7 @@ TransitionExpression * ArithmeticTransitionExpressionSemanticAction(TransitionEx
 	return expression;
 }
 
-StateExpression * ArithmeticStateExpressionSemanticAction(StateExpression * leftExpression, StateExpression * rightExpression, ExpressionType type) {
+StateExpression * StateExpressionSemanticAction(StateExpression * leftExpression, StateExpression * rightExpression, ExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateExpression * expression = calloc(1, sizeof(StateExpression));
 	expression->leftExpression = leftExpression;
@@ -126,7 +126,7 @@ StateExpression * ArithmeticStateExpressionSemanticAction(StateExpression * left
 	return expression;
 }
 
-SymbolExpression * ArithmeticSymbolExpressionSemanticAction(SymbolExpression * leftExpression, SymbolExpression * rightExpression, ExpressionType type) {
+SymbolExpression * SymbolExpressionSemanticAction(SymbolExpression * leftExpression, SymbolExpression * rightExpression, ExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	expression->leftExpression = leftExpression;
@@ -137,7 +137,7 @@ SymbolExpression * ArithmeticSymbolExpressionSemanticAction(SymbolExpression * l
 
 /*----------------EXPRESIONES QUE REPRESENTAN UN SUBCONJUNTO DE ELEMENTOS ------------------*/
 //conjunto de transiciones per se (al menos es un subconjunto)
-TransitionExpression * ArithmeticSetTransitionExpressionSemanticAction(TransitionSet * transitionSet){
+TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * transitionSet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
 	expression->transitionSet = transitionSet;
@@ -146,7 +146,7 @@ TransitionExpression * ArithmeticSetTransitionExpressionSemanticAction(Transitio
 }
 
 //conjunto de símbolos per se (al menos es un subconjunto)
-SymbolExpression * ArithmeticSetSymbolExpressionSemanticAction(SymbolSet * symbolSet){
+SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	expression->symbolSet= symbolSet;
@@ -155,7 +155,7 @@ SymbolExpression * ArithmeticSetSymbolExpressionSemanticAction(SymbolSet * symbo
 }
 
 //conjuto de estados per se (al menos es un subconjunto)
-StateExpression * ArithmeticSetStateExpressionSemanticAction(StateSet * stateSet){
+StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateExpression * expression = calloc(1, sizeof(StateExpression));
 	expression->stateSet = stateSet;
@@ -166,7 +166,7 @@ StateExpression * ArithmeticSetStateExpressionSemanticAction(StateSet * stateSet
 /*---------------------------EXPRESIONES QUE REPRESENTAN UN ELEMENTO SUELTO --------------------*/
 
 //transition suelta en la expresión (se maneja como un conjunto de transiciones con solo un elemento)
-TransitionExpression * ArithmeticSingularTransitionExpressionSemanticAction(Transition * transition){
+TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * transition){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
 	TransitionSet * transitionSet = SingularTransitionSetSemanticAction(transition);
@@ -177,7 +177,7 @@ TransitionExpression * ArithmeticSingularTransitionExpressionSemanticAction(Tran
 }
 
 //estado suelto en la expresión (se maneja como un conjunto de estados con solo un elemento)
-StateExpression * ArithmeticSingularStateExpressionSemanticAction(State * state){
+StateExpression * SingularStateExpressionSemanticAction(State * state){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateExpression * expression = calloc(1, sizeof(StateExpression));
 	expression->stateSet = SingularStateSetSemanticAction(state);
@@ -186,7 +186,7 @@ StateExpression * ArithmeticSingularStateExpressionSemanticAction(State * state)
 }
 
 //símbolo suelto en la expresión (se maneja como un conjunto de símbolos con solo un elemento)
-SymbolExpression * ArithmeticSingularSymbolExpressionSemanticAction(Symbol * symbol){
+SymbolExpression * SingularSymbolExpressionSemanticAction(Symbol * symbol){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	expression->symbolSet = SingularSymbolSetSemanticAction(symbol);
@@ -196,7 +196,7 @@ SymbolExpression * ArithmeticSingularSymbolExpressionSemanticAction(Symbol * sym
 
 /*----------------- EXPRESIONES QUE REPRESENTAN EL CONJUNTO VACIO -------------------*/
 //conjunto vacio que espera ser una expresión de transiciones 
-TransitionExpression * ArithmeticEmptySetTransitionExpressionSemanticAction(){
+TransitionExpression * EmptySetTransitionExpressionSemanticAction(){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
 	TransitionSet* emptySet = calloc(1, sizeof(TransitionSet));	
@@ -206,7 +206,7 @@ TransitionExpression * ArithmeticEmptySetTransitionExpressionSemanticAction(){
 }
 
 //conjunto vacio que espera ser una expresión de estados
-StateExpression * ArithmeticEmptySetStateExpressionSemanticAction(){
+StateExpression * EmptySetStateExpressionSemanticAction(){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateExpression * expression = calloc(1, sizeof(StateExpression));
 	StateSet * emptySet = calloc(1, sizeof(StateSet));
@@ -216,7 +216,7 @@ StateExpression * ArithmeticEmptySetStateExpressionSemanticAction(){
 }
 
 //conjunto vacio que espera ser una expresión de símbolos
-SymbolExpression * ArithmeticEmptySetSymbolExpressionSemanticAction(){
+SymbolExpression * EmptySetSymbolExpressionSemanticAction(){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	SymbolSet * emptySet = calloc(1, sizeof(SymbolSet));
