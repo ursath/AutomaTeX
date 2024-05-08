@@ -30,33 +30,48 @@ Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * se
 Definition * SingularStateSetDefinitionSemanticAction(char * identifier, State* state);
 Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set);
 
-Automata * AutomataSemanticAction(StateSet * states, SymbolSet * alphabet, TransitionSet * transitions);
+Automata * AutomataSemanticAction(StateExpression* states, SymbolExpression* alphabet, TransitionExpression* transitions);
 AutomataType AutomataTypeAction(AutomataType type);
 
 TransitionExpression * ArithmeticTransitionExpressionSemanticAction(TransitionExpression * leftExpression, TransitionExpression * rightExpression, ExpressionType type);
-TransitionExpression * ArithmeticTransitionSetSemanticAction(TransitionSet * transitionSet);
-TransitionExpression * ArithmeticSingularSymbolSetSemanticAction(Transition * transition);
+TransitionExpression * ArithmeticSetTransitionExpressionSemanticAction(TransitionSet * transitionSet);
+TransitionExpression * ArithmeticSingularTransitionExpressionSemanticAction(Transition * transition);
+
 SymbolExpression * ArithmeticSymbolExpressionSemanticAction(SymbolExpression * leftExpression, SymbolExpression * rightExpression, ExpressionType type);
-SymbolExpression * ArithmeticSymbolSetSemanticAction(SymbolSet * symbolSet);
-SymbolExpression * ArithmeticSingularSymbolSetSemanticAction(Symbol * symbol);
+SymbolExpression * ArithmeticSetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
+SymbolExpression * ArithmeticSingularSymbolExpressionSemanticAction(Symbol * symbol);
+
 StateExpression * ArithmeticStateExpressionSemanticAction(StateExpression * leftExpression, StateExpression * rightExpression, ExpressionType type);
-StateExpression * ArithmeticStateSetSemanticAction(StateSet * stateSet);
-StateExpression * ArithmeticSingularStateSetSemanticAction(State * state);
+StateExpression * ArithmeticSetStateExpressionSemanticAction(StateSet * stateSet);
+StateExpression * ArithmeticSingularStateExpressionSemanticAction(State * state);
+
+TransitionSet * SingularExpressionTransitionSetSemanticAction(TransitionExpression* transitionExpression);
+StateSet * SingularExpressionStateSetSemanticAction(StateExpression * stateExpression);
+SymbolSet * SingularExpressionSymbolSetSemanticAction(SymbolExpression * symbolSet);
+
+TransitionExpression * ArithmeticSetTransitionExpressionSemanticAction(TransitionSet * transitionSet);
+SymbolExpression * ArithmeticSetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
+StateExpression * ArithmeticSetStateExpressionSemanticAction(StateSet * stateSet);
+
+TransitionExpression * ArithmeticSingularTransitionExpressionSemanticAction(Transition * transitionSet);
+StateExpression * ArithmeticSingularStateExpressionSemanticAction(State * stateSet);
+SymbolExpression * ArithmeticSingularSymbolExpressionSemanticAction(Symbol * symbolSet);
+
+TransitionExpression * ArithmeticEmptySetTransitionExpressionSemanticAction();
+StateExpression * ArithmeticEmptySetStateExpressionSemanticAction();
+SymbolExpression * ArithmeticEmptySetSymbolExpressionSemanticAction();
 
 /*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
-TransitionSet * TransitionSetSemanticAction(TransitionSet * transitionSet1, TransitionSet * transitionSet2);
+TransitionSet * TransitionExpressionsSemanticAction(TransitionExpression* transitionSet1, TransitionExpression* transitionSet2);
 TransitionSet * SingularTransitionSetSemanticAction(Transition * transition);
-TransitionSet * EmptyTransitionSetSemanticAction();
 
 /*SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet); */
-SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet1, SymbolSet * symbolSet2);
+SymbolSet * SymbolExpressionsSemanticAction(SymbolExpression* symbolSet1, SymbolExpression* symbolSet2);
 SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol);
-SymbolSet * EmptySymbolSetSemanticAction();
 
 /*StateSet * StateSetSemanticAction(StateSet * stateSet);*/
-StateSet * StateSetSemanticAction(StateSet * stateSet1, StateSet * stateSet2);
+StateSet * StateExpressionsSemanticAction(StateExpression* stateSet1, StateExpression* stateSet2);
 StateSet * SingularStateSetSemanticAction(State * state);
-StateSet * EmptyStateSetSemanticAction();
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
 
