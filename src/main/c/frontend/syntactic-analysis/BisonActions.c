@@ -29,6 +29,28 @@ static void _logSyntacticAnalyzerAction(const char * functionName) {
 	logDebugging(_logger, "%s", functionName);
 }
 
+/* ----------------------------------------------- DEFINITION SET ----------------------------------------------- */
+
+DefinitionSet * DefinitionSetSemanticAction(Definition * definition1, DefinitionSet * set2) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	DefinitionSet * set = calloc(1, sizeof(DefinitionSet));
+	DefinitionNode * node = calloc(1, sizeof(DefinitionNode));
+	node->definition = definition1;
+	node->next = set2->first;
+	set->first = node;
+	set->tail = set2->tail;
+	return set;
+}
+
+DefinitionSet * SingularDefinitionSetSemanticAction(Definition * definition) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	DefinitionSet * set = calloc(1, sizeof(DefinitionSet));
+	DefinitionNode * node = calloc(1, sizeof(DefinitionNode));
+	node->definition = definition;
+	set->first = node;
+	set->tail = node;
+	return set;
+}
 
 /* ------------------------------------------------- DEFINITION ------------------------------------------------- */
 
@@ -38,6 +60,7 @@ Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set)
 	Definition * definition = calloc(1, sizeof(Definition));
 	set->identifier = identifier;
 	definition->stateSet = set;
+	definition->type = STATE;
 	return definition;
 }
 
@@ -52,6 +75,7 @@ Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * se
 	Definition * definition = calloc(1, sizeof(Definition));
 	set->identifier = identifier;
 	definition->symbolSet = set;
+	definition->type = ALPHABET;
 	return definition;
 }
 
@@ -66,6 +90,7 @@ Definition * TransitionSetDefinitionSemanticAction(char * identifier, Transition
 	Definition * definition = calloc(1, sizeof(Definition));
 	set->identifier = identifier;
 	definition->transitionSet = set;
+	definition->type = TRANSITION;
 	return definition;
 }
 
@@ -82,6 +107,7 @@ Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifi
 	automata->identifier = identifier;
 	automata->automataType = type;
 	definition->automata = automata;
+	definition->type = AUTOMATA;
 	return definition;
 }
 
@@ -298,9 +324,9 @@ TransitionSet * TransitionExpressionsSemanticAction(TransitionExpression* exp1, 
 	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
 	TransitionNode * node1 = calloc(1, sizeof(TransitionNode));
 	TransitionNode * node2 = calloc(1, sizeof(TransitionNode));	
-	node1->transitionSubset = exp1;
+	node1->transitionExpression= exp1;
 	node1->type = EXPRESSION;
-	node2->transitionSubset = exp;
+	node2->transitionExpression= exp2;
 	node2->type = EXPRESSION;
 	//conecto los nodos con los subconjuntos
 	node1->next = node2;
@@ -316,9 +342,9 @@ StateSet * StateExpressionsSemanticAction(StateExpression* exp1, StateExpression
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	StateNode * node1 = calloc(1, sizeof(StateNode));
 	StateNode * node2 = calloc(1, sizeof(StateNode));	
-	node1->stateSubset = exp1;
+	node1->stateExpression= exp1;
 	node1->type = EXPRESSION;
-	node2->stateSubset = exp2;
+	node2->stateExpression= exp2;
 	node2->type = EXPRESSION;
 	//conecto los nodos con los subconjuntos
 	node1->next = node2;
@@ -334,9 +360,9 @@ SymbolSet * SymbolExpressionsSemanticAction(SymbolExpression* exp1, SymbolExpres
 	SymbolSet * symbolSet = calloc(1, sizeof(SymbolSet));
 	SymbolNode * node1 = calloc(1, sizeof(SymbolNode));
 	SymbolNode * node2 = calloc(1, sizeof(SymbolNode));	
-	node1->symbolSubset = exp1;
+	node1->symbolExpression= exp1;
 	node1->type = EXPRESSION;
-	node2->symbolSubset = exp2;
+	node2->symbolExpression = exp2;
 	node2->type = EXPRESSION;
 	//conecto los nodos con los subconjuntos
 	node1->next = node2;
@@ -378,6 +404,18 @@ TransitionSet * SingularTransitionSetSemanticAction(Transition * transition) {
 	transitionSet->first= node;
 	transitionSet->tail = node;
 	return transitionSet;
+}
+
+/*-----------------------CONJUNTO DE ESTADOS DE UN AUTOMATA POR TIPO--------------------*/
+StateExpression * StateTypeSetSemanticAction(char * identifier, Token type){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StateExpression * stateExpression = calloc(1, sizeof(StateExpression));
+	StateSet * stateSet = calloc(1, sizeof(StateSet));
+	stateSet->identifier = identifier;
+	stateSet->type = type;
+	stateExpression->stateSet = stateSet;
+	stateExpression->type = SET;
+	return stateExpression;
 }
 
 /* ------------------------------------------------- ELEMENTS ------------------------------------------------- */
@@ -426,6 +464,7 @@ Transition * RightTransitionSemanticAction(StateExpression *left, StateExpressio
 	transition->symbolExpression = alphabet;
 	return transition;	
 }
+
 TransitionSet * BothSideTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);	
 	Transition * transitionToLeft = LeftTransitionSemanticAction(left,right,alphabet);
@@ -436,10 +475,10 @@ TransitionSet * BothSideTransitionSemanticAction(StateExpression *left, StateExp
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
 // se tendría que manejar un conjunto de definiciones como resultado de un programa que luego se resuelven en el back
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Definition * definition) {
+Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
-	program->definition = definition;
+	program->definitionSet = definitionSet;
 	compilerState->abstractSyntaxtTree = program;
 	if (0 < flexCurrentContext()) {
 		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());

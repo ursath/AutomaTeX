@@ -67,6 +67,7 @@
 ")"									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext()); }
 ":"									{ return ColonLexemeAction(createLexicalAnalyzerContext()); }
 ","									{ return CommaLexemeAction(createLexicalAnalyzerContext()); }
+"."                                 { return PeriodLexemeAction(createLexicalAnalyzerContext()); }
 
 "->"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
 "<-"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
@@ -78,6 +79,7 @@
 ">"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); } 
 "*"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); }
 
+"\n"                                { return NewLineLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:digit:][:lower:]]+				{ return SymbolLexemeAction(createLexicalAnalyzerContext()); }
 [[:upper:][:alpha:]*]               { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
