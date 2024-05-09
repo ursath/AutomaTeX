@@ -39,8 +39,6 @@
 <INLINE_COMMENT>[^\n]+				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
 
-"def"                               { return DefKeywordLexemeAction(createLexicalAnalyzerContext()); }
-"minimal"                           { return MinimalKeywordLexemeAction(createLexicalAnalyzerContext()); }
 "EMPTY"                             { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
 
 "DFA"                               { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
@@ -59,8 +57,8 @@
 "+"									{ return SetOperatorLexemeAction(createLexicalAnalyzerContext()); }
 "^"                                 { return SetOperatorLexemeAction(createLexicalAnalyzerContext()); }
 
-"{"                                 { BraceSetLexemeAction(createLexicalAnalyzerContext()); }
-"}"                                 { BraceSetLexemeAction(createLexicalAnalyzerContext()); }
+"{"                                 { return BraceLexemeAction(createLexicalAnalyzerContext()); }
+"}"                                 { return BraceLexemeAction(createLexicalAnalyzerContext()); }
 "["                                 { return BracketLexemeAction(createLexicalAnalyzerContext()); }
 "]"                                 { return BracketLexemeAction(createLexicalAnalyzerContext()); }
 "("									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext()); }
@@ -89,4 +87,9 @@
 
 %%
 
+/*
+.									{ return UnknownLexemeAction(createLexicalAnalyzerContext());}
+"minimal"                           { return MinimalKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"def"                               { return DefKeywordLexemeAction(createLexicalAnalyzerContext()); } 
+ */
 #include "FlexExport.h"

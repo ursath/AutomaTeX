@@ -20,6 +20,7 @@ typedef enum ExpressionType ExpressionType;
 typedef enum AutomataType AutomataType;
 typedef enum SetType SetType;
 typedef enum NodeType NodeType;
+typedef enum StateType StateType;
 
 typedef struct Expression Expression;
 typedef struct Program Program;
@@ -45,26 +46,27 @@ typedef struct DefinitionNode DefinitionNode;
  * Node types for the Abstract Syntax Tree (AST).
  */
 
+
 /* ------------------------------------------------- ENUMS ------------------------------------------------- */
 enum DefinitionType {
-	AUTOMATA,
-	TRANSITION,
-	ALPHABET,
-	STATE
+	AUTOMATA_DEFINITION,
+	TRANSITION_DEFINITION,
+	ALPHABET_DEFINITION,
+	STATE_DEFINITION
 };
 
 enum SetType {
-	TRANSITION,
-	ALPHABET,
-	STATE
+	TRANSITIONSET,
+	ALPHABETSET,
+	STATESET
 };
 
 enum ExpressionType {
-	UNION,
-	INTERSECTION,
-	DIFFERENCE,
-	SET,
-	VOID
+	UNION_EXPRESSION,
+	INTERSECTION_EXPRESSION,
+	DIFFERENCE_EXPRESSION,
+	SET_EXPRESSION,
+	VOID_EXPRESSION
 };
 
 enum NodeType {
@@ -73,15 +75,16 @@ enum NodeType {
 };
 
 enum AutomataType {
-	DFA,
-	NFA,
-	LNFA
+	DFA_AUTOMATA,
+	NFA_AUTOMATA,
+	LNFA_AUTOMATA
 };
 
 enum StateType {
 	FINAL,
 	INITIAL,
-	REGULAR
+	REGULAR,
+	MIXED
 };
 
 /* ----------------------------------------------- DEFINITION SET ----------------------------------------------- */
@@ -182,15 +185,16 @@ struct Set {
 };
 
 struct SymbolSet {
-	SymbolNode * first;				// ! TODO: no conviene poner first? así queda + claro qué es
+	SymbolNode * first;
 	SymbolNode * tail;
 	char * identifier;
 };
 
 struct StateSet {
-	 StateNode * first;				// ! TODO: no conviene poner first? así queda + claro qué es
-	 StateNode * tail;
-	 char * identifier;
+	StateNode * first;
+	StateNode * tail;
+	char * identifier;
+	StateType stateType;
 	/* 
 	 struct {
 		State * finals;
@@ -275,14 +279,15 @@ struct Transition {
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
 struct Program {
-	DefinitionSet * definitionSet;
+	//DefinitionSet * definitionSet;
+	Definition * definition;
 };
 
 
 /**
  * Node recursive destructors.
  */
-void releaseExpression(Expression * expression);
-void releaseProgram(Program * program);
+//void releaseExpression(Expression * expression);
+//void releaseProgram(Program * program);
 
 #endif
