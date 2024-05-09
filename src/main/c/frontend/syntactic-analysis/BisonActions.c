@@ -60,7 +60,7 @@ Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set)
 	Definition * definition = calloc(1, sizeof(Definition));
 	set->identifier = identifier;
 	definition->stateSet = set;
-	definition->type = STATE;
+	definition->type = STATE_DEFINITION;
 	return definition;
 }
 
@@ -75,7 +75,7 @@ Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * se
 	Definition * definition = calloc(1, sizeof(Definition));
 	set->identifier = identifier;
 	definition->symbolSet = set;
-	definition->type = ALPHABET;
+	definition->type = ALPHABET_DEFINITION;
 	return definition;
 }
 
@@ -90,7 +90,7 @@ Definition * TransitionSetDefinitionSemanticAction(char * identifier, Transition
 	Definition * definition = calloc(1, sizeof(Definition));
 	set->identifier = identifier;
 	definition->transitionSet = set;
-	definition->type = TRANSITION;
+	definition->type = TRANSITION_DEFINITION;
 	return definition;
 }
 
@@ -107,10 +107,15 @@ Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifi
 	automata->identifier = identifier;
 	automata->automataType = type;
 	definition->automata = automata;
-	definition->type = AUTOMATA;
+	definition->type = AUTOMATA_DEFINITION;
 	return definition;
 }
 
+/*-------------- CONVERSION DE TOKEN A ENUM ----------------------------*/
+StateType stateTypeSemanticAction(StateType type){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	return type;
+}
 
 /* ------------------------------------------------- AUTOMATA ------------------------------------------------- */
 
@@ -167,7 +172,7 @@ TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * tra
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
 	expression->transitionSet = transitionSet;
-	expression->type = SET;
+	expression->type = SET_EXPRESSION;
 	return expression;
 }
 
@@ -176,7 +181,7 @@ SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	expression->symbolSet= symbolSet;
-	expression->type = SET;
+	expression->type = SET_EXPRESSION;
 	return expression;
 }
 
@@ -185,7 +190,7 @@ StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateExpression * expression = calloc(1, sizeof(StateExpression));
 	expression->stateSet = stateSet;
-	expression->type = SET;
+	expression->type = SET_EXPRESSION;
 	return expression;
 }
 
@@ -198,7 +203,7 @@ TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * t
 	TransitionSet * transitionSet = SingularTransitionSetSemanticAction(transition);
 	//acá podría agarrar y copiar el set 
 	expression->transitionSet = transitionSet;
-	expression->type = SET;
+	expression->type = SET_EXPRESSION;
 	return expression;
 }
 
@@ -207,7 +212,7 @@ StateExpression * SingularStateExpressionSemanticAction(State * state){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateExpression * expression = calloc(1, sizeof(StateExpression));
 	expression->stateSet = SingularStateSetSemanticAction(state);
-	expression->type = SET;
+	expression->type = SET_EXPRESSION;
 	return expression;
 }
 
@@ -216,7 +221,7 @@ SymbolExpression * SingularSymbolExpressionSemanticAction(Symbol * symbol){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	expression->symbolSet = SingularSymbolSetSemanticAction(symbol);
-	expression->type = SET;
+	expression->type = SET_EXPRESSION;
 	return expression;
 }
 
@@ -227,7 +232,7 @@ TransitionExpression * EmptySetTransitionExpressionSemanticAction(){
 	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
 	TransitionSet* emptySet = calloc(1, sizeof(TransitionSet));	
 	expression->transitionSet = emptySet;
-	expression->type = VOID;
+	expression->type = VOID_EXPRESSION;
 	return expression;
 }
 
@@ -237,7 +242,7 @@ StateExpression * EmptySetStateExpressionSemanticAction(){
 	StateExpression * expression = calloc(1, sizeof(StateExpression));
 	StateSet * emptySet = calloc(1, sizeof(StateSet));
 	expression->stateSet = emptySet;
-	expression->type = VOID;
+	expression->type = VOID_EXPRESSION;
 	return expression;
 }
 
@@ -247,7 +252,7 @@ SymbolExpression * EmptySetSymbolExpressionSemanticAction(){
 	SymbolExpression * expression = calloc(1, sizeof(SymbolExpression));
 	SymbolSet * emptySet = calloc(1, sizeof(SymbolSet));
 	expression->symbolSet = emptySet;
-	expression->type = VOID;
+	expression->type = VOID_EXPRESSION;
 	return expression;
 }
 
@@ -257,7 +262,7 @@ SymbolExpression * EmptySetSymbolExpressionSemanticAction(){
 //formo set a partir de una sola transition expression
 TransitionSet * SingularExpressionTransitionSetSemanticAction(TransitionExpression * transitionExpression){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	if (transitionExpression->type == SET || transitionExpression->type == VOID) {
+	if (transitionExpression->type == SET_EXPRESSION || transitionExpression->type == VOID_EXPRESSION) {
 		//cubre casos state, empty y stateSet
 		//no haría falta alocar memoria porque ya lo hice anteriormente 
 		return transitionExpression->transitionSet;
@@ -276,7 +281,7 @@ TransitionSet * SingularExpressionTransitionSetSemanticAction(TransitionExpressi
 //formo set a partir de una sola state expression
 StateSet * SingularExpressionStateSetSemanticAction(StateExpression * stateExpression){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	if (stateExpression->type == SET || stateExpression->type == VOID) {
+	if (stateExpression->type == SET_EXPRESSION || stateExpression->type == VOID_EXPRESSION) {
 		//cubre casos state, empty y stateSet
 		//no haría falta alocar memoria porque ya lo hice anteriormente 
 
@@ -301,7 +306,7 @@ StateSet * SingularExpressionStateSetSemanticAction(StateExpression * stateExpre
 //formo set a partir de una sola symbol expression
 SymbolSet * SingularExpressionSymbolSetSemanticAction(SymbolExpression * symbolExpression){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	if (symbolExpression->type == SET || symbolExpression->type == VOID) {
+	if (symbolExpression->type == SET_EXPRESSION || symbolExpression->type == VOID_EXPRESSION) {
 		//cubre casos state, empty y stateSet
 		//no haría falta alocar memoria porque ya lo hice anteriormente 
 		return symbolExpression->symbolSet;
@@ -392,6 +397,7 @@ StateSet * SingularStateSetSemanticAction(State * state) {
 	node->type = ELEMENT;
 	stateSet->first= node;
 	stateSet->tail = node;
+	stateSet->stateType = state->isFinal ? FINAL : state->isInitial ? INITIAL : REGULAR;
 	return stateSet;
 }
 
@@ -407,14 +413,14 @@ TransitionSet * SingularTransitionSetSemanticAction(Transition * transition) {
 }
 
 /*-----------------------CONJUNTO DE ESTADOS DE UN AUTOMATA POR TIPO--------------------*/
-StateExpression * StateTypeSetSemanticAction(char * identifier, Token type){
+StateExpression * StateTypeSetSemanticAction(char * identifier, StateType type){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateExpression * stateExpression = calloc(1, sizeof(StateExpression));
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	stateSet->identifier = identifier;
-	stateSet->type = type;
+	stateSet->stateType = type;
 	stateExpression->stateSet = stateSet;
-	stateExpression->type = SET;
+	stateExpression->type = SET_EXPRESSION;
 	return stateExpression;
 }
 
@@ -433,12 +439,12 @@ State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol)
 Symbol * LambdaSemanticAction() {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Symbol * symbol = calloc(1, sizeof(Symbol));
-	symbol->value= LAMBDA;
+	symbol->value= LAMBDA_STRING;
 	return symbol;
 }
 
 
-Symbol * SymbolSemanticAction(const char * value) {
+Symbol * SymbolSemanticAction(char * value) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Symbol * symbol = calloc(1, sizeof(Symbol));
 	symbol->value = value;
@@ -465,20 +471,24 @@ Transition * RightTransitionSemanticAction(StateExpression *left, StateExpressio
 	return transition;	
 }
 
-TransitionSet * BothSideTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
+TransitionExpression * BothSideTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);	
 	Transition * transitionToLeft = LeftTransitionSemanticAction(left,right,alphabet);
 	Transition * transitionToRight = RightTransitionSemanticAction(left,right,alphabet);
-	return TransitionSetSemanticAction(transitionToLeft, transitionToRight);
+	TransitionExpression * transitionToLeftExpression = SingularTransitionExpressionSemanticAction(transitionToLeft);
+	TransitionExpression * transitionToRightExpression = SingularTransitionExpressionSemanticAction(transitionToRight);
+	return SetTransitionExpressionSemanticAction( TransitionExpressionsSemanticAction(transitionToLeftExpression, transitionToRightExpression));
 }
 
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
 // se tendría que manejar un conjunto de definiciones como resultado de un programa que luego se resuelven en el back
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet) {
+//Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet* definitionSet) {
+Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Definition* definition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
-	program->definitionSet = definitionSet;
+	//program->definitionSet = definitionSet;
+	program->definition = definition;
 	compilerState->abstractSyntaxtTree = program;
 	if (0 < flexCurrentContext()) {
 		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());

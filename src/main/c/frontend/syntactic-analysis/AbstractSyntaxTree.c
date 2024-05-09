@@ -18,7 +18,7 @@ void shutdownAbstractSyntaxTreeModule() {
 
 
 
-
+/*
 
 void releaseConstant(Constant * constant) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
@@ -60,40 +60,48 @@ void releaseFactor(Factor * factor) {
 		free(factor);
 	}
 }
+*/
 
+void releaseStateSet(StateSet * stateSet){
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if ( stateSet != NULL ){
+		StateNode * stateNode = stateSet->first;
+		/*
+		while ( stateNode != NULL ){
+			releaseStateExpression(stateNode->expression);
+			currentDefinition = currentDefinition->next;
+		}
+		
+		free(definitionNode);*/
+	}
+}
 
-
-
+// todo 
 void releaseDefinition(Definition * definition) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (definition != NULL) {
 		switch (definition->type)
 		{
-		case /* constant-expression */:
-			/* code */
+		case STATE_DEFINITION:
+			//releaseStateSet(definition->stateSet);
 			break;
-		
-		default:
+		case ALPHABET_DEFINITION:
+			//releaseAlphabet(definition->symbolSet);
+			break;
+		case TRANSITION_DEFINITION:
+			//releaseTransitionSet(definition->transitionSet);
+			break;
+		default:	// automata
 			break;
 		}
-		while ( currentDefinition != NULL ){
-			releaseDefinition(currentDefinition);
-			currentDefinition = currentDefinition->next;
-		}
-		
-		free(definitionNode);
+ 		free(definition);
 	}
 }
 
 void releaseDefinitionNode(DefinitionNode * definitionNode) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (definitionNode != NULL) {
-		Definition currentDefinition = definition->definition;
-		while ( currentDefinition != NULL ){
-			releaseDefinition(currentDefinition);
-			currentDefinition = currentDefinition->next;
-		}
-		
+		releaseDefinition(definitionNode->definition);	
 		free(definitionNode);
 	}
 }
@@ -101,22 +109,23 @@ void releaseDefinitionNode(DefinitionNode * definitionNode) {
 void releaseDefinitionSet(DefinitionSet * definitionSet) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (definitionSet != NULL) {
-		DefinitionNode currentDefinitionNode = definitionSet->first;
-		while ( currentDefinitionNode != definitionSet->tail ){
+		DefinitionNode * currentDefinitionNode = definitionSet->first;
+		while ( currentDefinitionNode != NULL ){							//!= definitionSet->tail
 			releaseDefinitionNode(currentDefinitionNode);
+			currentDefinitionNode = currentDefinitionNode->next;
 		}
-		if ( definitionSet->tail != NULL )
-			releaseDefinitionNode(currentDefinitionNode);
+//		if ( definitionSet->tail != NULL )
+//			releaseDefinitionNode(currentDefinitionNode);
 
 		free(definitionSet);
 	}
 }
 
-
+/*
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
 		releaseDefinitionSet(program->definitionSet);
 		free(program);
 	}
-}
+}*/

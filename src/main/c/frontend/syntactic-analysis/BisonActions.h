@@ -8,7 +8,7 @@
 #include "SyntacticAnalyzer.h"
 #include <stdlib.h>
 
-#define LAMBDA "@"
+#define LAMBDA_STRING "@"
 
 /** Initialize module's internal state. */
 void initializeBisonActionsModule();
@@ -22,13 +22,15 @@ void shutdownBisonActionsModule();
 
 
 /* Definitions */
-Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifier, Automata * automata );
+Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifier, Automata * automata);
 Definition * SingularTransitionSetDefinitionSemanticAction(char * identifier, Transition * transition);
 Definition * TransitionSetDefinitionSemanticAction(char * identifier, TransitionSet * set);
 Definition * SingularSymbolSetDefinitionSemanticAction(char * identifier, Symbol* symbol);
 Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * set);
 Definition * SingularStateSetDefinitionSemanticAction(char * identifier, State* state);
 Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set);
+DefinitionSet * DefinitionSetSemanticAction(Definition * definition1, DefinitionSet * set2); 
+DefinitionSet * SingularDefinitionSetSemanticAction(Definition * definition);
 
 Automata * AutomataSemanticAction(StateExpression* states, SymbolExpression* alphabet, TransitionExpression* transitions);
 AutomataType AutomataTypeAction(AutomataType type);
@@ -52,7 +54,7 @@ SymbolSet * SingularExpressionSymbolSetSemanticAction(SymbolExpression * symbolS
 TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * transitionSet);
 SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
 StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet);
-StateExpression * StateTypeSetSemanticAction(char * identifier, Token type);
+StateExpression * StateTypeSetSemanticAction(char * identifier, StateType type);
 
 TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * transitionSet);
 StateExpression * SingularStateExpressionSemanticAction(State * stateSet);
@@ -65,7 +67,7 @@ SymbolExpression * EmptySetSymbolExpressionSemanticAction();
 /*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
 TransitionSet * TransitionExpressionsSemanticAction(TransitionExpression* transitionSet1, TransitionExpression* transitionSet2);
 TransitionSet * SingularTransitionSetSemanticAction(Transition * transition);
-TransitionSet * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
+TransitionExpression * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 /*SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet); */
 SymbolSet * SymbolExpressionsSemanticAction(SymbolExpression* symbolSet1, SymbolExpression* symbolSet2);
@@ -76,14 +78,15 @@ StateSet * StateExpressionsSemanticAction(StateExpression* stateSet1, StateExpre
 StateSet * SingularStateSetSemanticAction(State * state);
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
-StateType stateTypeSemanticAction(Token * token);
+StateType stateTypeSemanticAction(StateType type);
 
 Transition * LeftTransitionSemanticAction(StateExpression * leftSet, StateExpression * rightSet, SymbolExpression * alphabet);
 Transition * RightTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet);
 
 Symbol * LambdaSemanticAction();
-Symbol * SymbolSemanticAction(const char * value);
+Symbol * SymbolSemanticAction(char * value);
 
 // TODO: PASAR SET DE DEFINITIONS 
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet);
+Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Definition * definitionSet);
+//Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet);
 #endif
