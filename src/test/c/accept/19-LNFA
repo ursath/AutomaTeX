@@ -1,9 +1,9 @@
-LNFA Automata: [
+LNFA A: [
 	states: { >s , *w, *q, r }, 
 	alphabet: {cc, dd},
 	transitions: {
-        w<-@->r,    
-        s-cc->{w,q},
-        w-{cc,dd}->r
+        |w|<-@->|r|,    
+        |s|-cc->|{w,q}|,
+        |w|-{cc,dd}->|r|
     }
 ]
