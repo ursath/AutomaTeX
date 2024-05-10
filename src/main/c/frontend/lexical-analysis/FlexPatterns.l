@@ -67,6 +67,7 @@
 ","									{ return CommaLexemeAction(createLexicalAnalyzerContext()); }
 "."                                 { return PeriodLexemeAction(createLexicalAnalyzerContext()); }
 
+"|"                                 { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
 "->"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
 "<-"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
 "-|"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
@@ -83,7 +84,6 @@
 [[:upper:][:alpha:]*]               { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-.									{ return UnknownLexemeAction(createLexicalAnalyzerContext()); }
 
 %%
 
