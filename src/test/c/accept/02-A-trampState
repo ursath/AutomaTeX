@@ -1,5 +1,5 @@
-DFA automata [
+DFA AUTOMATA [
     states: { >*q0, t},
     alphabet: { a, b},
-    transitions: { q0|-a->q0}
+    transitions: {|q0|-a->|q0|}
 ]

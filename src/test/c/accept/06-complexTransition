@@ -1,1 +1,1 @@
-transitions T: s<-a->{w,q}
+transitions T: |s|<-a->|{w,q}|
