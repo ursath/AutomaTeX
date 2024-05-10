@@ -6,4 +6,4 @@ NFA Automata: [
         w<-b->r,      
         s|-a->{w,q}
     }
-]
+];

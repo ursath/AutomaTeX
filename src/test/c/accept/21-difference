@@ -1,1 +1,1 @@
-states S: ({a} - {b,c})
+states S: ({a} - {b,c});

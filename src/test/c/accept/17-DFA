@@ -6,4 +6,4 @@ DFA AUTOMATA: [
         |w|<-b->|r|,      
         |s|-a->|{w,q}|
     }
-]
+];
