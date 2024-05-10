@@ -119,18 +119,18 @@ Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = COLON;
-	return lexicalAnalyzerContext->semanticValue->token ;	
+	return COLON;	
 }
 
 Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = COMMA;
-	return lexicalAnalyzerContext->semanticValue->token;	
+	return COMMA;	
 }
 Token PeriodLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext){
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = PERIOD;
-	return lexicalAnalyzerContext->semanticValue->token;
+	return PERIOD;
 }
 
 Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
@@ -148,7 +148,7 @@ Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token LambdaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = LAMBDA;
-	return lexicalAnalyzerContext->semanticValue->token;
+	return LAMBDA;
 }
 
 Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
@@ -160,8 +160,10 @@ Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 		token = END_RIGHT_TRANSITION;
 	else if( !strcmp(BEGIN_LEFT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
 		token = BEGIN_LEFT_TRANSITION;
-	else 
+	else if( !strcmp(BEGIN_RIGHT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ))
 		token = BEGIN_RIGHT_TRANSITION;
+	else
+		token = PIPE;
 
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
@@ -171,21 +173,21 @@ Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token TransitionsKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = TRANSITIONS_KEYWORD;
-	return lexicalAnalyzerContext->semanticValue->token;
+	return TRANSITIONS_KEYWORD;
 }
 
 
 Token StatesKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = STATES_KEYWORD;
-	return lexicalAnalyzerContext->semanticValue->token;
+	return STATES_KEYWORD;
 }
 
 
 Token AlphabetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = ALPHABET_KEYWORD;
-	return lexicalAnalyzerContext->semanticValue->token;
+	return ALPHABET_KEYWORD;
 }
 
 Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
@@ -225,25 +227,27 @@ Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = SYMBOL;
 	// * guardo valor del symbol
-	lexicalAnalyzerContext->semanticValue->value = lexicalAnalyzerContext->lexeme;
-	return lexicalAnalyzerContext->semanticValue->token;
+	lexicalAnalyzerContext->semanticValue->value = calloc(1 + lexicalAnalyzerContext->length, sizeof(char));
+	strcpy(lexicalAnalyzerContext->semanticValue->value, lexicalAnalyzerContext->lexeme);
+	return SYMBOL;
 }
 
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = IDENTIFIER;
-	lexicalAnalyzerContext->semanticValue->value = lexicalAnalyzerContext->lexeme;
-	return lexicalAnalyzerContext->semanticValue->token;
+	lexicalAnalyzerContext->semanticValue->value = calloc(1 + lexicalAnalyzerContext->length, sizeof(char));
+	strcpy(lexicalAnalyzerContext->semanticValue->value, lexicalAnalyzerContext->lexeme);
+	return IDENTIFIER;
 }
 
 Token NewLineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = NEW_LINE;
-	return lexicalAnalyzerContext->semanticValue->token;
+	return NEW_LINE;
 }
 
 Token EmptyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext){
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = EMPTY;
-	return lexicalAnalyzerContext->semanticValue->token;
+	return EMPTY;
 }
