@@ -64,18 +64,25 @@ TransitionExpression * EmptySetTransitionExpressionSemanticAction();
 StateExpression * EmptySetStateExpressionSemanticAction();
 SymbolExpression * EmptySetSymbolExpressionSemanticAction();
 
-/*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
-TransitionSet * TransitionExpressionsSemanticAction(TransitionExpression* transitionSet1, TransitionExpression* transitionSet2);
-TransitionSet * SingularTransitionSetSemanticAction(Transition * transition);
+SymbolExpression * IdentifierSymbolExpressionSemanticAction(char * identifier);
+StateExpression * IdentifierStateExpressionSemanticAction(char * identifier);
+TransitionExpression * IdentifierTransitionExpressionSemanticAction(char * identifier);
+
 TransitionExpression * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
-/*SymbolSet * SymbolSetSemanticAction(SymbolSet * symbolSet); */
-SymbolSet * SymbolExpressionsSemanticAction(SymbolExpression* symbolSet1, SymbolExpression* symbolSet2);
-SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol);
+/*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
+TransitionNode * TransitionSetSemanticAction(TransitionNode * transitionNode, TransitionSet * transitionSet);
+TransitionSet * SingularNodeTransitionSetSemanticAction(TransitionNode * transitionNode);
 
-/*StateSet * StateSetSemanticAction(StateSet * stateSet);*/
-StateSet * StateExpressionsSemanticAction(StateExpression* stateSet1, StateExpression* stateSet2);
-StateSet * SingularStateSetSemanticAction(State * state);
+SymbolSet * SymbolExpressionsSemanticAction(SymbolNode * symbolSet1, SymbolSet * symbolSet2);
+SymbolSet * SingularNodeSymbolSetSemanticAction(SymbolNode * symbolNode);
+
+StateSet * StateSetSemanticAction(StateNode * stateNode, StateSet * stateSet);
+StateSet * SingularNodeStateSetSemanticAction(StateNode * stateNode);
+
+StateNode * ExpressionStateNodeSemanticAction(StateExpression stateExpression);
+SymbolNode * ExpressionSymbolNodeSemanticAction(SymbolExpression symbolExpression);
+TransitionNode * ExpressionTransitionNodeSemanticAction(TransitionExpression transitionExpression);
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
 StateType stateTypeSemanticAction(StateType type);

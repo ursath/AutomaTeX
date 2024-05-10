@@ -323,7 +323,7 @@ SymbolSet * SingularExpressionSymbolSetSemanticAction(SymbolExpression * symbolE
 
 /*----------- CONJUNTOS CON SUBCONJUNTOS ----------------*/
 //formo set con 2 subconjuntos de tipo transition
-TransitionSet * TransitionExpressionsSemanticAction(TransitionExpression* exp1, TransitionExpression* exp2){
+TransitionSet * TransitionSetSemanticAction(TransitionNode * exp1, TransitionSet * exp2){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	//solo aloco memoria nueva porque necesito el identificador pero los nodos ya están creados
 	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
@@ -341,7 +341,7 @@ TransitionSet * TransitionExpressionsSemanticAction(TransitionExpression* exp1, 
 }
 
 //formo set con 2 subconjuntos de tipo state
-StateSet * StateExpressionsSemanticAction(StateExpression* exp1, StateExpression* exp2){
+StateSet * StateExpressionsSemanticAction(StateExpression* exp1, StateSet* set){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	//solo aloco memoria nueva porque necesito el identificador pero los nodos ya están creados
 	StateSet * stateSet = calloc(1, sizeof(StateSet));

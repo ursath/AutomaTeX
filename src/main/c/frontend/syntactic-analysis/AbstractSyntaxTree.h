@@ -175,15 +175,6 @@ struct StateExpression {
 
 /* ------------------------------------------------- SETS ------------------------------------------------- */
 
-struct Set {
-	union {
-		TransitionSet * transitionSet;
-		SymbolSet * symbolSet;
-		StateSet * stateSet;
-	};
-	SetType type;
-};
-
 struct SymbolSet {
 	SymbolNode * first;
 	SymbolNode * tail;
@@ -195,6 +186,7 @@ struct StateSet {
 	StateNode * tail;
 	char * identifier;
 	StateType stateType;
+	
 	/* 
 	 struct {
 		State * finals;
@@ -204,7 +196,7 @@ struct StateSet {
 };
 
 struct TransitionSet {
-	TransitionNode * first;		// ! TODO: no conviene poner first? así queda + claro qué es
+	TransitionNode * first;	
 	TransitionNode * tail;
 	char * identifier;
 };
@@ -232,6 +224,7 @@ struct SymbolNode {
 	union {
 		Symbol * symbol;
 		SymbolExpression * symbolExpression;
+		SymbolSet * symbolSubset;
 	};
 	NodeType type;
 	SymbolNode * next;
@@ -241,6 +234,7 @@ struct StateNode {
 	union {
 		State * state;
 		StateExpression * stateExpression;
+		StateSet * stateSubset;
 	};
 	NodeType type;
 	StateNode * next;
@@ -250,6 +244,7 @@ struct TransitionNode {
 	union {
 		Transition * transition;
 		TransitionExpression * transitionExpression;
+		TransitionSet * transitionSubset;
 	};
 	NodeType type;
 	TransitionNode * next;
