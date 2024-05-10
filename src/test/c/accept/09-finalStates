@@ -1,1 +1,1 @@
-states OnlyFinals: {*q, *l}
+states OnlyFinals: {*q, *l};

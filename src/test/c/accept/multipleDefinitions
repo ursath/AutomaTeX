@@ -1,2 +1,2 @@
-states T: actions
-states M: { guala }
+states T: actions;
+states M: { guala };
