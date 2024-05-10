@@ -47,10 +47,6 @@ StateExpression * StateExpressionSemanticAction(StateExpression * leftExpression
 StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet);
 StateExpression * SingularStateExpressionSemanticAction(State * state);
 
-TransitionSet * SingularExpressionTransitionSetSemanticAction(TransitionExpression* transitionExpression);
-StateSet * SingularExpressionStateSetSemanticAction(StateExpression * stateExpression);
-SymbolSet * SingularExpressionSymbolSetSemanticAction(SymbolExpression * symbolSet);
-
 TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * transitionSet);
 SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
 StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet);
@@ -60,29 +56,29 @@ TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * t
 StateExpression * SingularStateExpressionSemanticAction(State * stateSet);
 SymbolExpression * SingularSymbolExpressionSemanticAction(Symbol * symbolSet);
 
-TransitionExpression * EmptySetTransitionExpressionSemanticAction();
-StateExpression * EmptySetStateExpressionSemanticAction();
-SymbolExpression * EmptySetSymbolExpressionSemanticAction();
 
-SymbolExpression * IdentifierSymbolExpressionSemanticAction(char * identifier);
-StateExpression * IdentifierStateExpressionSemanticAction(char * identifier);
-TransitionExpression * IdentifierTransitionExpressionSemanticAction(char * identifier);
+SymbolSet* IdentifierSymbolSetSemanticAction(char * identifier);
+StateSet* IdentifierStateSetSemanticAction(char * identifier);
+TransitionSet* IdentifierTransitionSetSemanticAction(char * identifier);
 
 TransitionExpression * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 /*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
-TransitionNode * TransitionSetSemanticAction(TransitionNode * transitionNode, TransitionSet * transitionSet);
-TransitionSet * SingularNodeTransitionSetSemanticAction(TransitionNode * transitionNode);
+TransitionNode * SingularExpressionTransitionNodeSemanticAction(TransitionExpression * transitionExpression);
+StateNode * SingularExpressionStateNodeSemanticAction(StateExpression * stateExpression);
+SymbolNode * SingularExpressionSymbolNodeSemanticAction(SymbolExpression * symbolExpression);
 
-SymbolSet * SymbolExpressionsSemanticAction(SymbolNode * symbolSet1, SymbolSet * symbolSet2);
-SymbolSet * SingularNodeSymbolSetSemanticAction(SymbolNode * symbolNode);
+TransitionNode * ExpressionsTransitionNodeSemanticAction(TransitionExpression * leftExpression, TransitionNode * nextNode);
+StateNode * ExpressionsStateNodeSemanticAction(StateExpression * leftExpression, StateNode * nextNode);
+SymbolNode * ExpressionsSymbolNodeSemanticAction(SymbolExpression * leftExpression, SymbolNode * nextNode);
 
-StateSet * StateSetSemanticAction(StateNode * stateNode, StateSet * stateSet);
-StateSet * SingularNodeStateSetSemanticAction(StateNode * stateNode);
+TransitionSet * NodeTransitionSetSemanticAction(TransitionNode * transitionNode);
+StateSet * NodeStateSetSemanticAction(StateNode * stateNode);	
+SymbolSet * NodeSymbolSetSemanticAction(SymbolNode * symbolNode);
 
-StateNode * ExpressionStateNodeSemanticAction(StateExpression stateExpression);
-SymbolNode * ExpressionSymbolNodeSemanticAction(SymbolExpression symbolExpression);
-TransitionNode * ExpressionTransitionNodeSemanticAction(TransitionExpression transitionExpression);
+TransitionSet * EmptyTransitionSetSemanticAction();
+StateSet * EmptyStateSetSemanticAction();
+SymbolSet * EmptySymbolSetSemanticAction();
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
 StateType stateTypeSemanticAction(StateType type);
@@ -94,6 +90,6 @@ Symbol * LambdaSemanticAction();
 Symbol * SymbolSemanticAction(char * value);
 
 // TODO: PASAR SET DE DEFINITIONS 
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Definition * definitionSet);
+Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet);
 //Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet);
 #endif

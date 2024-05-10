@@ -66,7 +66,7 @@ enum ExpressionType {
 	INTERSECTION_EXPRESSION,
 	DIFFERENCE_EXPRESSION,
 	SET_EXPRESSION,
-	VOID_EXPRESSION
+	ELEMENT_EXPRESSION
 };
 
 enum NodeType {
@@ -146,6 +146,7 @@ struct TransitionExpression {
 			TransitionExpression * leftExpression;
 			TransitionExpression * rightExpression;
 		};
+		Transition * transition;
 	};
 	ExpressionType type;
 };
@@ -157,6 +158,7 @@ struct SymbolExpression {
 			SymbolExpression * leftExpression;
 			SymbolExpression * rightExpression;
 		};
+		Symbol * symbol;
 	};
 	ExpressionType type;
 };
@@ -168,6 +170,7 @@ struct StateExpression {
 			StateExpression * leftExpression;
 			StateExpression * rightExpression;
 		};
+		State * state;
 	};
 	ExpressionType type;
 };
@@ -274,8 +277,8 @@ struct Transition {
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
 struct Program {
-	//DefinitionSet * definitionSet;
-	Definition * definition;
+	DefinitionSet * definitionSet;
+	//Definition * definition;
 };
 
 
