@@ -17,9 +17,9 @@ void initializeFlexActionsModule();
 /** Shutdown module's internal state. */
 void shutdownFlexActionsModule();
 
-#define END_LEFT_TRANSITION_STRING "|-"
+#define END_LEFT_TRANSITION_STRING "<-"
 #define BEGIN_LEFT_TRANSITION_STRING "-|"
-#define BEGIN_RIGHT_TRANSITION_STRING "<-"
+#define BEGIN_RIGHT_TRANSITION_STRING "|-" 
 #define END_RIGHT_TRANSITION_STRING "->"
 #define NFA_STRING "NFA"
 #define DFA_STRING "DFA"

@@ -156,8 +156,8 @@ Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	Token token;
 	if( !strcmp(END_RIGHT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
 		token = END_RIGHT_TRANSITION;
-	else if( !strcmp(END_RIGHT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
-		token = END_RIGHT_TRANSITION;
+	else if( !strcmp(END_LEFT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
+		token = END_LEFT_TRANSITION;
 	else if( !strcmp(BEGIN_LEFT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
 		token = BEGIN_LEFT_TRANSITION;
 	else if( !strcmp(BEGIN_RIGHT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ))
