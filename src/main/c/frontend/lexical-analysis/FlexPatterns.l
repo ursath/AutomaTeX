@@ -78,10 +78,10 @@
 ">"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); } 
 "*"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); }
 
-"\n"                                { return NewLineLexemeAction(createLexicalAnalyzerContext()); }
+";"                                { return NewLineLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:digit:][:lower:]]+				{ return SymbolLexemeAction(createLexicalAnalyzerContext()); }
-[[:upper:][:alpha:]*]               { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
+[A-Z][A-Za-z\d]*               { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 

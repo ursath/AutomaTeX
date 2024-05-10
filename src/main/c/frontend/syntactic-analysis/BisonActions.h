@@ -50,7 +50,7 @@ StateExpression * SingularStateExpressionSemanticAction(State * state);
 TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * transitionSet);
 SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
 StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet);
-StateExpression * StateTypeSetSemanticAction(char * identifier, StateType type);
+
 
 TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * transitionSet);
 StateExpression * SingularStateExpressionSemanticAction(State * stateSet);
@@ -75,6 +75,8 @@ SymbolNode * ExpressionsSymbolNodeSemanticAction(SymbolExpression * leftExpressi
 TransitionSet * NodeTransitionSetSemanticAction(TransitionNode * transitionNode);
 StateSet * NodeStateSetSemanticAction(StateNode * stateNode);	
 SymbolSet * NodeSymbolSetSemanticAction(SymbolNode * symbolNode);
+
+StateSet * StateTypeSetSemanticAction(char * identifier, StateType type);
 
 TransitionSet * EmptyTransitionSetSemanticAction();
 StateSet * EmptyStateSetSemanticAction();

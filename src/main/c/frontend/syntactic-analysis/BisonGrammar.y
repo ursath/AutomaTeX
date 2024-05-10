@@ -139,7 +139,7 @@ program: definitionSet																		{ $$ = ExpressionProgramSemanticAction(c
 	;
 
 definitionSet: definition[left] NEW_LINE definitionSet[right]								{ $$ = DefinitionSetSemanticAction($left, $right); }
-	| definition																			{ $$ = SingularDefinitionSetSemanticAction($1); }
+	| definition NEW_LINE																			{ $$ = SingularDefinitionSetSemanticAction($1); }
 	;
 
 definition: automataType[type] IDENTIFIER[identifier] automata[element] 														{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
@@ -175,7 +175,6 @@ stateExpression: OPEN_PARENTHESIS stateExpression[left] UNION stateExpression[ri
 	| OPEN_PARENTHESIS stateExpression[left] DIFFERENCE stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE); }
 	| OPEN_PARENTHESIS stateExpression[left] INTERSECTION stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION); }
 	| stateSet																										 			{ $$ = SetStateExpressionSemanticAction($1); }
-	| IDENTIFIER[identifier] PERIOD stateType[typeSet]																			{ $$ = StateTypeSetSemanticAction($identifier, $typeSet); }	
 	| state																														{ $$ = SingularStateExpressionSemanticAction($1); }	
 	/*
 	| EMPTY 																													{ $$ = EmptySetStateExpressionSemanticAction() ;}	
@@ -199,6 +198,7 @@ stateNode: stateExpression												{ $$ = SingularExpressionStateNodeSemantic
 stateSet: OPEN_BRACE stateNode[node] CLOSE_BRACE								{ $$ = NodeStateSetSemanticAction($node); }
 		| EMPTY																	{ $$ = EmptyStateSetSemanticAction();}	
 		| IDENTIFIER															{ $$ = IdentifierStateSetSemanticAction($1); }
+		| IDENTIFIER[identifier] PERIOD stateType[typeSet]						{ $$ = StateTypeSetSemanticAction($identifier, $typeSet); }	
 	;
 
 /*
@@ -238,7 +238,7 @@ transitionSet: OPEN_BRACE transitionNode[node] CLOSE_BRACE					{ $$ = NodeTransi
 	;
 
 //lo pasaría a Transition Expression directamente porque con esto devolverían un set (aunque tenga un solo elemento) adentro de una expression (porque no devolvería una transition necesariamente y es preferible que sea uniforme lo que devuelva)
-transition: PIPE stateExpression[left] END_LEFT_TRANSITION symbolExpression[middle] BEGIN_LEFT_TRANSITION PIPE stateExpression[right] PIPE	{ $$ = LeftTransitionSemanticAction($left, $right, $middle); }
+transition: PIPE stateExpression[left] PIPE END_LEFT_TRANSITION symbolExpression[middle] BEGIN_LEFT_TRANSITION stateExpression[right] PIPE	{ $$ = LeftTransitionSemanticAction($left, $right, $middle); }
 	| PIPE stateExpression[left] BEGIN_RIGHT_TRANSITION symbolExpression[middle] END_RIGHT_TRANSITION PIPE stateExpression[right] PIPE		{ $$ = RightTransitionSemanticAction($left, $right, $middle); }
 	;
 

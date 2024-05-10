@@ -403,15 +403,12 @@ SymbolNode * ExpressionsSymbolNodeSemanticAction(SymbolExpression* exp, SymbolNo
 }
 
 /*-----------------------CONJUNTO DE ESTADOS DE UN AUTOMATA POR TIPO--------------------*/
-StateExpression * StateTypeSetSemanticAction(char * identifier, StateType type){
+StateSet * StateTypeSetSemanticAction(char * identifier, StateType type){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	StateExpression * stateExpression = calloc(1, sizeof(StateExpression));
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	stateSet->identifier = identifier;
 	stateSet->stateType = type;
-	stateExpression->stateSet = stateSet;
-	stateExpression->type = SET_EXPRESSION;
-	return stateExpression;
+	return stateSet;
 }
 
 /* ------------------------------------------------- ELEMENTS ------------------------------------------------- */
