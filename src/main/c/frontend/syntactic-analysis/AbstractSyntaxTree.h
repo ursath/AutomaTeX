@@ -128,17 +128,6 @@ struct Automata {
 
 /* ------------------------------------------------- EXPRESSIONS ------------------------------------------------- */
 
-struct Expression {
-	union {
-		Set * set; 
-		struct {
-			Expression * rightOperation;
-			Expression * leftOperation;
-		};
-	};
-	ExpressionType type;
-};
-
 struct TransitionExpression {
 	union {
 		TransitionSet * transitionSet;
@@ -149,6 +138,7 @@ struct TransitionExpression {
 		Transition * transition;
 	};
 	ExpressionType type;
+//	char * identifier;
 };
 
 struct SymbolExpression {

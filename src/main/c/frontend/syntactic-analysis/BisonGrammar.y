@@ -140,14 +140,18 @@ definitionSet: definition[left] NEW_LINE definitionSet[right]								{ $$ = Defi
 	| definition NEW_LINE																			{ $$ = SingularDefinitionSetSemanticAction($1); }
 	;
 
-definition: automataType[type] IDENTIFIER[identifier] automata[element] 														{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
-	/*| DEF name function*/
+definition: automataType[type] IDENTIFIER[identifier] COLON automata[element] 														{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
+	/*| DEF name function
 	| STATES_KEYWORD IDENTIFIER[identifier] COLON stateSet[set] 																{ $$ = StateSetDefinitionSemanticAction($identifier, $set); }	
 	| STATES_KEYWORD IDENTIFIER[identifier] COLON state[element]																{ $$ = SingularStateSetDefinitionSemanticAction($identifier, $element); }
 	| ALPHABET_KEYWORD IDENTIFIER[identifier] COLON symbolSet[set] 																{ $$ = SymbolSetDefinitionSemanticAction($identifier, $set); }
 	| ALPHABET_KEYWORD IDENTIFIER[identifier] COLON symbol[element] 															{ $$ = SingularSymbolSetDefinitionSemanticAction($identifier, $element); }
 	| TRANSITIONS_KEYWORD IDENTIFIER[identifier] COLON transitionSet[set] 														{ $$ = TransitionSetDefinitionSemanticAction($identifier, $set); }
 	| TRANSITIONS_KEYWORD IDENTIFIER[identifier] COLON transition[element]														{ $$ = SingularTransitionSetDefinitionSemanticAction($identifier, $element); }
+	*/
+	| TRANSITIONS_KEYWORD IDENTIFIER[identifier] COLON transitionExpression[set] 														{ $$ = TransitionExpressionDefinitionSemanticAction($identifier, $set); }
+	| ALPHABET_KEYWORD IDENTIFIER[identifier] COLON symbolExpression[set] 																{ $$ = SymbolExpressionDefinitionSemanticAction($identifier, $set); }	
+	| STATES_KEYWORD IDENTIFIER[identifier] COLON stateExpression[set] 																	{ $$ = StateExpressionDefinitionSemanticAction($identifier, $set); }	
 	;		
 	
 automata: OPEN_BRACKET STATES_KEYWORD COLON stateExpression[states] COMMA ALPHABET_KEYWORD COLON symbolExpression[symbols] COMMA TRANSITIONS_KEYWORD COLON transitionExpression[transitions] CLOSE_BRACKET						{ $$ = AutomataSemanticAction($states, $symbols, $transitions); }
@@ -158,18 +162,20 @@ automataType: DFA													{ $$ = DFA_AUTOMATA; }
 	| LNFA															{ $$ = LNFA_AUTOMATA; }
 	;
 
-transitionExpression: OPEN_PARENTHESIS transitionExpression[left] UNION transitionExpression[right] CLOSE_PARENTHESIS									{ $$ = TransitionExpressionSemanticAction($left, $right, UNION); }
-	| OPEN_PARENTHESIS transitionExpression[left] DIFFERENCE transitionExpression[right] CLOSE_PARENTHESIS												{ $$ = TransitionExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| OPEN_PARENTHESIS transitionExpression[left] INTERSECTION transitionExpression[right] CLOSE_PARENTHESIS											{ $$ = TransitionExpressionSemanticAction($left, $right, INTERSECTION); }																												
+transitionExpression:  transitionExpression[left] UNION transitionExpression[right] 									{ $$ = TransitionExpressionSemanticAction($left, $right, UNION); }
+	|  transitionExpression[left] DIFFERENCE transitionExpression[right] 												{ $$ = TransitionExpressionSemanticAction($left, $right, DIFFERENCE); }
+	|  transitionExpression[left] INTERSECTION transitionExpression[right] 											{ $$ = TransitionExpressionSemanticAction($left, $right, INTERSECTION); }																												
 	| transitionSet 																																	{ $$ = SetTransitionExpressionSemanticAction($1); }	
-	| transition 																																		{ $$ = SingularTransitionExpressionSemanticAction($1); }	
+	| transition 																									{ $$ = SingularTransitionExpressionSemanticAction($1); }	
+	| OPEN_PARENTHESIS transitionExpression CLOSE_PARENTHESIS		{$$ = $2;}																														
 	;
 
-stateExpression: OPEN_PARENTHESIS stateExpression[left] UNION stateExpression[right] CLOSE_PARENTHESIS							{ $$ = StateExpressionSemanticAction($left, $right, UNION); }
-	| OPEN_PARENTHESIS stateExpression[left] DIFFERENCE stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| OPEN_PARENTHESIS stateExpression[left] INTERSECTION stateExpression[right] CLOSE_PARENTHESIS								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION); }
+stateExpression:  stateExpression[left] UNION stateExpression[right] 							{ $$ = StateExpressionSemanticAction($left, $right, UNION); }
+	|  stateExpression[left] DIFFERENCE stateExpression[right] 								{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE); }
+	|  stateExpression[left] INTERSECTION stateExpression[right] 								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION); }
 	| stateSet																										 			{ $$ = SetStateExpressionSemanticAction($1); }
 	| state																														{ $$ = SingularStateExpressionSemanticAction($1); }	
+	| OPEN_PARENTHESIS stateExpression CLOSE_PARENTHESIS		{$$ = $2;}
 	;
 
 symbolExpression: OPEN_PARENTHESIS symbolExpression[left] UNION symbolExpression[right] CLOSE_PARENTHESIS						{ $$ = SymbolExpressionSemanticAction($left, $right, UNION); }
@@ -177,6 +183,7 @@ symbolExpression: OPEN_PARENTHESIS symbolExpression[left] UNION symbolExpression
 	| OPEN_PARENTHESIS symbolExpression[left] INTERSECTION symbolExpression[right] CLOSE_PARENTHESIS							{ $$ = SymbolExpressionSemanticAction($left, $right, INTERSECTION); }
 	| symbolSet 																												{ $$ = SetSymbolExpressionSemanticAction($1); }
 	| symbol																													{ $$ = SingularSymbolExpressionSemanticAction($1); }
+	| OPEN_PARENTHESIS symbolExpression CLOSE_PARENTHESIS		{$$ = $2;}	
 	;
 	
 stateNode: stateExpression												{ $$ = SingularExpressionStateNodeSemanticAction($1); }				
