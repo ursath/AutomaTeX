@@ -1,4 +1,4 @@
-NFA Automata: [
+NFA Automata [
 	states: {  r, o, j , >s , *w, *q },
 	alphabet: { a, b },
 	transitions: {
