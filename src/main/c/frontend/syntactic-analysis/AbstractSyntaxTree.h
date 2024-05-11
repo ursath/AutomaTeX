@@ -21,11 +21,9 @@ typedef enum AutomataType AutomataType;
 typedef enum SetType SetType;
 typedef enum NodeType NodeType;
 typedef enum StateType StateType;
-
 typedef struct Expression Expression;
 typedef struct Program Program;
 typedef struct Symbol Symbol;
-typedef struct Set Set;
 typedef struct State State;
 typedef struct Automata Automata;
 typedef struct Transition Transition;
