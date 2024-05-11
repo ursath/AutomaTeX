@@ -116,6 +116,38 @@ Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifi
 	return definition;
 }
 
+Definition * TransitionExpressionDefinitionSemanticAction(char * identifier,TransitionExpression * transitionExpression){
+	TransitionNode * first;
+	TransitionSet * set;
+	if ( transitionExpression->type != SET_EXPRESSION) {
+		first = SingularExpressionTransitionNodeSemanticAction(transitionExpression);
+		set = NodeTransitionSetSemanticAction(first);
+	} else
+		set = transitionExpression->transitionSet;
+	return TransitionSetDefinitionSemanticAction(identifier,set);
+}
+Definition * SymbolExpressionDefinitionSemanticAction(char * identifier,SymbolExpression * symbolExpression){
+	SymbolNode * first;
+	SymbolSet * set;
+	if ( symbolExpression->type != SET_EXPRESSION) {
+		first = SingularExpressionSymbolNodeSemanticAction(symbolExpression);
+		set = NodeSymbolSetSemanticAction(first);
+	} else
+		set = symbolExpression->symbolSet;
+	return SymbolSetDefinitionSemanticAction(identifier,set);
+}
+
+Definition * StateExpressionDefinitionSemanticAction(char * identifier,StateExpression * stateExpression){
+	StateNode * first;
+	StateSet * set;
+	if ( stateExpression->type != SET_EXPRESSION) {
+		first = SingularExpressionStateNodeSemanticAction(stateExpression);
+		set = NodeStateSetSemanticAction(first);
+	} else
+		set = stateExpression->stateSet;
+	return StateSetDefinitionSemanticAction(identifier,set);
+}
+
 /*-------------- CONVERSION DE TOKEN A ENUM ----------------------------*/
 StateType stateTypeSemanticAction(StateType type){
 	_logSyntacticAnalyzerAction(__FUNCTION__);

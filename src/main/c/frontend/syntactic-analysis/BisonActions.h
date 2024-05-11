@@ -23,14 +23,18 @@ void shutdownBisonActionsModule();
 
 /* Definitions */
 Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifier, Automata * automata);
-Definition * SingularTransitionSetDefinitionSemanticAction(char * identifier, Transition * transition);
-Definition * TransitionSetDefinitionSemanticAction(char * identifier, TransitionSet * set);
-Definition * SingularSymbolSetDefinitionSemanticAction(char * identifier, Symbol* symbol);
-Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * set);
-Definition * SingularStateSetDefinitionSemanticAction(char * identifier, State* state);
-Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set);
-DefinitionSet * DefinitionSetSemanticAction(Definition * definition1, DefinitionSet * set2); 
-DefinitionSet * SingularDefinitionSetSemanticAction(Definition * definition);
+    Definition * SingularTransitionSetDefinitionSemanticAction(char * identifier, Transition * transition);
+    Definition * TransitionSetDefinitionSemanticAction(char * identifier, TransitionSet * set);
+    Definition * SingularSymbolSetDefinitionSemanticAction(char * identifier, Symbol* symbol);
+    Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * set);
+    Definition * SingularStateSetDefinitionSemanticAction(char * identifier, State* state);
+    Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set);
+    DefinitionSet * DefinitionSetSemanticAction(Definition * definition1, DefinitionSet * set2); 
+    DefinitionSet * SingularDefinitionSetSemanticAction(Definition * definition);
+
+Definition * TransitionExpressionDefinitionSemanticAction(char * identifier,TransitionExpression * transitionExpression);
+Definition * SymbolExpressionDefinitionSemanticAction(char * identifier,SymbolExpression * symbolExpression);
+Definition * StateExpressionDefinitionSemanticAction(char * identifier,StateExpression * stateExpression);
 
 Automata * AutomataSemanticAction(StateExpression* states, SymbolExpression* alphabet, TransitionExpression* transitions);
 AutomataType AutomataTypeAction(AutomataType type);
