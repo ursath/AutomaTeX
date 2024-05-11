@@ -1,2 +1,0 @@
-states S: {a,b};
-states T: S;

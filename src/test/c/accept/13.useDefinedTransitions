@@ -1,2 +1,0 @@
-transitions R1: {|j|-a->|r|};
-transitions R2: { R1, |r|->b->|j|};
