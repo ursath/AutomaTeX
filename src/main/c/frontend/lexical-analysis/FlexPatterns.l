@@ -80,8 +80,8 @@
 
 ";"                                { return NewLineLexemeAction(createLexicalAnalyzerContext()); }
 
-[[:digit:][:lower:]]+				{ return SymbolLexemeAction(createLexicalAnalyzerContext()); }
-[A-Z][A-Za-z\d]*               { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
+[a-z][A-Za-z0-9]* 				{ return SymbolLexemeAction(createLexicalAnalyzerContext()); }
+[A-Z][A-Za-z0-9]*               { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
