@@ -51,17 +51,11 @@ TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * tra
 SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
 StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet);
 
-
-TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * transitionSet);
-StateExpression * SingularStateExpressionSemanticAction(State * stateSet);
-SymbolExpression * SingularSymbolExpressionSemanticAction(Symbol * symbolSet);
-
-
 SymbolSet* IdentifierSymbolSetSemanticAction(char * identifier);
 StateSet* IdentifierStateSetSemanticAction(char * identifier);
 TransitionSet* IdentifierTransitionSetSemanticAction(char * identifier);
 
-TransitionExpression * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
+   // TransitionExpression * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 /*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
 TransitionNode * SingularExpressionTransitionNodeSemanticAction(TransitionExpression * transitionExpression);
@@ -81,6 +75,13 @@ StateSet * StateTypeSetSemanticAction(char * identifier, StateType type);
 TransitionSet * EmptyTransitionSetSemanticAction();
 StateSet * EmptyStateSetSemanticAction();
 SymbolSet * EmptySymbolSetSemanticAction();
+
+/* si solo en set
+    TransitionSet * SingularTransitionSetSemanticAction(Transition * transition);
+    StateSet * SingularStateSetSemanticAction(State * state);
+    SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol);
+*/
+TransitionSet * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
 StateType stateTypeSemanticAction(StateType type);

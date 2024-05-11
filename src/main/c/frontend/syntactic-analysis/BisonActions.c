@@ -228,6 +228,34 @@ SymbolExpression* SingularSymbolExpressionSemanticAction(Symbol * symbol){
 
 /* ------------------------------------------------- SETS ------------------------------------------------- */
 
+
+/*----- CONJUNTOS CON UN ELEMENTO (NODO) ------*/
+TransitionSet * SingularTransitionSetSemanticAction(Transition * transition){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	TransitionNode* transitionNode = calloc(1, sizeof(TransitionNode));
+	transitionNode->transition = transition;
+	transitionNode->type = ELEMENT;
+	return NodeTransitionSetSemanticAction(transitionNode);
+}
+
+StateSet * SingularStateSetSemanticAction(State * state){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StateNode* stateNode = calloc(1, sizeof(StateNode));
+	stateNode->state = state;
+	stateNode->type = ELEMENT;
+	return NodeStateSetSemanticAction(stateNode);
+}
+
+SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	SymbolNode* symbolNode = calloc(1, sizeof(SymbolNode));
+	symbolNode->symbol = symbol;
+	symbolNode->type = ELEMENT;
+	return NodeSymbolSetSemanticAction(symbolNode);
+}
+
+
+
 /*----- CONJUNTOS CON AL MENOS UN ELEMENTO (NODO) ------*/
 SymbolSet * NodeSymbolSetSemanticAction(SymbolNode * symbolNode) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -298,6 +326,20 @@ SymbolSet * IdentifierSymbolSetSemanticAction(char* identifier){
 	SymbolSet * emptySet = calloc(1, sizeof(SymbolSet));
 	emptySet->identifier = identifier;
 	return emptySet;
+}
+
+/*--------------- CONJUNTO A PARTIR DE DOBLE TRANSITION-------------------*/
+TransitionSet * BothSideTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
+	_logSyntacticAnalyzerAction(__FUNCTION__);	
+	Transition * transitionToLeft = LeftTransitionSemanticAction(left,right,alphabet);
+	Transition * transitionToRight = RightTransitionSemanticAction(left,right,alphabet);
+	TransitionExpression * transitionToLeftExpression = SingularTransitionExpressionSemanticAction(transitionToLeft);
+	TransitionExpression * transitionToRightExpression = SingularTransitionExpressionSemanticAction(transitionToRight);
+	TransitionNode * transitionToRightNode = SingularExpressionTransitionNodeSemanticAction(transitionToRightExpression); 
+	TransitionNode * transitionToLeftNode = ExpressionsTransitionNodeSemanticAction(transitionToLeftExpression, transitionToRightNode);
+	TransitionSet * transitionSet = NodeTransitionSetSemanticAction(transitionToLeftNode);
+	
+	return transitionSet;
 }
 
 /*-------------------------------------------------- NODES ------------------------------------------------ */
@@ -457,7 +499,7 @@ Transition * RightTransitionSemanticAction(StateExpression *left, StateExpressio
 	transition->symbolExpression = alphabet;
 	return transition;	
 }
-
+/*
 TransitionExpression * BothSideTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
 	_logSyntacticAnalyzerAction(__FUNCTION__);	
 	Transition * transitionToLeft = LeftTransitionSemanticAction(left,right,alphabet);
@@ -468,7 +510,7 @@ TransitionExpression * BothSideTransitionSemanticAction(StateExpression *left, S
 	TransitionNode * transitionToLeftNode = ExpressionsTransitionNodeSemanticAction(transitionToLeftExpression, transitionToRightNode);
 	TransitionSet * transitionSet = NodeTransitionSetSemanticAction(transitionToLeftNode);
 	return SetTransitionExpressionSemanticAction(transitionSet);
-}
+} */
 
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
