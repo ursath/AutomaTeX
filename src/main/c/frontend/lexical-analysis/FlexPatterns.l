@@ -38,9 +38,6 @@
 <INLINE_COMMENT>"\n"				{ EndInlineCommentLexemeAction(createLexicalAnalyzerContext()); BEGIN(INITIAL); }
 <INLINE_COMMENT>[^\n]+				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
-
-"EMPTY"                             { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
-
 "DFA"                               { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
 "NFA"                               { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
 "LNFA"                              { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
@@ -85,6 +82,8 @@
 
 [[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
+"EMPTY"                             { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"{}"                                { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
 %%
 
 /*
