@@ -302,7 +302,7 @@ StateSet * NodeStateSetSemanticAction(StateNode * stateNode) {
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	stateSet->first= stateNode;
 	stateSet->tail = stateNode;
-	//hay que revisar de que manera armar esto cuando se tenga más de un nodo y quiera dejar en sets separados (para despues acceder con .final, .initial, etc)
+//hay que revisar de que manera armar esto cuando se tenga más de un nodo y quiera dejar en sets separados (para despues acceder con .final, .initial, etc)
 //	stateSet->stateType = stateNode->isFinal ? FINAL : state->isInitial ? INITIAL : REGULAR;
 	return stateSet;
 }
@@ -316,7 +316,6 @@ TransitionSet * NodeTransitionSetSemanticAction(TransitionNode * transitionNode)
 }
 
 /*----------------- CONJUNTOS VACIOS -------------------*/
-//se podría manejar una lista con un solo nodo que en particular sea una expressión vacía pero con esto debería andar
 TransitionSet * EmptyTransitionSetSemanticAction(){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionSet* emptySet = calloc(1, sizeof(TransitionSet));	
@@ -339,10 +338,8 @@ SymbolSet * EmptySymbolSetSemanticAction(){
 
 TransitionSet * IdentifierTransitionSetSemanticAction(char * identifier){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	//si, se podría llamar a los empty pero es solo una linea la que me ahorro y me enchastra el logging
 	TransitionSet* emptySet = calloc(1, sizeof(TransitionSet));	
 	emptySet->identifier = identifier;
-	//en el back se busca con la tablita que elementos tiene 
 	return emptySet;
 }
 
@@ -380,15 +377,6 @@ TransitionSet * BothSideTransitionSemanticAction(StateExpression *left, StateExp
 //formo set a partir de una sola transition expression
 TransitionNode * SingularExpressionTransitionNodeSemanticAction(TransitionExpression * transitionExpression){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	/*
-	if (transitionExpression->type == SET_EXPRESSION || transitionExpression->type == VOID_EXPRESSION) {
-		//cubre casos state, empty y stateSet
-		//no haría falta alocar memoria porque ya lo hice anteriormente 
-		return transitionExpression->transitionSet;
-	}
-	//cubro casos UNION, INTERSECTION y DIFFERENCE
-	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
-	*/
 	TransitionNode * node = calloc(1, sizeof(TransitionNode));
 	node->transitionExpression = transitionExpression;
 	node->type = EXPRESSION;
@@ -399,21 +387,6 @@ TransitionNode * SingularExpressionTransitionNodeSemanticAction(TransitionExpres
 //formo set a partir de una sola state expression
 StateNode * SingularExpressionStateNodeSemanticAction(StateExpression * stateExpression){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	/*
-	if (stateExpression->type == SET_EXPRESSION || stateExpression->type == VOID_EXPRESSION) {
-		//cubre casos state, empty y stateSet
-		//no haría falta alocar memoria porque ya lo hice anteriormente 
-
-		//sino quedaría algo así
-		//StateSet * stateSet = calloc(1, sizeof(StateSet));
-		//stateSet->states = stateExpression->stateSet->states;
-		//stateSet->tail = stateExpression->stateSet->tail;		
-
-		return stateExpression->stateSet;
-	}
-	//cubro casos UNION, INTERSECTION y DIFFERENCE
-	StateSet * stateSet = calloc(1, sizeof(StateSet));
-	*/
 	StateNode * node = calloc(1, sizeof(StateNode));
 	node->stateExpression = stateExpression;	
 	node->type = EXPRESSION;
@@ -423,15 +396,6 @@ StateNode * SingularExpressionStateNodeSemanticAction(StateExpression * stateExp
 //formo un nodo a partir de una sola symbol expression
 SymbolNode * SingularExpressionSymbolNodeSemanticAction(SymbolExpression * symbolExpression){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	/*
-	if (symbolExpression->type == SET_EXPRESSION || symbolExpression->type == VOID_EXPRESSION) {
-		//cubre casos state, empty y stateSet
-		//no haría falta alocar memoria porque ya lo hice anteriormente 
-		return symbolExpression->symbolSet;
-	}
-	//cubro casos UNION, INTERSECTION y DIFFERENCE
-	SymbolSet * symbolSet = calloc(1, sizeof(SymbolSet));
-	*/
 	SymbolNode * node = calloc(1, sizeof(SymbolNode));
 	node->symbolExpression = symbolExpression;
 	node->type = EXPRESSION;
@@ -531,28 +495,13 @@ Transition * RightTransitionSemanticAction(StateExpression *left, StateExpressio
 	transition->symbolExpression = alphabet;
 	return transition;	
 }
-/*
-TransitionExpression * BothSideTransitionSemanticAction(StateExpression *left, StateExpression *right, SymbolExpression *alphabet){
-	_logSyntacticAnalyzerAction(__FUNCTION__);	
-	Transition * transitionToLeft = LeftTransitionSemanticAction(left,right,alphabet);
-	Transition * transitionToRight = RightTransitionSemanticAction(left,right,alphabet);
-	TransitionExpression * transitionToLeftExpression = SingularTransitionExpressionSemanticAction(transitionToLeft);
-	TransitionExpression * transitionToRightExpression = SingularTransitionExpressionSemanticAction(transitionToRight);
-	TransitionNode * transitionToRightNode = SingularExpressionTransitionNodeSemanticAction(transitionToRightExpression); 
-	TransitionNode * transitionToLeftNode = ExpressionsTransitionNodeSemanticAction(transitionToLeftExpression, transitionToRightNode);
-	TransitionSet * transitionSet = NodeTransitionSetSemanticAction(transitionToLeftNode);
-	return SetTransitionExpressionSemanticAction(transitionSet);
-} */
 
 /* ------------------------------------------------- PROGRAM ------------------------------------------------- */
 
-// se tendría que manejar un conjunto de definiciones como resultado de un programa que luego se resuelven en el back
 Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet* definitionSet) {
-//Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Definition* definition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
 	program->definitionSet = definitionSet;
-	//program->definition = definition;
 	compilerState->abstractSyntaxtTree = program;
 	if (0 < flexCurrentContext()) {
 		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());

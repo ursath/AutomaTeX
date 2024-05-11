@@ -48,6 +48,7 @@ typedef struct DefinitionNode DefinitionNode;
 
 
 /* ------------------------------------------------- ENUMS ------------------------------------------------- */
+
 enum DefinitionType {
 	AUTOMATA_DEFINITION,
 	TRANSITION_DEFINITION,
@@ -138,7 +139,6 @@ struct TransitionExpression {
 		Transition * transition;
 	};
 	ExpressionType type;
-//	char * identifier;
 };
 
 struct SymbolExpression {
@@ -179,13 +179,6 @@ struct StateSet {
 	StateNode * tail;
 	char * identifier;
 	StateType stateType;
-	
-	/* 
-	 struct {
-		State * finals;
-		State * initial;
-		State * regulars;
-	}*/
 };
 
 struct TransitionSet {
@@ -194,25 +187,9 @@ struct TransitionSet {
 	char * identifier;
 };
 
-/*
-struct Set {
-    union {
-        // state 
-        State * states;
-	
-        // alphabet 
-        Symbol * alphabet;
-
-        // transition 
-        Transition * transitions;
-    }
-    SetType type; 
-};
-*/
 
 /* ------------------------------------------------- NODES ------------------------------------------------- */
-//los nodos podrían tener un union que sirva para poder incluir subconjuntos (sino siempre se ignoran y se obtiene un conjunto con elementos sueltos)
-//además con esto se evita que el primer caso de cada action de los sets sea una función void
+
 struct SymbolNode {
 	union {
 		Symbol * symbol;
@@ -256,7 +233,6 @@ struct State {
 	boolean isInitial;
 };
 
-//consultar
 struct Transition {
 		StateExpression * fromExpression;
 		SymbolExpression * symbolExpression;
@@ -268,7 +244,6 @@ struct Transition {
 
 struct Program {
 	DefinitionSet * definitionSet;
-	//Definition * definition;
 };
 
 
