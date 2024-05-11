@@ -140,7 +140,7 @@ definitionSet: definition[left] NEW_LINE definitionSet[right]								{ $$ = Defi
 	| definition NEW_LINE																			{ $$ = SingularDefinitionSetSemanticAction($1); }
 	;
 
-definition: automataType[type] IDENTIFIER[identifier] COLON automata[element] 														{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
+definition: automataType[type] IDENTIFIER[identifier] automata[element] 														{ $$ = AutomataDefinitionSemanticAction($type, $identifier, $element); }
 	/*| DEF name function
 	| STATES_KEYWORD IDENTIFIER[identifier] COLON stateSet[set] 																{ $$ = StateSetDefinitionSemanticAction($identifier, $set); }	
 	| STATES_KEYWORD IDENTIFIER[identifier] COLON state[element]																{ $$ = SingularStateSetDefinitionSemanticAction($identifier, $element); }

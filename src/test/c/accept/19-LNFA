@@ -1,4 +1,4 @@
-LNFA A: [
+LNFA A [
 	states: { >s , *w, *q, r }, 
 	alphabet: {cc, dd},
 	transitions: {
