@@ -181,11 +181,12 @@ stateNode: stateExpression													{ $$ = SingularExpressionStateNodeSemanti
 		| stateExpression COMMA stateNode									{ $$ = ExpressionsStateNodeSemanticAction($1, $3); }
 		;
 
-stateSet: OPEN_BRACE stateNode[node] CLOSE_BRACE							{ $$ = NodeStateSetSemanticAction($node); }
-	| EMPTY																	{ $$ = EmptyStateSetSemanticAction();}	
-	| IDENTIFIER															{ $$ = IdentifierStateSetSemanticAction($1,false); }
-	| IDENTIFIER PERIOD STATES_KEYWORD										{ $$ = IdentifierStateSetSemanticAction($1,true); }	
-	| IDENTIFIER[identifier] PERIOD stateType[typeSet]						{ $$ = StateTypeSetSemanticAction($identifier, $typeSet); }	
+stateSet: OPEN_BRACE stateNode[node] CLOSE_BRACE									{ $$ = NodeStateSetSemanticAction($node); }
+	| EMPTY																			{ $$ = EmptyStateSetSemanticAction();}	
+	| IDENTIFIER																	{ $$ = IdentifierStateSetSemanticAction($1,false); }
+	| IDENTIFIER PERIOD STATES_KEYWORD												{ $$ = IdentifierStateSetSemanticAction($1,true); }	
+	| IDENTIFIER[identifier] PERIOD STATES_KEYWORD PERIOD stateType[typeSet]		{ $$ = StateTypeSetSemanticAction($identifier, $typeSet, true); }	
+	| IDENTIFIER[identifier] PERIOD stateType[typeSet]								{ $$ = StateTypeSetSemanticAction($identifier, $typeSet, false); }	
 	;
 
 state: symbol																{ $$ = StateSemanticAction(false, false, $1); }
