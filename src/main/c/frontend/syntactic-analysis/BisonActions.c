@@ -444,10 +444,11 @@ SymbolNode * ExpressionsSymbolNodeSemanticAction(SymbolExpression* exp, SymbolNo
 }
 
 /*-----------------------CONJUNTO DE ESTADOS DE UN AUTOMATA POR TIPO--------------------*/
-StateSet * StateTypeSetSemanticAction(char * identifier, StateType type){
+StateSet * StateTypeSetSemanticAction(char * identifier, StateType type, boolean isFromAutomata){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	stateSet->identifier = identifier;
+	stateSet->isFromAutomata = isFromAutomata;
 	stateSet->stateType = type;
 	return stateSet;
 }

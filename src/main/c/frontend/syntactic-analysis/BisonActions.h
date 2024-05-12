@@ -74,7 +74,7 @@ TransitionSet * NodeTransitionSetSemanticAction(TransitionNode * transitionNode)
 StateSet * NodeStateSetSemanticAction(StateNode * stateNode);	
 SymbolSet * NodeSymbolSetSemanticAction(SymbolNode * symbolNode);
 
-StateSet * StateTypeSetSemanticAction(char * identifier, StateType type);
+StateSet * StateTypeSetSemanticAction(char * identifier, StateType type, boolean isFromAutomata);
 
 TransitionSet * EmptyTransitionSetSemanticAction();
 StateSet * EmptyStateSetSemanticAction();

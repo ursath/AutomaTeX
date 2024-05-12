@@ -1,1 +1,1 @@
-states Q: {r, j, o}
+states Q: {r, j, o};
