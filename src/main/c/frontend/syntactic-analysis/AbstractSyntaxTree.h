@@ -83,7 +83,7 @@ enum StateType {
 	FINAL,
 	INITIAL,
 	REGULAR,
-	MIXED
+	MIXED,
 };
 
 /* ----------------------------------------------- DEFINITION SET ----------------------------------------------- */
@@ -169,6 +169,7 @@ struct StateExpression {
 struct SymbolSet {
 	SymbolNode * first;
 	SymbolNode * tail;
+	boolean isFromAutomata;
 	char * identifier;
 };
 
@@ -176,6 +177,7 @@ struct StateSet {
 	StateNode * first;
 	StateNode * tail;
 	char * identifier;
+	boolean isFromAutomata;
 	StateType stateType;
 };
 
@@ -183,6 +185,7 @@ struct TransitionSet {
 	TransitionNode * first;	
 	TransitionNode * tail;
 	char * identifier;
+	boolean isFromAutomata;
 };
 
 
