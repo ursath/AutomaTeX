@@ -76,10 +76,8 @@
 %token <token> REGULAR_STATES_KEYWORD
 %token <token> FINAL_STATES_KEYWORD
 %token <token> INITIAL_STATES_KEYWORD
-//acá serían de tipo state (tienen un valor asociado)
 %token <token> FINAL_STATE
 %token <token> INITIAL_STATE
-//identifier tendría un string
 %token <value> IDENTIFIER
 %token <token> NEW_LINE
 %token <token> PERIOD
@@ -185,7 +183,8 @@ stateNode: stateExpression													{ $$ = SingularExpressionStateNodeSemanti
 
 stateSet: OPEN_BRACE stateNode[node] CLOSE_BRACE							{ $$ = NodeStateSetSemanticAction($node); }
 	| EMPTY																	{ $$ = EmptyStateSetSemanticAction();}	
-	| IDENTIFIER															{ $$ = IdentifierStateSetSemanticAction($1); }
+	| IDENTIFIER															{ $$ = IdentifierStateSetSemanticAction($1,false); }
+	| IDENTIFIER PERIOD STATES_KEYWORD										{ $$ = IdentifierStateSetSemanticAction($1,true); }	
 	| IDENTIFIER[identifier] PERIOD stateType[typeSet]						{ $$ = StateTypeSetSemanticAction($identifier, $typeSet); }	
 	;
 
@@ -196,9 +195,9 @@ state: symbol																{ $$ = StateSemanticAction(false, false, $1); }
 	| FINAL_STATE INITIAL_STATE symbol										{ $$ = StateSemanticAction(true, true, $3); }
 	;
 
-stateType: REGULAR_STATES_KEYWORD[regularStates]							{ $$ = REGULAR; }
-	| INITIAL_STATES_KEYWORD[initialStates]									{ $$ = INITIAL;}
-	| FINAL_STATES_KEYWORD[finalStates]										{ $$ = FINAL;}
+stateType: REGULAR_STATES_KEYWORD											{ $$ = REGULAR; }
+	| INITIAL_STATES_KEYWORD												{ $$ = INITIAL;}
+	| FINAL_STATES_KEYWORD													{ $$ = FINAL;}
 	;
 
 transitionNode: transitionExpression										{ $$ = SingularExpressionTransitionNodeSemanticAction($1);}
@@ -207,7 +206,8 @@ transitionNode: transitionExpression										{ $$ = SingularExpressionTransitio
 
 transitionSet: OPEN_BRACE transitionNode[node] CLOSE_BRACE																						{ $$ = NodeTransitionSetSemanticAction($node);}
 	| EMPTY																																		{ $$ = EmptyTransitionSetSemanticAction();}	
-	| IDENTIFIER																																{ $$ = IdentifierTransitionSetSemanticAction($1);}
+	| IDENTIFIER																																{ $$ = IdentifierTransitionSetSemanticAction($1, false);}
+	| IDENTIFIER PERIOD TRANSITIONS_KEYWORD																										{ $$ = IdentifierTransitionSetSemanticAction($1, true);}
 	| PIPE stateExpression[left] PIPE END_LEFT_TRANSITION symbolExpression[middle] END_RIGHT_TRANSITION PIPE stateExpression[right] PIPE		{ $$ = BothSideTransitionSemanticAction($left, $right, $middle); }
 	;
 
@@ -221,7 +221,8 @@ symbolNode: symbolExpression												{ $$ = SingularExpressionSymbolNodeSeman
 
 symbolSet: OPEN_BRACE symbolNode[node] CLOSE_BRACE							{ $$ = NodeSymbolSetSemanticAction($node);}
 	| EMPTY																	{ $$ = EmptySymbolSetSemanticAction();}	
-	| IDENTIFIER															{ $$ = IdentifierSymbolSetSemanticAction($1); }
+	| IDENTIFIER															{ $$ = IdentifierSymbolSetSemanticAction($1,false); }
+	| IDENTIFIER PERIOD ALPHABET_KEYWORD									{ $$ = IdentifierSymbolSetSemanticAction($1,true); }
 	;
 
 symbol: SYMBOL 																{ $$ = SymbolSemanticAction($1); }

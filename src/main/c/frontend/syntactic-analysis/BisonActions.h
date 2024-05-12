@@ -55,9 +55,9 @@ TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * tra
 SymbolExpression * SetSymbolExpressionSemanticAction(SymbolSet * symbolSet);
 StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet);
 
-SymbolSet* IdentifierSymbolSetSemanticAction(char * identifier);
-StateSet* IdentifierStateSetSemanticAction(char * identifier);
-TransitionSet* IdentifierTransitionSetSemanticAction(char * identifier);
+SymbolSet* IdentifierSymbolSetSemanticAction(char * identifier, boolean isFromAutomata);
+StateSet* IdentifierStateSetSemanticAction(char * identifier, boolean isFromAutomata);
+TransitionSet* IdentifierTransitionSetSemanticAction(char * identifier, boolean isFromAutomata);
 
    // TransitionExpression * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 

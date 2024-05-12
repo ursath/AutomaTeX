@@ -336,21 +336,24 @@ SymbolSet * EmptySymbolSetSemanticAction(){
 
 /*--------------- CONJUNTO DEFINIDO POR IDENTIFIER-------------------*/
 
-TransitionSet * IdentifierTransitionSetSemanticAction(char * identifier){
+TransitionSet * IdentifierTransitionSetSemanticAction(char * identifier, boolean isFromAutomata){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionSet* emptySet = calloc(1, sizeof(TransitionSet));	
+	emptySet->isFromAutomata = isFromAutomata;
 	emptySet->identifier = identifier;
 	return emptySet;
 }
 
-StateSet * IdentifierStateSetSemanticAction(char * identifier){
+StateSet * IdentifierStateSetSemanticAction(char * identifier, boolean isFromAutomata){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * emptySet = calloc(1, sizeof(StateSet));
+	emptySet->isFromAutomata = isFromAutomata;
+	emptySet->isFromAutomata = isFromAutomata;
 	emptySet->identifier = identifier;
 	return emptySet;
 }
 
-SymbolSet * IdentifierSymbolSetSemanticAction(char* identifier){
+SymbolSet * IdentifierSymbolSetSemanticAction(char* identifier, boolean isFromAutomata){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolSet * emptySet = calloc(1, sizeof(SymbolSet));
 	emptySet->identifier = identifier;

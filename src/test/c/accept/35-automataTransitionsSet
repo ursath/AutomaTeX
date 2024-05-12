@@ -1,0 +1,1 @@
+transitions Q: {A3.transitions, |q|-a->|q|};

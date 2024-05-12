@@ -38,7 +38,7 @@ void BeginInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCont
 void EndInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-// todo s:, for every, where and is /is not*/
+// todo: minimal, for every, where and is /is not*/
 //todo: implement {
 Token DefKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token MinimalKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);

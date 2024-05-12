@@ -75,19 +75,21 @@
 ">"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); } 
 "*"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); }
 
-";"                                { return NewLineLexemeAction(createLexicalAnalyzerContext()); }
+";"                                 { return NewLineLexemeAction(createLexicalAnalyzerContext()); }
 
-[a-z][A-Za-z0-9]* 				{ return SymbolLexemeAction(createLexicalAnalyzerContext()); }
-[A-Z][A-Za-z0-9]*               { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
+[a-z][A-Za-z0-9]*    				{ return SymbolLexemeAction(createLexicalAnalyzerContext()); }
+[A-Z][A-Za-z0-9]*                   { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
 "EMPTY"                             { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
 "{}"                                { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
+
+.									{ return UnknownLexemeAction(createLexicalAnalyzerContext());}
 %%
 
 /*
-.									{ return UnknownLexemeAction(createLexicalAnalyzerContext());}
+
 "minimal"                           { return MinimalKeywordLexemeAction(createLexicalAnalyzerContext()); }
 "def"                               { return DefKeywordLexemeAction(createLexicalAnalyzerContext()); } 
  */

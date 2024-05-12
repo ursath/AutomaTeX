@@ -205,12 +205,6 @@ Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerConte
 	return token;
 }
 
-Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
-	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	return UNKNOWN;
-}
-
-
 Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	Token token;
@@ -250,4 +244,9 @@ Token EmptyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext){
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = EMPTY;
 	return EMPTY;
+}
+
+Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return UNKNOWN;
 }
