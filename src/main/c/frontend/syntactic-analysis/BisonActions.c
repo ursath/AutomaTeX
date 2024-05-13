@@ -148,14 +148,8 @@ Definition * StateExpressionDefinitionSemanticAction(char * identifier,StateExpr
 	return StateSetDefinitionSemanticAction(identifier,set);
 }
 
-/*-------------- CONVERSION DE TOKEN A ENUM ----------------------------*/
-StateType stateTypeSemanticAction(StateType type){
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	return type;
-}
 
 /* ------------------------------------------------- AUTOMATA ------------------------------------------------- */
-
 
 Automata * AutomataSemanticAction( StateExpression* states, SymbolExpression* alphabet, TransitionExpression* transitions) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -261,31 +255,6 @@ SymbolExpression* SingularSymbolExpressionSemanticAction(Symbol * symbol){
 /* ------------------------------------------------- SETS ------------------------------------------------- */
 
 
-/*----- CONJUNTOS CON UN ELEMENTO (NODO) ------*/
-TransitionSet * SingularTransitionSetSemanticAction(Transition * transition){
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	TransitionNode* transitionNode = calloc(1, sizeof(TransitionNode));
-	transitionNode->transition = transition;
-	transitionNode->type = ELEMENT;
-	return NodeTransitionSetSemanticAction(transitionNode);
-}
-
-StateSet * SingularStateSetSemanticAction(State * state){
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	StateNode* stateNode = calloc(1, sizeof(StateNode));
-	stateNode->state = state;
-	stateNode->type = ELEMENT;
-	return NodeStateSetSemanticAction(stateNode);
-}
-
-SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol){
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	SymbolNode* symbolNode = calloc(1, sizeof(SymbolNode));
-	symbolNode->symbol = symbol;
-	symbolNode->type = ELEMENT;
-	return NodeSymbolSetSemanticAction(symbolNode);
-}
-
 
 
 /*----- CONJUNTOS CON AL MENOS UN ELEMENTO (NODO) ------*/
@@ -302,8 +271,6 @@ StateSet * NodeStateSetSemanticAction(StateNode * stateNode) {
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	stateSet->first= stateNode;
 	stateSet->tail = stateNode;
-//hay que revisar de que manera armar esto cuando se tenga más de un nodo y quiera dejar en sets separados (para despues acceder con .final, .initial, etc)
-//	stateSet->stateType = stateNode->isFinal ? FINAL : state->isInitial ? INITIAL : REGULAR;
 	return stateSet;
 }
 

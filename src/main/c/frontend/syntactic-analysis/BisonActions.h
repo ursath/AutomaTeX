@@ -80,15 +80,9 @@ TransitionSet * EmptyTransitionSetSemanticAction();
 StateSet * EmptyStateSetSemanticAction();
 SymbolSet * EmptySymbolSetSemanticAction();
 
-/* si solo en set
-    TransitionSet * SingularTransitionSetSemanticAction(Transition * transition);
-    StateSet * SingularStateSetSemanticAction(State * state);
-    SymbolSet * SingularSymbolSetSemanticAction(Symbol * symbol);
-*/
 TransitionSet * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
 
 State * StateSemanticAction(boolean isInitial, boolean isFinal, Symbol * symbol);
-StateType stateTypeSemanticAction(StateType type);
 
 Transition * LeftTransitionSemanticAction(StateExpression * leftSet, StateExpression * rightSet, SymbolExpression * alphabet);
 Transition * RightTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet);
@@ -96,7 +90,6 @@ Transition * RightTransitionSemanticAction(StateExpression *leftSet, StateExpres
 Symbol * LambdaSemanticAction();
 Symbol * SymbolSemanticAction(char * value);
 
-// TODO: PASAR SET DE DEFINITIONS 
 Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet);
-//Program * ExpressionProgramSemanticAction(CompilerState * compilerState, DefinitionSet * definitionSet);
+
 #endif
