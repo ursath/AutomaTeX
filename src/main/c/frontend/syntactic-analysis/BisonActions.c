@@ -225,7 +225,6 @@ StateExpression * SetStateExpressionSemanticAction(StateSet * stateSet){
 TransitionExpression * SingularTransitionExpressionSemanticAction(Transition * transition){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionExpression * expression = calloc(1, sizeof(TransitionExpression));
-	//acá podría agarrar y copiar el set 
 	expression->transition = transition;
 	expression->type = ELEMENT_EXPRESSION;
 	return expression;
@@ -398,7 +397,6 @@ SymbolNode * ExpressionsSymbolNodeSemanticAction(SymbolExpression* exp, SymbolNo
 	//solo aloco memoria nueva porque necesito el identificador pero los nodos ya están creados
 	SymbolNode * node = calloc(1, sizeof(SymbolNode));
 	node->symbolExpression = exp;
-	//todo: revisar si se puede especificar mejor chequeando el tipo de exp
 	node->type = EXPRESSION;
 	//conecto los nodos 
 	node->next = nextNode;
