@@ -88,9 +88,4 @@
 .									{ return UnknownLexemeAction(createLexicalAnalyzerContext());}
 %%
 
-/*
-
-"minimal"                           { return MinimalKeywordLexemeAction(createLexicalAnalyzerContext()); }
-"def"                               { return DefKeywordLexemeAction(createLexicalAnalyzerContext()); } 
- */
 #include "FlexExport.h"
