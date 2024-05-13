@@ -1,1 +1,1 @@
-transitions SARASAT: |A|<-a->|{q-A}|;
+transitions SARASAT: |A|<-a-|{q-A}|;
