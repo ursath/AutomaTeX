@@ -3,6 +3,7 @@
 
 #include "../../shared/Logger.h"
 #include <stdlib.h>
+#include "../../shared/Type.h"
 
 /** Initialize module's internal state. */
 void initializeAbstractSyntaxTreeModule();
@@ -14,64 +15,243 @@ void shutdownAbstractSyntaxTreeModule();
  * This typedefs allows self-referencing types.
  */
 
+typedef enum DefinitionType DefinitionType;
 typedef enum ExpressionType ExpressionType;
-typedef enum FactorType FactorType;
-
-typedef struct Constant Constant;
+typedef enum AutomataType AutomataType;
+typedef enum SetType SetType;
+typedef enum NodeType NodeType;
+typedef enum StateType StateType;
 typedef struct Expression Expression;
-typedef struct Factor Factor;
 typedef struct Program Program;
+typedef struct Symbol Symbol;
+typedef struct State State;
+typedef struct Automata Automata;
+typedef struct Transition Transition;
+typedef struct SymbolSet SymbolSet;
+typedef struct StateSet StateSet;
+typedef struct TransitionSet TransitionSet;
+typedef struct Definition Definition;
+typedef struct SymbolNode SymbolNode;
+typedef struct StateNode StateNode;
+typedef struct TransitionNode TransitionNode;
+typedef struct TransitionExpression TransitionExpression;
+typedef struct SymbolExpression SymbolExpression;
+typedef struct StateExpression StateExpression;
+typedef struct DefinitionSet DefinitionSet;
+typedef struct DefinitionNode DefinitionNode;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
  */
 
+
+/* ------------------------------------------------- ENUMS ------------------------------------------------- */
+
+enum DefinitionType {
+	AUTOMATA_DEFINITION,
+	TRANSITION_DEFINITION,
+	ALPHABET_DEFINITION,
+	STATE_DEFINITION
+};
+
+enum SetType {
+	TRANSITIONSET,
+	ALPHABETSET,
+	STATESET
+};
+
 enum ExpressionType {
-	ADDITION,
-	DIVISION,
-	FACTOR,
-	MULTIPLICATION,
-	SUBTRACTION
+	UNION_EXPRESSION,
+	INTERSECTION_EXPRESSION,
+	DIFFERENCE_EXPRESSION,
+	SET_EXPRESSION,
+	ELEMENT_EXPRESSION
 };
 
-enum FactorType {
-	CONSTANT,
-	EXPRESSION
+enum NodeType {
+	EXPRESSION,
+	ELEMENT
 };
 
-struct Constant {
-	int value;
+enum AutomataType {
+	DFA_AUTOMATA,
+	NFA_AUTOMATA,
+	LNFA_AUTOMATA
 };
 
-struct Factor {
+enum StateType {
+	FINAL,
+	INITIAL,
+	REGULAR,
+	MIXED,
+};
+
+/* ----------------------------------------------- DEFINITION SET ----------------------------------------------- */
+
+struct DefinitionSet {
+	DefinitionNode * first;
+	DefinitionNode * tail;
+};
+
+struct DefinitionNode {
+	Definition * definition;
+	DefinitionNode * next;
+};
+
+/* ------------------------------------------------- DEFINITION ------------------------------------------------- */
+
+struct Definition
+{
 	union {
-		Constant * constant;
-		Expression * expression;
+		Automata * automata;
+		StateSet * stateSet;
+		SymbolSet * symbolSet;
+		TransitionSet * transitionSet;
 	};
-	FactorType type;
+	DefinitionType type; 
 };
 
-struct Expression {
+
+/* ------------------------------------------------- AUTOMATA ------------------------------------------------- */
+
+struct Automata {
+	char * identifier;
+	StateExpression* states;
+	StateExpression* finals;
+	StateExpression* initials;
+	SymbolExpression* alphabet;
+	TransitionExpression* transitions; 
+	AutomataType automataType;
+};
+
+
+/* ------------------------------------------------- EXPRESSIONS ------------------------------------------------- */
+
+struct TransitionExpression {
 	union {
-		Factor * factor;
+		TransitionSet * transitionSet;
 		struct {
-			Expression * leftExpression;
-			Expression * rightExpression;
+			TransitionExpression * leftExpression;
+			TransitionExpression * rightExpression;
 		};
+		Transition * transition;
 	};
 	ExpressionType type;
 };
 
-struct Program {
-	Expression * expression;
+struct SymbolExpression {
+	union {
+		SymbolSet * symbolSet;
+		struct {
+			SymbolExpression * leftExpression;
+			SymbolExpression * rightExpression;
+		};
+		Symbol * symbol;
+	};
+	ExpressionType type;
 };
+
+struct StateExpression {
+	union {
+		StateSet * stateSet;
+		struct {
+			StateExpression * leftExpression;
+			StateExpression * rightExpression;
+		};
+		State * state;
+	};
+	ExpressionType type;
+};
+
+
+/* ------------------------------------------------- SETS ------------------------------------------------- */
+
+struct SymbolSet {
+	SymbolNode * first;
+	SymbolNode * tail;
+	boolean isFromAutomata;
+	char * identifier;
+};
+
+struct StateSet {
+	StateNode * first;
+	StateNode * tail;
+	char * identifier;
+	boolean isFromAutomata;
+	StateType stateType;
+};
+
+struct TransitionSet {
+	TransitionNode * first;	
+	TransitionNode * tail;
+	char * identifier;
+	boolean isFromAutomata;
+};
+
+
+/* ------------------------------------------------- NODES ------------------------------------------------- */
+
+struct SymbolNode {
+	union {
+		Symbol * symbol;
+		SymbolExpression * symbolExpression;
+		SymbolSet * symbolSubset;
+	};
+	NodeType type;
+	SymbolNode * next;
+};
+
+struct StateNode {
+	union {
+		State * state;
+		StateExpression * stateExpression;
+		StateSet * stateSubset;
+	};
+	NodeType type;
+	StateNode * next;
+};
+
+struct TransitionNode {
+	union {
+		Transition * transition;
+		TransitionExpression * transitionExpression;
+		TransitionSet * transitionSubset;
+	};
+	NodeType type;
+	TransitionNode * next;
+};
+
+
+/* ------------------------------------------------- ELEMENTS ------------------------------------------------- */
+
+struct Symbol {
+	char * value;
+};	
+
+struct State {
+	Symbol symbol;
+	boolean isFinal;
+	boolean isInitial;
+};
+
+struct Transition {
+		StateExpression * fromExpression;
+		SymbolExpression * symbolExpression;
+		StateExpression * toExpression;
+};
+
+
+/* ------------------------------------------------- PROGRAM ------------------------------------------------- */
+
+struct Program {
+	DefinitionSet * definitionSet;
+};
+
 
 /**
  * Node recursive destructors.
  */
-void releaseConstant(Constant * constant);
-void releaseExpression(Expression * expression);
-void releaseFactor(Factor * factor);
-void releaseProgram(Program * program);
+//void releaseExpression(Expression * expression);
+//void releaseProgram(Program * program);
 
 #endif

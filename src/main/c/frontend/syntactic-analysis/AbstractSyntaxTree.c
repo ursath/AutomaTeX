@@ -16,6 +16,10 @@ void shutdownAbstractSyntaxTreeModule() {
 
 /** PUBLIC FUNCTIONS */
 
+
+
+/*
+
 void releaseConstant(Constant * constant) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constant != NULL) {
@@ -56,11 +60,72 @@ void releaseFactor(Factor * factor) {
 		free(factor);
 	}
 }
+*/
 
+void releaseStateSet(StateSet * stateSet){
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if ( stateSet != NULL ){
+		StateNode * stateNode = stateSet->first;
+		/*
+		while ( stateNode != NULL ){
+			releaseStateExpression(stateNode->expression);
+			currentDefinition = currentDefinition->next;
+		}
+		
+		free(definitionNode);*/
+	}
+}
+
+// todo 
+void releaseDefinition(Definition * definition) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (definition != NULL) {
+		switch (definition->type)
+		{
+		case STATE_DEFINITION:
+			//releaseStateSet(definition->stateSet);
+			break;
+		case ALPHABET_DEFINITION:
+			//releaseAlphabet(definition->symbolSet);
+			break;
+		case TRANSITION_DEFINITION:
+			//releaseTransitionSet(definition->transitionSet);
+			break;
+		default:	// automata
+			break;
+		}
+ 		free(definition);
+	}
+}
+
+void releaseDefinitionNode(DefinitionNode * definitionNode) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (definitionNode != NULL) {
+		releaseDefinition(definitionNode->definition);	
+		free(definitionNode);
+	}
+}
+
+void releaseDefinitionSet(DefinitionSet * definitionSet) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (definitionSet != NULL) {
+		DefinitionNode * currentDefinitionNode = definitionSet->first;
+		while ( currentDefinitionNode != NULL ){							//!= definitionSet->tail
+			releaseDefinitionNode(currentDefinitionNode);
+			currentDefinitionNode = currentDefinitionNode->next;
+		}
+//		if ( definitionSet->tail != NULL )
+//			releaseDefinitionNode(currentDefinitionNode);
+
+		free(definitionSet);
+	}
+}
+
+/*
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
-		releaseExpression(program->expression);
+		releaseDefinitionSet(program->definitionSet);
 		free(program);
 	}
-}
+}*/

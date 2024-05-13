@@ -1,0 +1,1 @@
+transitions R: { |{s}|-a->|b|, |w|<-{a,q}->|r|, |w|<-s-|q| };

@@ -1,0 +1,5 @@
+NFA automata [
+    states: {q0},
+    alphabet: { a},
+    transitions: { |q0|-a->|q0|},
+]

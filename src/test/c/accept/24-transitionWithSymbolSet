@@ -1,0 +1,1 @@
+transitions T: |p|-{aaa, bbb}->|q|;

@@ -15,6 +15,9 @@
  * @see https://westes.github.io/flex/manual/Start-Conditions.html
  */
 %x MULTILINE_COMMENT
+%x INLINE_COMMENT
+
+
 
 /**
  * Reusable patterns.
@@ -31,19 +34,58 @@
 <MULTILINE_COMMENT>[^*]+			{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <MULTILINE_COMMENT>.				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
-"-"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext()); }
-"*"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext()); }
-"/"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext()); }
-"+"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext()); }
+"//"								{ BEGIN(INLINE_COMMENT); BeginInlineCommentLexemeAction(createLexicalAnalyzerContext()); }
+<INLINE_COMMENT>"\n"				{ EndInlineCommentLexemeAction(createLexicalAnalyzerContext()); BEGIN(INITIAL); }
+<INLINE_COMMENT>[^\n]+				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
+"DFA"                               { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
+"NFA"                               { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
+"LNFA"                              { return AutomataLexemeAction(createLexicalAnalyzerContext()); }
+
+"states"                            { return StatesKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"transitions"                       { return TransitionsKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"alphabet"                          { return AlphabetKeywordLexemeAction(createLexicalAnalyzerContext()); }
+
+"regular"                           { return StatesSetKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"initial"                           { return StatesSetKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"final"                             { return StatesSetKeywordLexemeAction(createLexicalAnalyzerContext()); }
+
+"-"									{ return SetOperatorLexemeAction(createLexicalAnalyzerContext()); }
+"+"									{ return SetOperatorLexemeAction(createLexicalAnalyzerContext()); }
+"^"                                 { return SetOperatorLexemeAction(createLexicalAnalyzerContext()); }
+
+"{"                                 { return BraceLexemeAction(createLexicalAnalyzerContext()); }
+"}"                                 { return BraceLexemeAction(createLexicalAnalyzerContext()); }
+"["                                 { return BracketLexemeAction(createLexicalAnalyzerContext()); }
+"]"                                 { return BracketLexemeAction(createLexicalAnalyzerContext()); }
 "("									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext()); }
 ")"									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext()); }
+":"									{ return ColonLexemeAction(createLexicalAnalyzerContext()); }
+","									{ return CommaLexemeAction(createLexicalAnalyzerContext()); }
+"."                                 { return PeriodLexemeAction(createLexicalAnalyzerContext()); }
 
-[[:digit:]]+						{ return IntegerLexemeAction(createLexicalAnalyzerContext()); }
+"|"                                 { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
+"->"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
+"<-"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
+"-|"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
+"|-"                                { return TransitionLexemeAction(createLexicalAnalyzerContext()); }
+
+"@"                                 { return LambdaLexemeAction(createLexicalAnalyzerContext()); }      
+
+">"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); } 
+"*"                                 { return StateTypeLexemeAction(createLexicalAnalyzerContext()); }
+
+";"                                 { return NewLineLexemeAction(createLexicalAnalyzerContext()); }
+
+[a-z][A-Za-z0-9]*    				{ return SymbolLexemeAction(createLexicalAnalyzerContext()); }
+[A-Z][A-Za-z0-9]*                   { return IdentifierLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-.									{ return UnknownLexemeAction(createLexicalAnalyzerContext()); }
 
+"EMPTY"                             { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
+"{}"                                { return EmptyKeywordLexemeAction(createLexicalAnalyzerContext()); }
+
+.									{ return UnknownLexemeAction(createLexicalAnalyzerContext());}
 %%
 
 #include "FlexExport.h"
