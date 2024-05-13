@@ -160,11 +160,6 @@ Automata * AutomataSemanticAction( StateExpression* states, SymbolExpression* al
 	return automata;
 }
 
-AutomataType AutomataTypeAction(AutomataType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	return type;
-}
-
 
 /* ------------------------------------------------- EXPRESSIONS ------------------------------------------------- */
 

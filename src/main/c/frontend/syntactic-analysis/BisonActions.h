@@ -23,21 +23,17 @@ void shutdownBisonActionsModule();
 
 /* Definitions */
 Definition * AutomataDefinitionSemanticAction(AutomataType type, char * identifier, Automata * automata);
-    Definition * SingularTransitionSetDefinitionSemanticAction(char * identifier, Transition * transition);
-    Definition * TransitionSetDefinitionSemanticAction(char * identifier, TransitionSet * set);
-    Definition * SingularSymbolSetDefinitionSemanticAction(char * identifier, Symbol* symbol);
-    Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * set);
-    Definition * SingularStateSetDefinitionSemanticAction(char * identifier, State* state);
-    Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set);
-    DefinitionSet * DefinitionSetSemanticAction(Definition * definition1, DefinitionSet * set2); 
-    DefinitionSet * SingularDefinitionSetSemanticAction(Definition * definition);
+Definition * TransitionSetDefinitionSemanticAction(char * identifier, TransitionSet * set);
+Definition * SymbolSetDefinitionSemanticAction(char * identifier, SymbolSet * set);
+Definition * StateSetDefinitionSemanticAction(char * identifier, StateSet * set);
+DefinitionSet * DefinitionSetSemanticAction(Definition * definition1, DefinitionSet * set2); 
+DefinitionSet * SingularDefinitionSetSemanticAction(Definition * definition);
 
 Definition * TransitionExpressionDefinitionSemanticAction(char * identifier,TransitionExpression * transitionExpression);
 Definition * SymbolExpressionDefinitionSemanticAction(char * identifier,SymbolExpression * symbolExpression);
 Definition * StateExpressionDefinitionSemanticAction(char * identifier,StateExpression * stateExpression);
 
 Automata * AutomataSemanticAction(StateExpression* states, SymbolExpression* alphabet, TransitionExpression* transitions);
-AutomataType AutomataTypeAction(AutomataType type);
 
 TransitionExpression * TransitionExpressionSemanticAction(TransitionExpression * leftExpression, TransitionExpression * rightExpression, ExpressionType type);
 TransitionExpression * SetTransitionExpressionSemanticAction(TransitionSet * transitionSet);
@@ -59,9 +55,6 @@ SymbolSet* IdentifierSymbolSetSemanticAction(char * identifier, boolean isFromAu
 StateSet* IdentifierStateSetSemanticAction(char * identifier, boolean isFromAutomata);
 TransitionSet* IdentifierTransitionSetSemanticAction(char * identifier, boolean isFromAutomata);
 
-   // TransitionExpression * BothSideTransitionSemanticAction(StateExpression *leftSet, StateExpression *rightSet, SymbolExpression *alphabet); 
-
-/*TransitionSet * TransitionSetSemanticAction(TransitionSet * set);*/
 TransitionNode * SingularExpressionTransitionNodeSemanticAction(TransitionExpression * transitionExpression);
 StateNode * SingularExpressionStateNodeSemanticAction(StateExpression * stateExpression);
 SymbolNode * SingularExpressionSymbolNodeSemanticAction(SymbolExpression * symbolExpression);
