@@ -127,7 +127,11 @@
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
  */
-%left DIFFERENCE INTERSECTION UNION
+%left OPEN_PARENTHESIS
+%left CLOSE_PARENTHESIS
+%left DIFFERENCE 
+%left INTERSECTION 
+%left UNION
 
 %%
 
@@ -177,8 +181,8 @@ symbolExpression: symbolExpression[left] UNION symbolExpression[right]							{ $
 	| OPEN_PARENTHESIS symbolExpression CLOSE_PARENTHESIS										{ $$ = $2;}	
 	;
 	
-stateNode: stateExpression													{ $$ = SingularExpressionStateNodeSemanticAction($1); }				
-		| stateExpression COMMA stateNode									{ $$ = ExpressionsStateNodeSemanticAction($1, $3); }
+stateNode: stateExpression															{ $$ = SingularExpressionStateNodeSemanticAction($1); }				
+		| stateExpression COMMA stateNode											{ $$ = ExpressionsStateNodeSemanticAction($1, $3); }
 		;
 
 stateSet: OPEN_BRACE stateNode[node] CLOSE_BRACE									{ $$ = NodeStateSetSemanticAction($node); }
