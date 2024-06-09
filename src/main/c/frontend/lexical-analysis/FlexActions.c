@@ -67,51 +67,28 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	}
 }
 
-Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	if (!strcmp(lexicalAnalyzerContext->lexeme, DFA_STRING)) {
-		token = DFA;
-	}else if (!strcmp(lexicalAnalyzerContext->lexeme, NFA_STRING)) {
-		token = NFA;
-	}else{
-		token = LNFA;
-	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
 
 
-Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case '{': token = OPEN_BRACE; break;
-		case '}': token = CLOSE_BRACE; break;
-	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
 
-Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case '[': token = OPEN_BRACKET; break;
-		case ']': token = CLOSE_BRACKET; break;
-	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
 
 
-Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case '(': token = OPEN_PARENTHESIS; break;
-		case ')': token = CLOSE_PARENTHESIS; break;
-	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
@@ -133,14 +110,8 @@ Token PeriodLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext){
 	return PERIOD;
 }
 
-Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case '-': token = DIFFERENCE; break;
-		case '+': token = UNION; break;
-		case '*': token = INTERSECTION; break;
-	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
@@ -151,20 +122,8 @@ Token LambdaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return LAMBDA;
 }
 
-Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	if( !strcmp(END_RIGHT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
-		token = END_RIGHT_TRANSITION;
-	else if( !strcmp(END_LEFT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
-		token = END_LEFT_TRANSITION;
-	else if( !strcmp(BEGIN_LEFT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ) )
-		token = BEGIN_LEFT_TRANSITION;
-	else if( !strcmp(BEGIN_RIGHT_TRANSITION_STRING, lexicalAnalyzerContext->lexeme ))
-		token = BEGIN_RIGHT_TRANSITION;
-	else
-		token = PIPE;
-
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
@@ -190,29 +149,14 @@ Token AlphabetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContex
 	return ALPHABET_KEYWORD;
 }
 
-Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	if (!strcmp(lexicalAnalyzerContext->lexeme, FINAL_STATES_KEYWORD_STRING)) {
-		token = FINAL_STATES_KEYWORD;
-	}
-	else if(!strcmp(INITIAL_STATES_KEYWORD_STRING, lexicalAnalyzerContext->lexeme ) )
-		token = INITIAL_STATES_KEYWORD;
-	else 
-		token = REGULAR_STATES_KEYWORD;
-
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
 
-Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	switch(lexicalAnalyzerContext->lexeme[0]){
-		case '*': token = FINAL_STATE; break;
-		case '>': token = INITIAL_STATE; break;
-		default: token = SYMBOL; break;
-}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
 }
@@ -220,16 +164,12 @@ Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = SYMBOL;
-	lexicalAnalyzerContext->semanticValue->value = calloc(1 + lexicalAnalyzerContext->length, sizeof(char));
-	strcpy(lexicalAnalyzerContext->semanticValue->value, lexicalAnalyzerContext->lexeme);
 	return SYMBOL;
 }
 
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = IDENTIFIER;
-	lexicalAnalyzerContext->semanticValue->value = calloc(1 + lexicalAnalyzerContext->length, sizeof(char));
-	strcpy(lexicalAnalyzerContext->semanticValue->value, lexicalAnalyzerContext->lexeme);
 	return IDENTIFIER;
 }
 

@@ -118,9 +118,7 @@
 %type <stateNode> stateNode
 %type <symbolNode> symbolNode
 %type <transitionNode> transitionNode
-//revisar
-//%type <function> function
-//%type <forLoop> forLoop
+
 
 /**
  * Precedence and associativity.
@@ -130,8 +128,8 @@
 %left OPEN_PARENTHESIS
 %left CLOSE_PARENTHESIS
 %left DIFFERENCE 
-%left INTERSECTION 
 %left UNION
+%left INTERSECTION 
 
 %%
 
