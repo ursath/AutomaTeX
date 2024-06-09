@@ -119,7 +119,6 @@
 %type <symbolNode> symbolNode
 %type <transitionNode> transitionNode
 
-
 /**
  * Precedence and associativity.
  *

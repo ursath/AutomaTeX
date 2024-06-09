@@ -17,6 +17,17 @@ void initializeFlexActionsModule();
 /** Shutdown module's internal state. */
 void shutdownFlexActionsModule();
 
+#define END_LEFT_TRANSITION_STRING "<-"
+#define BEGIN_LEFT_TRANSITION_STRING "-|"
+#define BEGIN_RIGHT_TRANSITION_STRING "|-" 
+#define END_RIGHT_TRANSITION_STRING "->"
+#define NFA_STRING "NFA"
+#define DFA_STRING "DFA"
+#define LNFA_STRING "LNFA"
+
+#define REGULAR_STATES_KEYWORD_STRING "regular"
+#define FINAL_STATES_KEYWORD_STRING "final"
+#define INITIAL_STATES_KEYWORD_STRING "initial"
 /**
  * Flex lexeme processing actions.
  */
