@@ -70,16 +70,20 @@ ComputationResult computeTransitionExpression(TransitionExpression * expression,
 ComputationResult computeStateExpression(StateExpression * expression,  boolean isSingleElement) {
     switch ( expression->type) {
         case UNION_EXPRESSION:
-                    // tiene q dev un set => tmb hay q cambiar expression type
+                    return _stateUnion(expression->left, expression->right);
                         break;
         case INTERSECTION_EXPRESSION:
+                    return _stateIntersection(expression->left, expression->right);
                         break;
         case DIFFERENCE_EXPRESSION:
+                    return _stateDifference(expression->left, expression->right);
                         break;
         case SET_EXPRESSION:
                 return computeStateSet(expression->stateSet);
+                        break;
         case ELEMENT_EXPRESSION:
                 return computeState(expression->state, isSingleElement);
+                        break;
         default:
             return _invalidComputation();
     }
@@ -89,10 +93,13 @@ ComputationResult computeStateExpression(StateExpression * expression,  boolean 
 ComputationResult computeSymbolExpression(SymbolExpression * expression, boolean isSingleElement) {
     switch ( expression->type) {
         case UNION_EXPRESSION:
+                return _symbolUnion(expression->left, expression->right);
                         break;
         case INTERSECTION_EXPRESSION:
+                return _symbolIntersection(expression->left, expression->right);
                         break;
         case DIFFERENCE_EXPRESSION:
+                return _symbolDifference(expression->left, expression->right);
                         break;
         case SET_EXPRESSION:
                 return computeSymbolSet(expression->symbolSet);
@@ -117,12 +124,28 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
         set->first = leftResult->transitionSet->first; 
         result = computeTransitionExpression(set->tail, true);
         set->tail = leftResult->transitionSet->first; 
-    } else if ( set->identifier != NULL ) 
-        // retorna copia de nuevo set!
-        //set = getValue(set->identifier)
-    
+        
+    } else if ( set->identifier != NULL ) {
+        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA_TRANSITIONS: TRANSITIONS );
+        set = result.stateSet;
+    }
     result->transitionSet = set;
     return result;
+}
+
+void filterStates( StateSet set, StateType type){
+    StateNode * currentNode = set->first;
+    State * currentState;
+    StateNode * resultTail;
+    while ( currentNode != set->tail ){
+        currentState =  currentNode->state
+        if ( type==FINAL && currentState->isFinal )
+            if ( resultTail != NULL )
+                resultTail = currentNode;
+            else
+                resultTail->next = currentNode;
+        currentNode = currentNode->next; 
+    }
 }
 
 ComputationResult computeStateSet(StateSet* set) {
@@ -133,11 +156,11 @@ ComputationResult computeStateSet(StateSet* set) {
     };
     
     if ( set->identifier != NULL ) {
-        ValueType idType = set->isFromAutomata? AUTOMATA_STATES: STATES;
-        EntryResult result = getValue(set->identifier, idType)
-        // retorna copia de nuevo set!
-        //set = getValue(set->identifier)
+        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA_STATES: STATES );
+        set = result.stateSet;
     }
+    if ( set->stateType != MIXED )
+        filterStates(set, set->stateType);
     result->stateSet = set;
     return result;
 }
@@ -149,9 +172,11 @@ ComputationResult computeSymbolSet(SymbolSet* set) {
         .type = ALPHABET_DEFINITION        
     };
     
-    if ( set->identifier != NULL )
-        // retorna copia de nuevo set!
-        //set = getValue(set->identifier)
+    if ( set->identifier != NULL ) {
+        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA_ALPHABET: ALPHABET );
+        set = result.stateSet;
+    }
+
     result->symbolSet = set;
     return result;
 }
@@ -249,6 +274,32 @@ ComputationResult _transitionUnion(TransitionExpression leftExp, TransitionExpre
     return _invalidComputation();
 }
 
+ComputationResult _stateUnion(StateExpression leftExp, StateExpression rightExp){
+    ComputationResult left = computeStateExpression(leftExp, false);
+    ComputationResult right = computeStateExpression(rightExp, false);
+    if (left.succeed && right.succeed){
+        StateSet * result = calloc(sizeof(StateSet));
+        result->first = leftSet->fist;
+        leftSet->tail->next = rightSet->first; 
+        result->tail = rightSet->tail;
+        return computeStateSet(result);
+    }
+    return _invalidComputation();
+}
+
+ComputationResult _symbolUnion(SymbolExpression leftExp, SymbolExpression rightExp){
+    ComputationResult left = computeSymbolExpression(leftExp, false);
+    ComputationResult right = computeSymbolExpression(rightExp, false);
+    if (left.succeed && right.succeed){
+        SymbolSet * result = calloc(sizeof(SymbolSet));
+        result->first = leftSet->fist;
+        leftSet->tail->next = rightSet->first; 
+        result->tail = rightSet->tail;
+        return computeSymbolSet(result);
+    }
+    return _invalidComputation();
+}
+
 /*------------------------------ INTERSECTION -------------------------------------*/
 ComputationResult _transitionIntersection(TransitionExpression leftExp, TransitionExpression rightExp){
     ComputationResult left = computeTransitionExpression(leftExp, false);
@@ -322,6 +373,164 @@ static void _transitionIntersectionResolution(TransitionSet * leftSet, Transitio
     while (leftCurrentNode != leftSet->tail && !found);
     // busco el último nodo
     TransitionNode * lastNode = result->first;
+    while(lastNode->next != NULL){
+        lastNode = lastNode->next;
+    }
+    result->tail = lastNode;
+    //free de los nodos de left y right sets
+}
+
+static ComputationResult _stateIntersection(StateExpression leftExp, StateExpression rightExp){
+    ComputationResult left = computeStateExpression(leftExp, false);
+    ComputationResult right = computeStateExpression(rightExp, false);
+    if (left.succeed && right.succeed){
+        StateSet * result = malloc(sizeof(StateSet));
+        _stateIntersectionResolution(left.stateSet, right.stateSet, result);
+        ComputationResult computationResult = {
+            .succeed = true,
+            .stateSet = result
+        };
+        return computationResult;
+    }
+    return _invalidComputation();
+}
+
+static void _stateIntersectionResolution(StateSet * leftSet, StateSet * rightSet, StateSet * result){
+    StateNode * leftCurrentNode = leftSet->first;
+    StateNode * rightCurrentNode = rightSet->first;
+    StateNode * pivotNode = NULL;
+    StateNode * resultCurrentNode = NULL; 
+    result->first = resultCurrentNode;
+    int found = 0;
+    if (leftSet->tail == NULL || rightSet->tail == NULL){
+        return;
+    }
+    pivotNode = leftCurrentNode;
+    while (rightCurrentNode != rightSet->tail && !found){
+            if (stateEquals(pivotNode->state, rightCurrentNode->state)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(StateNode));
+                resultCurrentNode->state = leftCurrentNode->state;
+                resultCurrentNode = resultCurrentNode->next;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+        }
+        if (!found){
+            if(stateEquals(pivotNode->state, rightCurrentNode->state)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(StateNode));
+                resultCurrentNode->state = leftCurrentNode->state;
+                resultCurrentNode = resultCurrentNode->next;
+            }
+    }
+    rightCurrentNode = rightSet->first;
+    do {
+        leftCurrentNode = leftCurrentNode->next;
+        //dejo un nodo para comparar contra todos los nodos del otro set
+        pivotNode = leftCurrentNode;
+        while (rightCurrentNode != rightSet->tail && !found){
+            if (stateEquals(pivotNode->state, rightCurrentNode->state)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(StateNode));
+                resultCurrentNode->state = leftCurrentNode->state;
+                resultCurrentNode = resultCurrentNode->next;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+        }
+        if (!found){
+            if(stateEquals(pivotNode->state, rightCurrentNode->state)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(StateNode));
+                resultCurrentNode->state = leftCurrentNode->state;
+                resultCurrentNode = resultCurrentNode->next;
+            }
+        }
+        rightCurrentNode = rightSet->first;
+    }
+    while (leftCurrentNode != leftSet->tail && !found);
+    // busco el último nodo
+    StateNode * lastNode = result->first;
+    while(lastNode->next != NULL){
+        lastNode = lastNode->next;
+    }
+    result->tail = lastNode;
+    //free de los nodos de left y right sets
+}
+
+static ComputationResult _symbolIntersection(SymbolExpression leftExp, SymbolExpression rightExp){
+    ComputationResult left = computeSymbolExpression(leftExp, false);
+    ComputationResult right = computeSymbolExpression(rightExp, false);
+    if (left.succeed && right.succeed){
+        SymbolSet * result = malloc(sizeof(SymbolSet));
+        _symbolIntersectionResolution(left.symbolSet, right.symbolSet, result);
+        ComputationResult computationResult = {
+            .succeed = true,
+            .symbolSet = result
+        };
+        return computationResult;
+    }
+    return _invalidComputation();
+}
+
+static void _symbolIntersectionResolution(SymbolSet * leftSet, SymbolSet * rightSet, SymbolSet * result){
+    SymbolNode * leftCurrentNode = leftSet->first;
+    SymbolNode * rightCurrentNode = rightSet->first;
+    SymbolNode * pivotNode = NULL;
+    SymbolNode * resultCurrentNode = NULL; 
+    result->first = resultCurrentNode;
+    int found = 0;
+    if (leftSet->tail == NULL || rightSet->tail == NULL){
+        return;
+    }
+    pivotNode = leftCurrentNode;
+    while (rightCurrentNode != rightSet->tail && !found){
+            if (symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(SymbolNode));
+                resultCurrentNode->symbol = leftCurrentNode->symbol;
+                resultCurrentNode = resultCurrentNode->next;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+        }
+        if (!found){
+            if(symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(SymbolNode));
+                resultCurrentNode->symbol = leftCurrentNode->symbol;
+                resultCurrentNode = resultCurrentNode->next;
+            }
+    }
+    rightCurrentNode = rightSet->first;
+    do {
+        leftCurrentNode = leftCurrentNode->next;
+        //dejo un nodo para comparar contra todos los nodos del otro set
+        pivotNode = leftCurrentNode;
+        while (rightCurrentNode != rightSet->tail && !found){
+            if (symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(SymbolNode));
+                resultCurrentNode->symbol = leftCurrentNode->symbol;
+                resultCurrentNode = resultCurrentNode->next;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+        }
+        if (!found){
+            if(symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+                found = 1;
+                resultCurrentNode = calloc(sizeof(SymbolNode));
+                resultCurrentNode->symbol = leftCurrentNode->symbol;
+                resultCurrentNode = resultCurrentNode->next;
+            }
+        }
+        rightCurrentNode = rightSet->first;
+    }
+    while (leftCurrentNode != leftSet->tail && !found);
+    // busco el último nodo
+    SymbolNode * lastNode = result->first;
     while(lastNode->next != NULL){
         lastNode = lastNode->next;
     }
@@ -405,6 +614,154 @@ static void _transitionDifferenceResolution(TransitionSet * leftSet, TransitionS
 
 }
 
+static ComputationResult _stateDifference(StateExpression leftExp, StateExpression rightExp){
+    ComputationResult left = computeStateExpression(leftExp, false);
+    ComputationResult right = computeStateExpression(rightExp, false);
+    if (left.succeed && right.succeed){
+        StateSet * result = malloc(sizeof(StateSet));
+        _stateDifferenceResolution(left.stateSet, right.stateSet, result);
+        ComputationResult computationResult = {
+            .succeed = true,
+            .stateSet = result
+        };
+        return computationResult;
+    }
+    return _invalidComputation();
+}
+
+static void _stateDifferenceResolution(StateSet * leftSet, StateSet * rightSet, StateSet * result){
+    StateNode * leftCurrentNode = leftSet->first;
+    StateNode * rightCurrentNode = rightSet->first;
+    StateNode * pivotNode = NULL;
+    StateNode * resultCurrentNode = NULL; 
+    result->first = resultCurrentNode;
+    int found = 0;
+    if (leftSet->tail == NULL){
+        return;
+    }
+    if (rightSet->tail == NULL){
+        result = leftSet;
+        return;
+    }
+    pivotNode = leftCurrentNode;
+    while (rightCurrentNode != rightSet->tail && !found){
+            if (stateEquals(pivotNode->state, rightCurrentNode->state)){
+                found = 1;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+    }
+    if (!found){
+        if(!stateEquals(pivotNode->state, rightCurrentNode->state)){
+            resultCurrentNode = calloc(sizeof(StateNode));
+            resultCurrentNode->state = leftCurrentNode->state;
+            resultCurrentNode = resultCurrentNode->next;
+        }
+    }
+    rightCurrentNode = rightSet->first;
+    do {
+        leftCurrentNode = leftCurrentNode->next;
+        //dejo un nodo para comparar contra todos los nodos del otro set
+        pivotNode = leftCurrentNode;
+        while (rightCurrentNode != rightSet->tail && !found){
+            if (stateEquals(pivotNode->state, rightCurrentNode->state)){
+                found = 1;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+        }
+        if (!found){
+            if(!stateEquals(pivotNode->state, rightCurrentNode->state)){
+                resultCurrentNode = calloc(sizeof(StateNode));
+                resultCurrentNode->state = leftCurrentNode->state;
+                resultCurrentNode = resultCurrentNode->next;
+            }
+        }
+        rightCurrentNode = rightSet->first;
+    }
+    while (leftCurrentNode != leftSet->tail && !found);
+    //free the nodes from left and right sets
+    StateNode * lastNode = result->first;
+    while(lastNode->next != NULL){
+        lastNode = lastNode->next;
+    }
+    result->tail = lastNode;
+}
+
+static ComputationResult _symbolDifference(SymbolExpression leftExp, SymbolExpression rightExp){
+    ComputationResult left = computeSymbolExpression(leftExp, false);
+    ComputationResult right = computeSymbolExpression(rightExp, false);
+    if (left.succeed && right.succeed){
+        SymbolSet * result = malloc(sizeof(SymbolSet));
+        _symbolDifferenceResolution(left.symbolSet, right.symbolSet, result);
+        ComputationResult computationResult = {
+            .succeed = true,
+            .symbolSet = result
+        };
+        return computationResult;
+    }
+    return _invalidComputation();
+}
+
+static void _symbolDifferenceResolution(SymbolSet * leftSet, SymbolSet * rightSet, SymbolSet * result){
+    SymbolNode * leftCurrentNode = leftSet->first;
+    SymbolNode * rightCurrentNode = rightSet->first;
+    SymbolNode * pivotNode = NULL;
+    SymbolNode * resultCurrentNode = NULL; 
+    result->first = resultCurrentNode;
+    int found = 0;
+    if (leftSet->tail == NULL){
+        return;
+    }
+    if (rightSet->tail == NULL){
+        result = leftSet;
+        return;
+    }
+    pivotNode = leftCurrentNode;
+    while (rightCurrentNode != rightSet->tail && !found){
+            if (symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+                found = 1;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+    }
+    if (!found){
+        if(!symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+            resultCurrentNode = calloc(sizeof(SymbolNode));
+            resultCurrentNode->symbol = leftCurrentNode->symbol;
+            resultCurrentNode = resultCurrentNode->next;
+        }
+    }
+    rightCurrentNode = rightSet->first;
+    do {
+        leftCurrentNode = leftCurrentNode->next;
+        //dejo un nodo para comparar contra todos los nodos del otro set
+        pivotNode = leftCurrentNode;
+        while (rightCurrentNode != rightSet->tail && !found){
+            if (symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+                found = 1;
+                break;
+            }
+            rightCurrentNode = rightCurrentNode->next;
+        }
+        if (!found){
+            if(!symbolEquals(pivotNode->symbol, rightCurrentNode->symbol)){
+                resultCurrentNode = calloc(sizeof(SymbolNode));
+                resultCurrentNode->symbol = leftCurrentNode->symbol;
+                resultCurrentNode = resultCurrentNode->next;
+            }
+        }
+        rightCurrentNode = rightSet->first;
+    }
+    while (leftCurrentNode != leftSet->tail && !found);
+    //free the nodes from left and right sets
+    SymbolNode * lastNode = result->first;
+    while(lastNode->next != NULL){
+        lastNode = lastNode->next;
+    }
+    result->tail = lastNode;
+}
+
 /*--------------------------------------------- INVALID OPERATORS -----------------------------------------*/
 static ComputationResult _invalidBinaryOperator(TransitionExpression leftExp, TransitionExpression rightExp) {
 	return _invalidComputation();
@@ -415,9 +772,44 @@ static ComputationResult _invalidBinaryOperator(TransitionExpression leftExp, Tr
  */
 static ComputationResult _invalidComputation() {
 	ComputationResult computationResult = {
-		.succeed = false,
-	};
-	return computationResult;
+        .succeed = false,
+    };
+    return computationResult;
+}
+	
+
+/*-------------------------------------- FREE NODE SETS --------------------*/
+static void freeTransitionSet(TransitionSet * set){
+    TransitionNode * current = set->first;
+    TransitionNode * next;
+    while (current != NULL){
+        next = current->next;
+        free(current);
+        current = next;
+    }
+    free(set);
+}
+
+static void freeStateSet(StateSet * set){
+    StateNode * current = set->first;
+    StateNode * next;
+    while (current != NULL){
+        next = current->next;
+        free(current);
+        current = next;
+    }
+    free(set);
+}
+
+static void freeSymbolSet(SymbolSet * set){
+    SymbolNode * current = set->first;
+    SymbolNode * next;
+    while (current != NULL){
+        next = current->next;
+        free(current);
+        current = next;
+    }
+    free(set);
 }
 
 /*----------------------------------------- SET EQUALS ----------------------------------------------------*/ 
