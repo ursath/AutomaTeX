@@ -40,6 +40,7 @@ ComputationResult computeAutomata(Automata * automata) {
     // agrego a tabla
     ComputationResult transitionSetResult = computeTransitionExpression(automata->transitions);
     // check si los estados y simbolos de las transiciones pertenecen a los del automata
+    StateSet * finals = filterStates( )
     // check repes
     // agrego a tabla
     return result;
@@ -120,19 +121,19 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
     };
     
     if ( set->isBothSidesTransition ) {
-        ComputationResult * result = computeTransitionExpression(set->first, true);
-        set->first = leftResult->transitionSet->first; 
-        result = computeTransitionExpression(set->tail, true);
-        set->tail = leftResult->transitionSet->first; 
-        
+        ComputationResult result1 = computeTransitionExpression(set->first, true);
+        set->first = result1.transitionSet->first; 
+        ComputationResult result2 = computeTransitionExpression(set->tail, true);
+        result1.transitionSet->tail->next = result2->transitionSet->first; 
     } else if ( set->identifier != NULL ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA_TRANSITIONS: TRANSITIONS );
-        set = result.stateSet;
+        set = result.transitionSet; 
     }
-    result->transitionSet = set;
+    result.transitionSet = deleteRepetitionsFromTransitionSet(set);
     return result;
 }
 
+// todo: q retorne * NUEVO SET
 void filterStates( StateSet set, StateType type){
     StateNode * currentNode = set->first;
     State * currentState;
@@ -146,6 +147,7 @@ void filterStates( StateSet set, StateType type){
                 resultTail->next = currentNode;
         currentNode = currentNode->next; 
     }
+    
 }
 
 ComputationResult computeStateSet(StateSet* set) {
@@ -161,7 +163,8 @@ ComputationResult computeStateSet(StateSet* set) {
     }
     if ( set->stateType != MIXED )
         filterStates(set, set->stateType);
-    result->stateSet = set;
+        
+    result.stateSet = deleteRepetitionsFromStateSet(set);
     return result;
 }
 
@@ -177,7 +180,7 @@ ComputationResult computeSymbolSet(SymbolSet* set) {
         set = result.stateSet;
     }
 
-    result->symbolSet = set;
+    result->symbolSet = deleteRepetitionsFromSymbolSet(set);
     return result;
 }
 
@@ -378,6 +381,8 @@ static void _transitionIntersectionResolution(TransitionSet * leftSet, Transitio
     }
     result->tail = lastNode;
     //free de los nodos de left y right sets
+    freeTransitionSet(leftSet);
+    freeTransitionSet(rightSet);
 }
 
 static ComputationResult _stateIntersection(StateExpression leftExp, StateExpression rightExp){
@@ -457,6 +462,8 @@ static void _stateIntersectionResolution(StateSet * leftSet, StateSet * rightSet
     }
     result->tail = lastNode;
     //free de los nodos de left y right sets
+    freeStateSet(leftSet);
+    freeStateSet(rightSet);
 }
 
 static ComputationResult _symbolIntersection(SymbolExpression leftExp, SymbolExpression rightExp){
@@ -536,6 +543,8 @@ static void _symbolIntersectionResolution(SymbolSet * leftSet, SymbolSet * right
     }
     result->tail = lastNode;
     //free de los nodos de left y right sets
+    freeSymbolSet(leftSet);
+    freeSymbolSet(rightSet);
 }
 
 /*-------------------------------------- DIFFERENCE -----------------------------*/
@@ -611,7 +620,8 @@ static void _transitionDifferenceResolution(TransitionSet * leftSet, TransitionS
         lastNode = lastNode->next;
     }
     result->tail = lastNode;
-
+    freeTransitionSet(leftSet);
+    freeTransitionSet(rightSet);
 }
 
 static ComputationResult _stateDifference(StateExpression leftExp, StateExpression rightExp){
@@ -686,6 +696,8 @@ static void _stateDifferenceResolution(StateSet * leftSet, StateSet * rightSet, 
         lastNode = lastNode->next;
     }
     result->tail = lastNode;
+    freeStateSet(leftSet);
+    freeStateSet(rightSet);
 }
 
 static ComputationResult _symbolDifference(SymbolExpression leftExp, SymbolExpression rightExp){
@@ -760,6 +772,63 @@ static void _symbolDifferenceResolution(SymbolSet * leftSet, SymbolSet * rightSe
         lastNode = lastNode->next;
     }
     result->tail = lastNode;
+    freeSymbolSet(leftSet);
+    freeSymbolSet(rightSet);
+}
+
+/*---------------------------------------------- DELETE REPETITIONS FROM SET -----------------------------------------*/
+static void deleteRepetitionsFromTransitionSet(TransitionSet * set){
+    TransitionNode * current = set->first;
+    TransitionNode * next;
+    while (current != NULL){
+        next = current->next;
+        while (next != NULL){
+            if (transitionEquals(current->transition, next->transition)){
+                current->next = next->next;
+                free(next);
+                next = current->next;
+            } else {
+                next = next->next;
+            }
+        }
+        current = current->next;
+    }
+}
+
+static void deleteRepetitionsFromStateSet(StateSet * set){
+    StateNode * current = set->first;
+    StateNode * next;
+    while (current != NULL){
+        next = current->next;
+        while (next != NULL){
+            if (stateEquals(current->state, next->state)){
+                current->next = next->next;
+                free(next);
+                next = current->next;
+            } else {
+                next = next->next;
+            }
+        }
+        current = current->next;
+    }
+}
+
+static void deleteRepetitionsFromSymbolSet(SymbolSet * set){
+    SymbolNode * current = set->first;
+    SymbolNode * next;
+    while (current != NULL){
+        next = current->next;
+        while (next != NULL){
+            if (symbolEquals(current->symbol, next->symbol)){
+                current->next = next->next;
+                free(next);
+                next = current->next;
+            } else {
+                next = next->next;
+            }
+        }
+        current = current->next;
+    }
 }
 
 /*--------------------------------------------- INVALID OPERATORS -----------------------------------------*/
@@ -772,11 +841,10 @@ static ComputationResult _invalidBinaryOperator(TransitionExpression leftExp, Tr
  */
 static ComputationResult _invalidComputation() {
 	ComputationResult computationResult = {
-        .succeed = false,
-    };
-    return computationResult;
+		.succeed = false,
+	};
+	return computationResult;
 }
-	
 
 /*-------------------------------------- FREE NODE SETS --------------------*/
 static void freeTransitionSet(TransitionSet * set){

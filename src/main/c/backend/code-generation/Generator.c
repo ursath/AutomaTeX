@@ -132,6 +132,7 @@ static void _generateDefinition(Definition * definition) {
 		return;
 	else {
 		_generateAutomata(definition->automata);
+		_genetateTransitionsTable(definition->automata);
 	}
 	
 }
@@ -139,21 +140,36 @@ static void _generateDefinition(Definition * definition) {
 static void _generateAutomata(Automata * automata) {
 	_output(0, "%s", 
 		"\\begin{figure}[ht]\n"
-        "\\centering %% centers the figure\n"
+        "\\centering\n"
         "\\begin{tikzpicture}[auto]\n"
 		"\\node[state,initial,accepting] (0) {$" + automata->initials->state->symbol + "$};"
 	)
 
-	while ( currentNode!= automata->stateExpression ){
-		_output(0, "%s", 
-				"\\node[state] (s_" +  + ") [right-of=" + + "] {$" +  + "$};"
-		);
-		currentState++;
+	StateNode currentStateNode = automata->states->stateSet->first;
+	while ( currentStateNode != NULL ){
+		switch(currentStateNode->state) {
+			case state->isInitial && state->isFinal:
+				_output(0, "\\node[state, initial, accepting] (%s) {$%s$};", currentStateNode->state->symbol, currentStateNode->state->symbol);
+				break;
+			case state->isInitial:
+				_output(0, "\\node[state, initial] (%s) {$%s$};", currentStateNode->state->symbol, currentStateNode->state->symbol);
+				break;
+			case state->isFinal:
+				_output(0, "\\node[state, accepting] (%s) [right-of=%s] {$%s$};", currentStateNode->state->symbol, "to-do" , currentStateNode->state->symbol);
+				break;
+			default:
+				_output(0, "\\node[state] (%s) [right-of=%s] {$%s$};", currentStateNode->state->symbol, "to-do" , currentStateNode->state->symbol);
+		}
+		currentStateNode = currentStateNode->next;
 	}
 	
-	_output(0, "%s", 
-		"\\path[->]\n"
-	);
+	_output(0, "%s", "\\path[->]\n");
+	TransitionNode currentTransitionNode = automata->transitions->transitionSet->first;
+	while ( currentTransitionNode != NULL ){
+		switch(currentTransitionNode->state) {
+		}
+		currentTransitionNode = currentTransitionNode->next;
+	}
 
 	_output(0, "%s",
 	 	"\\end{tikzpicture}\n"
@@ -162,6 +178,21 @@ static void _generateAutomata(Automata * automata) {
     	"\\end{figure}\n"
 	);
 }
+
+static void _generateTransitionsTable(Automata * automata) {
+	_output(0, "%s", 
+		"\\begin{table}[h]\n"
+		"\\centering\n"
+		"\\begin{tabular}{|c|c|c|}\n"
+		"\\hline\n"
+		"$\\delta$ & " + + " & " + + " \\\\ \n"
+		" \\hline\n"
+		"\\end{tabular}\n"
+		"\\caption{Automata Transitions Table}\n"
+		"\\end{table}\n"
+	);
+}
+
 
 /**
  * Creates the prologue of the generated output, a Latex document that renders

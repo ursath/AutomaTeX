@@ -80,10 +80,10 @@ enum AutomataType {
 };
 
 enum StateType {
+	MIXED,
 	FINAL,
 	INITIAL,
 	REGULAR,
-	MIXED,
 };
 
 /* ----------------------------------------------- DEFINITION SET ----------------------------------------------- */
