@@ -186,6 +186,7 @@ struct TransitionSet {
 	TransitionNode * tail;
 	char * identifier;
 	boolean isFromAutomata;
+	boolean isBothSidesTransition;	
 };
 
 

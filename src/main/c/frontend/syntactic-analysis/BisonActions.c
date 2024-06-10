@@ -309,7 +309,6 @@ StateSet * IdentifierStateSetSemanticAction(char * identifier, boolean isFromAut
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * emptySet = calloc(1, sizeof(StateSet));
 	emptySet->isFromAutomata = isFromAutomata;
-	emptySet->isFromAutomata = isFromAutomata;
 	emptySet->identifier = identifier;
 	return emptySet;
 }
@@ -317,6 +316,7 @@ StateSet * IdentifierStateSetSemanticAction(char * identifier, boolean isFromAut
 SymbolSet * IdentifierSymbolSetSemanticAction(char* identifier, boolean isFromAutomata){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolSet * emptySet = calloc(1, sizeof(SymbolSet));
+	emptySet->isFromAutomata = isFromAutomata;
 	emptySet->identifier = identifier;
 	return emptySet;
 }
@@ -330,8 +330,9 @@ TransitionSet * BothSideTransitionSemanticAction(StateExpression *left, StateExp
 	TransitionExpression * transitionToRightExpression = SingularTransitionExpressionSemanticAction(transitionToRight);
 	TransitionNode * transitionToRightNode = SingularExpressionTransitionNodeSemanticAction(transitionToRightExpression); 
 	TransitionNode * transitionToLeftNode = ExpressionsTransitionNodeSemanticAction(transitionToLeftExpression, transitionToRightNode);
-	TransitionSet * transitionSet = NodeTransitionSetSemanticAction(transitionToLeftNode);
 	
+	TransitionSet * transitionSet = NodeTransitionSetSemanticAction(transitionToLeftNode);
+	transitionSet->isBothSidesTransition = true;
 	return transitionSet;
 }
 
