@@ -44,7 +44,7 @@ int getStatesCount(StateNode * currentNode);
 int getAlphabetLength(SymbolNode * currentNode);
 void freeTransitionMatrix(int numStates, int numSymbols);
 void freeAutomataMatrix(int numStates);
-void freeStatesAndSymbols(char * states[], int numStates, char * symbols[], int numSymbols);
+void freeStatesAndSymbols(State * states[], int numStates, Symbol * symbols[], int numSymbols);
 
 
 /**
@@ -131,7 +131,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 	// Agrego el doble circulo a todos los estados que sean finales
 	StateNode * currentFinalNode = automata->finals->stateSet->first;
 	while( currentFinalNode != NULL ){
-		_output(0, "%s [shape=doublecircle];\n", currentFinalNode->state->symbol->value);
+		_output(0, "%s [shape=doublecircle];\n", currentFinalNode->state->symbol.value);
 		currentFinalNode = currentFinalNode->next;
 	}
 
@@ -179,9 +179,9 @@ static void _generateTransitionsTable(State * states[], Symbol * symbols[], int 
 	for(int i=0; i<statesCount; i++) {
 		_output(0, "%s &", states[i]->symbol.value);
 		for(int j=0; j<symbolsCount; j++) {
-			MatrixNode * currentNode = transitionMatrix[i][j]->first;
+			MatrixNode * currentNode = transitionMatrix[i][j].first;
 			while(currentNode != NULL) {
-				_output(0, "%s", currentNode->state->symbol->value);
+				_output(0, "%s", currentNode->state->symbol.value);
 				if(currentNode->next != NULL) {
 					_output(0, ", ");
 				}
@@ -235,7 +235,7 @@ void setTransitionMatrix(State * states[], Symbol * symbols[], TransitionSet * t
 	int symbolIndex = 0;
 	while(currentNode != NULL) {
 		stateIndex = getStateIndex(currentNode->transition->fromExpression->state->symbol.value, states, statesCount);
-		symbolIndex = getSymbolIndex(currentNode->transition->symbolExpression->symbol.value, symbols, symbolsCount);
+		symbolIndex = getSymbolIndex(currentNode->transition->symbolExpression->symbol->value, symbols, symbolsCount);
 		MatrixNode * newNode = (MatrixNode *)malloc(sizeof(MatrixNode));
 		newNode->state=currentNode->transition->toExpression->state;
 		if(transitionMatrix[stateIndex][symbolIndex].first == NULL) {

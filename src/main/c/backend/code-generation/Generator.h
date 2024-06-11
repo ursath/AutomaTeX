@@ -8,25 +8,30 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-typedef struct MatrixNode {
+typedef struct TransitionMatrixCell TransitionMatrixCell;
+typedef struct AutomataMatrixCell AutomataMatrixCell;
+typedef struct SymbolMatrixNode SymbolMatrixNode;
+typedef struct MatrixNode MatrixNode;
+
+struct MatrixNode {
     State * state;
     MatrixNode * next;
-} MatrixNode;
+};
 
-typedef struct TransitionMatrixCell {
+struct TransitionMatrixCell {
     MatrixNode * first;
     MatrixNode * tail;
-} TransitionMatrixCell;
+};
 
-typedef struct SymbolMatrixNode {
+struct SymbolMatrixNode {
     Symbol * symbol;
     SymbolMatrixNode * next;
-} SymbolMatrixNode;
+};
 
-typedef struct AutomataMatrixCell {
+struct AutomataMatrixCell {
     SymbolMatrixNode * first;
     SymbolMatrixNode * tail;
-} AutomataMatrixCell;
+};
 
 
 /** Initialize module's internal state. */
