@@ -1,52 +1,254 @@
 #include "Automatex.h"
 
+static Logger * _logger = NULL;
+
+/*-----------------PRIVATE FUNCTIONS ---------------------------------------------*/
+
+static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpression * finals, StateExpression * initial);
+static ComputationResult _checkTransitions(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
+static void _filterStates( StateSet * set, StateType type);
+static void _getTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
+
+/*-----------------------------SET OPERATIONS --------------------------------------------*/
+
+/*----------------------------- UNION -----------------------------------------------*/
+static ComputationResult _transitionUnion(TransitionExpression leftExp, TransitionExpression rightExp);
+static ComputationResult _stateUnion(StateExpression leftExp, StateExpression rightExp);
+static ComputationResult _symbolUnion(SymbolExpression leftExp, SymbolExpression rightExp);
+/*------------------------------ INTERSECTION -------------------------------------*/
+static ComputationResult _transitionIntersection(TransitionExpression leftExp, TransitionExpression rightExp);
+static void _transitionIntersectionResolution(TransitionSet * leftSet, TransitionSet * rightSet, TransitionSet * result);
+static ComputationResult _stateIntersection(StateExpression leftExp, StateExpression rightExp);
+static void _stateIntersectionResolution(StateSet * leftSet, StateSet * rightSet, StateSet * result);
+static ComputationResult _symbolIntersection(SymbolExpression leftExp, SymbolExpression rightExp);
+static void _symbolIntersectionResolution(SymbolSet * leftSet, SymbolSet * rightSet, SymbolSet * result);
+/*-------------------------------------- DIFFERENCE -----------------------------*/
+static ComputationResult _transitionDifference(TransitionExpression leftExp, TransitionExpression rightExp);
+static void _transitionDifferenceResolution(TransitionSet * leftSet, TransitionSet * rightSet, TransitionSet * result);
+static ComputationResult _stateDifference(StateExpression leftExp, StateExpression rightExp);
+static void _stateDifferenceResolution(StateSet * leftSet, StateSet * rightSet, StateSet * result);
+static ComputationResult _symbolDifference(SymbolExpression leftExp, SymbolExpression rightExp);
+static void _symbolDifferenceResolution(SymbolSet * leftSet, SymbolSet * rightSet, SymbolSet * result);
+
+/*---------------------------------------------- DELETE REPETITIONS FROM SET -----------------------------------------*/
+static void deleteRepetitionsFromTransitionSet(TransitionSet * set);
+static void deleteRepetitionsFromStateSet(StateSet * set);
+static void deleteRepetitionsFromSymbolSet(SymbolSet * set);
+
+/*--------------------------------------------- INVALID OPERATORS -----------------------------------------*/
+static ComputationResult _invalidBinaryOperator(TransitionExpression leftExp, TransitionExpression rightExp);
+static ComputationResult _invalidComputation();
+
+/*-------------------------------------- FREE NODE SETS --------------------*/
+static void freeTransitionSet(TransitionSet * set);
+static void freeStateSet(StateSet * set);
+static void freeSymbolSet(SymbolSet * set);
+
+/*----------------------------------------- SET EQUALS ----------------------------------------------------*/ 
+static boolean transitionSetEquals(TransitionSet * set1, TransitionSet * set2);
+static boolean stateSetEquals(StateSet * set1, StateSet * set2);
+static boolean symbolSetEquals(SymbolSet *set1, SymbolSet *set2);
+static boolean transitionEquals(Transition * trans1, Transition * trans2);
+static boolean stateEquals(State * state1, State * state2);
+static boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
+
+
+
+ void initializeCalculatorModule() {
+	_logger = createLogger("Automatex");
+}
+
+
 ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
     ComputationResult result {
-        .succeed = true,
+        .succeed = false,
         .isDefinitionSet = true
     };
     
+    DefinitionNode * currentNode = definitionSet->first;
+    while (currentNode != definitionSet->tail){
+        ComputationResult result = computeDefinition(currentNode->definition);
+        if ( !result.succeed ){
+            return result;
+        }
+        currentNode = currentNode->next;
+    }
+    //para el ultimo nodo
+    ComputationResult result = computeDefinition(currentNode->definition);
+    if ( !result.succeed ){
+        return result;
+    }
+    currentNode = currentNode->next; 
+    result.succeed = true;
+    result.definitionSet = definitionSet;
     return result;
 }
 
 ComputationResult computeDefinition(Definition * definition) {
+    ComputationResult result;
+    result.succeed = true;
     switch (definition->type) {
         case AUTOMATA_DEFINITION:
-            return computeAutomata(definition->automata);
-        case TRANSITION_DEFINITION:
-            return computeTransitionSet(definition->transitionSet);
-        case ALPHABET_DEFINITION:
-            return computeSymbolSet(definition->symbolSet);
-        case STATE_DEFINITION:
-            return computeStateSet(definition->stateSet);
-        default:
+            result= computeAutomata(definition->automata);
+            definition->automata = result.automata;
             break;
+        case TRANSITION_DEFINITION:
+            result = computeTransitionSet(definition->transitionSet);
+            definition->transitionSet = result.transitionSet;
+            break;
+        case ALPHABET_DEFINITION:
+            result = computeSymbolSet(definition->symbolSet);
+            definition->symbolSet = result.symbolSet;
+            break;
+        case STATE_DEFINITION:
+            result = computeStateSet(definition->stateSet);
+            definition->stateSet = result.stateSet;
+            break;
+        default:
+            return _invalidComputation();
     }
+    return result;
 }
 
 ComputationResult computeAutomata(Automata * automata) {
     ComputationResult result = {
-        .succeed = true,
+        .succeed = false,
         .isDefinitionSet = false,
         .type = AUTOMATA_DEFINITION,
         .automata = automata            
     };
     ComputationResult stateSetResult = computeStateExpression(automata->states);
-    // check si initial y final(es)
-    // y repes
-    // agrego a tabla
+    if ( !stateSetResult.succeed ){
+        return result;   
+    }
+    
+    ComputationResult auxResult = _computeFinalAndInitialStates(stateSetResult.stateSet, automata->finals, automata->initials);
+    if ( !auxResult.succeed ){
+        return result;   
+    }
     ComputationResult symbolSetResult = computeSymbolExpression(automata->alphabet);
-    // check repes
-    // agrego a tabla
+    if ( !symbolSetResult.succeed ){
+        return result;   
+    }
+    
     ComputationResult transitionSetResult = computeTransitionExpression(automata->transitions);
-    // check si los estados y simbolos de las transiciones pertenecen a los del automata
-    StateSet * finals = filterStates( )
-    // check repes
-    // agrego a tabla
+    if ( !transitionSetResult.succeed ){
+        return result;   
+    }
+    
+    _checkTransitions(transitionSetResult.transitionSet, transitionSetResult.stateSet, transitionSetResult.symbolSet);
+    if ( !transitionSetResult.succeed ){
+        return result;   
+    }
+    
+    //TODO: agrego a tabla
+    result.succeed = true;
     return result;
 }
 
+/* chequea y arma estados final(es) e inicial */
+static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpression * finals, StateExpression * initial){
+    StateNode * currentNode = set->first;
+    State * currentState;
+    StateNode * finalTail;
+    State * initialState; 
+    StateSet * finalSet = malloc(sizeof(StateSet));
+    while ( currentNode != NULL ){
+        currentState =  currentNode->stateExpression->state;
+        if ( currentState->isFinal ) {
+            StateNode node = malloc(sizeof(StateNode));
+            node->stateExpression = currentNode->stateExpression;
+            if ( finalSet->first==NULL )
+                finalSet->first = node;
+            else 
+                finalTail->next = node;
+            finalTail = node; 
+        }
+        if ( currentState->isInitial ){
+            if ( initialState != NULL ) {
+                logError(_logger,"%s it has more than one initial state",AUTOMATA_NOT_CREATED);
+                return _invalidComputation();
+            }
+            initialState = currentState;
+        }  
+        currentNode = currentNode->next; 
+    }
+    finalSet->tail = finalTail;
+
+    if ( finalSet->first == NULL ) {
+        logError(_logger,"%s it does not have final states", AUTOMATA_NOT_CREATED);
+        return _invalidComputation();
+    }
+    if ( initialState == NULL ) {
+        logError(_logger,"%s it does not have an initial state", AUTOMATA_NOT_CREATED);
+        return _invalidComputation();
+    }
+
+    initial = malloc(sizeof(StateExpression));
+    initial->state = initialState;
+    finals = malloc(sizeof(StateExpression));
+    finals->stateSet = finalSet; 
+    ComputationResult result = { .succeed = true };
+    return result; 
+}
+
+/* chequea si los estados y simbolos de las transiciones pertenecen a los del automata */
+static ComputationResult _checkTransitions(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet) {
+
+    StateSet * transitionStateSet;
+    SymbolSet * transitionSymbolSet;
+    _getTransitionStatesAndSymbols(transition, transitionStateSet, transitionSymbolSet);
+
+    ComputationResult result;
+    result.succeed = stateSetEquals(transitionStateSet, states) && symbolSetEquals(transitionSymbolSet, alphabet);
+    freeStateSet(transitionStateSet);
+    freeSymbolSet(transitionSymbolSet);
+    if ( !result.succeed ){
+        logError(_logger,"%s its transitions use symbols and states that don't belong to the automata", AUTOMATA_NOT_CREATED);
+    }
+    return result;
+    
+}
+
+static void _getTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet)  {
+    TransitionNode * currentNode = transitions->first;
+    Transition * transition;
+    StateSet * tStateSet;
+    SymbolSet * tSymbolSet;
+    ComputationResult result;
+    while (currentNode != NULL) {
+        transition = currentNode->transition;
+        // solo tengo sets en una transicion 
+        tStateSet = cpyStateSet( transition->toExpression->stateSet ) ;
+        if ( states == NULL )
+            states = tStateSet;
+        else {
+            result = _stateUnion(states, tStateSet);
+            states = result.stateSet;
+        }
+        free(tStateSet);
+
+        tStateSet = cpyStateSet( transition->fromExpression->stateSet )
+        result = _stateUnion(states, tStateSet);
+        states = result.stateSet;
+        free(tStateSet);
+        
+        tSymbolSet = cpySymbolSet( transition->symbolExpression->symbol );
+        if ( alphabet==NULL )
+            alphabet = tSymbolSet;
+        else {
+            result = _symbolUnion(alphabet, tSymbolSet);
+            alphabet = result.symbolSet;
+        }
+        free(tSymbolSet);
+        
+        currentNode = currentNode->next;
+    }
+    
+}
+
 ComputationResult computeTransitionExpression(TransitionExpression * expression, boolean isSingleElement ){
+    ComputationResult result;
     switch ( expression->type) {
         case UNION_EXPRESSION:
                 return _transitionUnion(expression->left, expression->right);
@@ -60,7 +262,7 @@ ComputationResult computeTransitionExpression(TransitionExpression * expression,
         case SET_EXPRESSION:
                 return computeTransitionSet(expression->transitionSet);
                         break;
-        case ELEMENT_EXPRESSION:
+        case ELEMENT_EXPRESSION: 
                 return computeTransition(expression->transition, isSingleElement);
                         break;
         default:
@@ -121,33 +323,110 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
     };
     
     if ( set->isBothSidesTransition ) {
-        ComputationResult result1 = computeTransitionExpression(set->first, true);
-        set->first = result1.transitionSet->first; 
-        ComputationResult result2 = computeTransitionExpression(set->tail, true);
-        result1.transitionSet->tail->next = result2->transitionSet->first; 
-    } else if ( set->identifier != NULL ) {
-        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA_TRANSITIONS: TRANSITIONS );
-        set = result.transitionSet; 
+        ComputationResult result1 = computeTransitionExpression(set->first->transitionExpression, true);
+        if (result1.succeed){
+            if (result1.isSingleElement){
+                //solo reemplazo la expresion por un elemento suelto
+                set->first->transition = result1.transition;
+                set->first->type = ELEMENT;
+            }
+            else{
+                //cuando se tiene que una transicion representa varias al mismo tiempo
+                //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
+                TransitionNode originalNext = set->first->next;
+                set->first = result1.transitionSet->first; 
+                result1.transitionSet->tail->next = originalNext;
+            }
+            ComputationResult result2 = computeTransitionExpression(set->tail->transitionExpression, true);
+            if (result2.succeed){
+                if (result2.isSingleElement){
+                    //solo reemplazo la expresion por un elemento suelto
+                    set->tail->transition = result2.transition;
+                    set->tail->type = ELEMENT;
+                }
+                else{
+                    //cuando se tiene que una transicion representa varias al mismo tiempo
+                    //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
+                    result1.transitionSet->tail->next = result2.transitionSet->first; 
+                    set->tail = result2->transitionSet->tail;
+                }
+            }
+        }
+    } 
+    else if ( set->identifier != NULL ) {
+        Value result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
+        if ( result == NO_RESULT)
+            return _invalidComputation();
+        StateSet * resultSet;
+        if ( set->isFromAutomata ) {
+            Automata * automata =result.value->automata;
+            resultSet = cpyTransitionSet( automata->transitions->transitionSet);
+        } else     
+            resultSet = cpyTransitionSet( result.value->transitionSet);
+        set->first = resultSet->first;
+        set->tail = resultSet->tail; 
     }
-    result.transitionSet = deleteRepetitionsFromTransitionSet(set);
+    else {
+        //tengo que procesar todos los nodos para desglosar las transitions
+        TransitionNode * currentNode = set->first;
+        while (currentNode != set->tail){
+            if (currentNode->type == EXPRESSION){
+                ComputationResult result = computeTransitionExpression(currentNode->transitionExpression, false);
+                if (result.succeed){
+                    if (result.isSingleElement){
+                        currentNode->transition = result.transition;
+                        currentNode->type = ELEMENT;
+                    }
+                    else{
+                        //cuando se tiene que una transicion representa varias al mismo tiempo
+                        //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
+                        TransitionNode originalNext = currentNode->next;
+                        currentNode = result.transitionSet->first; 
+                        result.transitionSet->tail->next = originalNext;
+                        currentNode = result.transitionSet->tail;
+                    }
+                }
+                else{
+                    return _invalidComputation();
+                }
+            }
+            currentNode = currentNode->next;
+        }
+    }
+    if (!result1.succeed && !result2.succeed){
+        return _invalidComputation();
+    }
+    deleteRepetitionsFromTransitionSet(set);
+    result.transitionSet = set;
     return result;
 }
 
-// todo: q retorne * NUEVO SET
-void filterStates( StateSet set, StateType type){
+
+static void _filterStates( StateSet * set, StateType type){
     StateNode * currentNode = set->first;
     State * currentState;
     StateNode * resultTail;
-    while ( currentNode != set->tail ){
-        currentState =  currentNode->state
-        if ( type==FINAL && currentState->isFinal )
-            if ( resultTail != NULL )
-                resultTail = currentNode;
-            else
-                resultTail->next = currentNode;
-        currentNode = currentNode->next; 
+    while ( currentNode != NULL ){
+        currentState =  currentNode->stateExpression->state;
+        switch ( type ){
+            case FINAL: 
+                if ( !currentState->isFinal ) goto next;
+            case INITIAL: 
+                if ( !currentState->isInitial ) goto next;
+            default:
+                if ( currentState->isFinal || currentState->isInitial ) goto next;
+        }
+        if ( resultTail == NULL ) {
+            set->first = currentNode;
+        else 
+            resultTail->next = currentNode;
+        resultTail = currentNode; 
+        }
+next:   currentNode = currentNode->next; 
     }
-    
+    if ( resultTail != NULL )
+        resultTail->next = NULL;
+    set->tail = resultTail;
 }
 
 ComputationResult computeStateSet(StateSet* set) {
@@ -158,13 +437,57 @@ ComputationResult computeStateSet(StateSet* set) {
     };
     
     if ( set->identifier != NULL ) {
-        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA_STATES: STATES );
-        set = result.stateSet;
+        Value result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
+        if ( result == NO_RESULT)
+            return _invalidComputation();
+        StateSet * resultSet;
+        if ( set->isFromAutomata ) {
+            Automata * automata = value->automata; 
+            switch( set->stateType){
+                case FINAL: 
+                    resultSet = cpyStateSet( automata->finals->stateSet); break;
+                case INITIAL: 
+                    StateNode * node = malloc(sizeof(StateNode));
+                    node->stateExpression = automata->initials->state;
+                    resultSet = malloc(sizeof(StateSet));
+                    resultSet->first = node;
+                    resultSet->tail = node; 
+                    break;
+                default: 
+                    resultSet = cpyStateSet( automata->states->stateSet); break;            }
+        } else 
+            resultSet = cpyStateSet( result.value->stateSet);
+        set->first = resultSet->first;
+        set->tail = resultSet->tail;
     }
-    if ( set->stateType != MIXED )
-        filterStates(set, set->stateType);
-        
-    result.stateSet = deleteRepetitionsFromStateSet(set);
+    if ( (se_t->stateType != MIXED && !set->isFromAutomata) || set->stateType==REGULAR ) {
+            filterStates(set, set->stateType);
+    } else {
+        StateNode * currentNode = set->first;
+        while (currentNode != set->tail){
+            if (currentNode->type == EXPRESSION){
+                ComputationResult result = computeStateExpression(currentNode->stateExpression, false);
+                if (result.succeed){
+                    if (result.isSingleElement){
+                        currentNode->state= result.state;
+                        currentNode->type = ELEMENT;
+                    }
+                    else{
+                        StateNode originalNext = currentNode->next;
+                        currentNode = result.stateSet->first; 
+                        result.stateSet->tail->next = originalNext;
+                        currentNode = result.stateSet->tail;
+                    }
+                }
+                else{
+                    return _invalidComputation();
+                }
+            }
+            currentNode = currentNode->next;
+        }
+    }
+    deleteRepetitionsFromStateSet(set);
+    result.stateSet = set;
     return result;
 }
 
@@ -176,44 +499,106 @@ ComputationResult computeSymbolSet(SymbolSet* set) {
     };
     
     if ( set->identifier != NULL ) {
-        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA_ALPHABET: ALPHABET );
-        set = result.stateSet;
+        Value result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
+        if ( result == NO_RESULT)
+            return _invalidComputation();
+        SymbolSet * resultSet;
+        if ( set->isFromAutomata ) {
+            Automata * automata =result.value->automata;
+            resultSet = cpySymbolSet( automata->alphabet->symbolSet);
+        } else     
+            resultSet = cpySymbolSet( result.value->symbolSet);
+        set->first = resultSet->first;
+        set->tail = resultSet->tail; 
+    } else {
+        SymbolNode * currentNode = set->first;
+        while (currentNode != set->tail){
+            if (currentNode->type == EXPRESSION){
+                ComputationResult result = computeSymbolExpression(currentNode->symbolExpression, false);
+                if (result.succeed){
+                    if (result.isSingleElement){
+                        currentNode->symbol= result.symbol;
+                        currentNode->type = ELEMENT;
+                    }
+                    else{
+                        SymbolNode originalNext = currentNode->next;
+                        currentNode = result.symbolSet->first; 
+                        result.symbolSet->tail->next = originalNext;
+                        currentNode = result.symbolSet->tail;
+                    }
+                }
+                else{
+                    return _invalidComputation();
+                }
+            }
+            currentNode = currentNode->next;
+        }
     }
-
-    result->symbolSet = deleteRepetitionsFromSymbolSet(set);
+    deleteRepetitionsFromSymbolSet(set);
+    result->symbolSet = set;
     return result;
 }
 
 ComputationResult computeTransition(Transition* transition, boolean isSingleElement){
     
     StateExpression * stateExpression = transition->fromExpression;
-    ComputationResult result = computeStateExpression(stateExpression,true);
-    stateExpression->stateSet = result.stateSet; 
-    stateExpression->type = SET_EXPRESSION;
+    ComputationResult result1 = computeStateExpression(stateExpression,true);
+    stateExpression->stateSet = result1.stateSet;
+    stateExpression->type = result1.isSingleElement? ELEMENT_EXPRESSION : SET_EXPRESSION;
     
     SymbolExpression * symbolExpression = transition->symbolExpression;
-    result = computeSymbolExpression(symbolExpression,true);
-    symbolExpression->symbolSet = result.symbolSet;
-    symbolExpression->type = SET_EXPRESSION;
+    ComputationResult result2 = computeSymbolExpression(symbolExpression,true);
+    symbolExpression->symbolSet = result2.symbolSet;
+    stateExpression->type = result2.isSingleElement? ELEMENT_EXPRESSION : SET_EXPRESSION;
 
     stateExpression = transition->toExpression;
-    result = computeStateExpression(stateExpression,true);
-    stateExpression->stateSet = result.stateSet;
-    stateExpression->type = SET_EXPRESSION;
+    ComputationResult result3 = computeStateExpression(stateExpression,true);
+    stateExpression->stateSet = result3.stateSet;
+    stateExpression->type = result3.isSingleElement? ELEMENT_EXPRESSION : SET_EXPRESSION;
     
     ComputationResult computationResult = {
 		.succeed = true
 	};
 
-    if ( isSingleElement ){
+    boolean withoutExpressionOperators = transition->fromExpression->type == ELEMENT_EXPRESSION && transition->symbolExpression->type == ELEMENT_EXPRESSION && transition->toExpression->type == ELEMENT_EXPRESSION;
+    //acá no uso equals porque es literalmente apuntar a la misma dirección de memoria para indicar que hay un solo elemento
+    boolean isSimpleTransition = transition->fromExpression->stateSet->first == transition->fromExpression->stateSet->tail && transition->symbolExpression->symbolSet->first == transition->symbolExpression->symbolSet->tail && transition->toExpression->stateSet->first == transition->toExpression->stateSet->tail;
+    if ( isSingleElement && withoutExpressionOperators && isSimpleTransition){
         computationResult.transition = transition;
+        computationResult.isSingleElement = true;
     } else {
-        TransitionSet * set = malloc(sizeof(TransitionSet));
-        TransitionNode * node = malloc(sizeof(TransitionNode));
-        node->type = EXPRESSION;
-        set->first = node; 
-        set->tail = node;   
+        TransitionSet * set = malloc(sizeof(TransitionSet));        
+        //necesito desglosar la transicion -> combinatoria
+        //por cada elemento en el conjunto de estados de from armo una transicion
+        //mi pivot es un nodo de cada conjunto
+        TransitionNode * pivotFromNode = transition->fromExpression->stateSet->first;
+        TransitionNode * pivotSymbolNode = transition->symbolExpression->symbolSet->first;
+        TransitionNode * pivotToNode = transition->toExpression->stateSet->first;
+        TransitionNode * firstNode = malloc(sizeof(TransitionNode));
+        set->first = firstNode;
+
+        while(pivotFromNode == transition->fromExpression->stateSet->tail){
+            while(pivotSymbolNode == transition->symbolExpression->symbolSet->tail){
+                while(pivotToNode == transition->toExpression->stateSet->tail){
+                    Transition * newTransition = malloc(sizeof(Transition));
+                    newTransition->fromExpression = pivotFromNode->state;
+                    newTransition->symbolExpression = pivotSymbolNode->symbol;
+                    newTransition->toExpression = pivotToNode->state;
+                    TransitionNode * newNode = malloc(sizeof(TransitionNode));
+                    newNode->transition = newTransition;
+                    newNode->type = ELEMENT;
+                    set->tail->next = newNode;
+                    set->tail = newNode;
+                    pivotToNode = pivotToNode->next;
+                }
+                pivotSymbolNode = pivotSymbolNode->next;
+            }
+            pivotFromNode = pivotFromNode->next;
+        }
         computationResult.transitionSet = set;
+        computationalResult.isSingleElement = false;
+        set->first = set->first->next;
+        free(firstNode);
     }
     
     return computationResult;
@@ -230,7 +615,7 @@ ComputationResult computeSymbol(Symbol* symbol, boolean isSingleElement) {
     } else {
         SymbolSet * set = malloc(sizeof(SymbolSet));
         SymbolNode * node = malloc(sizeof(SymbolNode));
-        node->type = EXPRESSION;
+        node->type = ELEMENT;
         set->first = node;  
         set->tail = node;  
         computationResult.symbolSet = set;
@@ -247,10 +632,11 @@ ComputationResult computeState(State* state, boolean isSingleElement ) {
 
     if ( isSingleElement ){
         computationResult.state = state;
+        computationResult.isSingleElement = true;
     } else {
         StateSet * set = malloc(sizeof(StateSet));
         StateNode * node = malloc(sizeof(StateNode));
-        node->type = EXPRESSION;
+        node->type = ELEMENT;
         set->first = node;
         set->tail = node;  
         computationResult.stateSet = set;
@@ -259,16 +645,18 @@ ComputationResult computeState(State* state, boolean isSingleElement ) {
     return computationResult;
 }
 
-/*-----------------PRIVATE FUNCTIONS ---------------------------------------------*/
+
 
 /*-----------------------------SET OPERATIONS --------------------------------------------*/
 
 /*----------------------------- UNION -----------------------------------------------*/
-ComputationResult _transitionUnion(TransitionExpression leftExp, TransitionExpression rightExp){
+static ComputationResult _transitionUnion(TransitionExpression leftExp, TransitionExpression rightExp){
     ComputationResult left = computeTransitionExpression(leftExp, false);
     ComputationResult right = computeTransitionExpression(rightExp, false);
     if (left.succeed && right.succeed){
         TransitionSet * result = calloc(sizeof(TransitionSet));
+        TransitionSet * leftSet = left.transitionSet;
+        TransitionSet * rightSet = right.transitionSet;
         result->first = leftSet->fist;
         leftSet->tail->next = rightSet->first; 
         result->tail = rightSet->tail;
@@ -277,34 +665,42 @@ ComputationResult _transitionUnion(TransitionExpression leftExp, TransitionExpre
     return _invalidComputation();
 }
 
-ComputationResult _stateUnion(StateExpression leftExp, StateExpression rightExp){
+static ComputationResult _stateUnion(StateExpression leftExp, StateExpression rightExp){
     ComputationResult left = computeStateExpression(leftExp, false);
     ComputationResult right = computeStateExpression(rightExp, false);
     if (left.succeed && right.succeed){
-        StateSet * result = calloc(sizeof(StateSet));
-        result->first = leftSet->fist;
-        leftSet->tail->next = rightSet->first; 
-        result->tail = rightSet->tail;
-        return computeStateSet(result);
+        return _stateUnion(left.stateSet, right.stateSet);
     }
     return _invalidComputation();
 }
 
-ComputationResult _symbolUnion(SymbolExpression leftExp, SymbolExpression rightExp){
+static ComputationResult _stateUnion(StateSet * leftSet, StateSet * rightSet){
+    StateSet * result = calloc(sizeof(StateSet));
+    result->first = leftSet->fist;
+    leftSet->tail->next = rightSet->first; 
+    result->tail = rightSet->tail;
+    return computeStateSet(result);
+}
+
+static ComputationResult _symbolUnion(SymbolExpression leftExp, SymbolExpression rightExp){
     ComputationResult left = computeSymbolExpression(leftExp, false);
     ComputationResult right = computeSymbolExpression(rightExp, false);
     if (left.succeed && right.succeed){
-        SymbolSet * result = calloc(sizeof(SymbolSet));
-        result->first = leftSet->fist;
-        leftSet->tail->next = rightSet->first; 
-        result->tail = rightSet->tail;
-        return computeSymbolSet(result);
+        return _symbolUnion( left.symbolSet, right.symbolSet);
     }
     return _invalidComputation();
 }
 
+static ComputationResult _symbolUnion(SymbolSet * leftSet, SymbolSet * rightSet){
+    StateSet * result = calloc(sizeof(StateSet));
+    result->first = leftSet->fist;
+    leftSet->tail->next = rightSet->first; 
+    result->tail = rightSet->tail;
+    return computeSymbolSet(result);
+}
+
 /*------------------------------ INTERSECTION -------------------------------------*/
-ComputationResult _transitionIntersection(TransitionExpression leftExp, TransitionExpression rightExp){
+static ComputationResult _transitionIntersection(TransitionExpression leftExp, TransitionExpression rightExp){
     ComputationResult left = computeTransitionExpression(leftExp, false);
     ComputationResult right = computeTransitionExpression(rightExp, false);
     if (left.succeed && right.succeed){
@@ -548,7 +944,7 @@ static void _symbolIntersectionResolution(SymbolSet * leftSet, SymbolSet * right
 }
 
 /*-------------------------------------- DIFFERENCE -----------------------------*/
-ComputationResult _transitionDifference(TransitionExpression leftExp, TransitionExpression rightExp){
+static ComputationResult _transitionDifference(TransitionExpression leftExp, TransitionExpression rightExp){
     ComputationResult left = computeTransitionExpression(leftExp, false);
     ComputationResult right = computeTransitionExpression(rightExp, false);
     if (left.succeed && right.succeed){

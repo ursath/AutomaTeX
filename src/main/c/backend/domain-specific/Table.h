@@ -1,36 +1,37 @@
+#ifndef TABLE_HEADER
+#define TABLE_HEADER
+
 #include "../../frontend/syntactic-analysis/AbstractSyntaxTree.h"
-// Idea 
-//getValue(char * identifier, type?) DEV COPIA 
-//boolean exists( id)
-//insert( id, value)
+
 
 enum ValueType {
     STATES,
     ALPHABET,
     TRANSITIONS,    
-    AUTOMATA_STATES,
-    AUTOMATA_ALPHABET,
-    AUTOMATA_TRANSITIONS
+    AUTOMATA
 };
 
+typedef union {
+    TransitionSet * transitionSet;
+    SymbolSet * symbolSet;
+    StateSet * stateSet;
+    Automata * automata;
+} value;  
+
+typedef NULL NO_RESULT;
 
 typedef struct {
-	union {
-        TransitionSet * transitionSet;
-        SymbolSet * symbolSet;
-        StateSet * stateSet;
-    } 
-
+	Value value;
     ValueType type;
-} EntryResult;
+} Entry;
 
 
-// Si quiero Automata.states = getValue( "Automata", STATES_DEFINITION) NOOO xq puede q = nom pra un conj de estados suelto 
 /**
- * @return EntryResult contiene copia del valor buscado
+ * @return Value que contiene ptr a lo buscado
+ * es responsabilidad del cliente copiar el contenido del ptr
  */
-EntryResult getValue(char * identifier, ValueType type);
+Value getValue(char * identifier, ValueType type);
 
-void insert(char * identifier,  ValueType type);
+boolean exists(char * identifier, ValueType type );
 
-//todo: cpySet() 
+boolean insert(char * identifier,  ValueType type, Value value );
