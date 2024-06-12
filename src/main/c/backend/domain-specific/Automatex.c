@@ -61,6 +61,11 @@ static boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
     initializeTable();
 }
 
+void shutdownAutomatexModule() {
+    if (_logger != NULL) {
+		destroyLogger(_logger);
+	}
+}
 
 ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
     ComputationResult result = {
@@ -412,7 +417,7 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
             return _invalidComputation();
         }
     } 
-    else if ( set->identifier != NULL ) {
+    else if ( set->identifier != NULL && exists(set->identifier)) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
         if ( !result.found )
             return _invalidComputation();
@@ -458,6 +463,7 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
 }
 
 
+/* Elimina los estados que no son del tipo indicado en type */
 static void _filterStates( StateSet * set, StateType type){
     StateNode * currentNode = set->first;
     State * currentState;
@@ -487,6 +493,7 @@ next:
     set->tail = resultTail;
 }
 
+
 ComputationResult computeStateSet(StateSet* set) {
     ComputationResult result = {
         .succeed = true,
@@ -494,7 +501,7 @@ ComputationResult computeStateSet(StateSet* set) {
         .type = STATE_DEFINITION
     };
     
-    if (set->identifier != NULL) {
+    if (set->identifier != NULL && exists(set->identifier)) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
         if ( !result.found)
             return _invalidComputation();
@@ -539,7 +546,7 @@ ComputationResult computeStateSet(StateSet* set) {
                     }
                 }
                 else{
-                    logError(_logger, "There has been a problem while processing one state expression");
+                    logError(_logger,"Couldnt create state set");
                     return _invalidComputation();
                 }
             }
@@ -547,6 +554,7 @@ ComputationResult computeStateSet(StateSet* set) {
         }
     }
     deleteRepetitionsFromStateSet(set);
+    logDebugging(_logger,"created state set");
     result.stateSet = set;
     return result;
 }
@@ -558,7 +566,7 @@ ComputationResult computeSymbolSet(SymbolSet* set) {
         .type = ALPHABET_DEFINITION        
     };
     
-    if ( set->identifier != NULL ) {
+    if ( set->identifier != NULL && exists(set->identifier) ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
         if ( !result.found)
             return _invalidComputation();
