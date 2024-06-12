@@ -435,52 +435,36 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
 }
 
 
-// REVISAR Lógica
+/* Elimina los estados que no son del tipo indicado en type */
 static void _filterStates( StateSet * set, StateType type){
     StateNode * currentNode = set->first;
     State * currentState;
     StateNode * resultTail;
-    while (currentNode != NULL){
-        currentState =  currentNode->stateExpression->state;
-        switch (type){
-            case FINAL: 
-                if (!currentState->isFinal){
-                    currentNode = currentNode->next; 
-                    if (resultTail != NULL)
-                        resultTail->next = NULL;
-                    set->tail = resultTail;
-                }
-                break;
-            case INITIAL: 
-                if (!currentState->isInitial){
-                    currentNode = currentNode->next; 
-                    if (resultTail != NULL)
-                        resultTail->next = NULL;
-                    set->tail = resultTail;
-                } 
-                break;
-            default:
-                if (currentState->isFinal || currentState->isInitial){
-                    currentNode = currentNode->next; 
-                    if (resultTail != NULL)
-                        resultTail->next = NULL;
-                    set->tail = resultTail;
-                } 
-        }
-        if(resultTail == NULL){
-            set->first = currentNode;
-        } else resultTail->next = currentNode;
-        resultTail = currentNode; 
-//TODO
-/*   copiado en cada caso (revisar que mantenga la lógica)
-next:   currentNode = currentNode->next; 
+    while ( currentNode != NULL ){
+    currentState =  currentNode->stateExpression->state;
+    switch ( type ){
+        case FINAL: 
+            if ( !currentState->isFinal ) goto next;
+            break;
+        case INITIAL: 
+            if ( !currentState->isInitial ) goto next;
+            break;
+        default:
+            if ( currentState->isFinal || currentState->isInitial ) goto next;
+    }
+    if ( resultTail == NULL ) 
+        set->first = currentNode;
+    else 
+        resultTail->next = currentNode;
+    resultTail = currentNode; 
+next:
+    currentNode = currentNode->next; 
     }
     if ( resultTail != NULL )
         resultTail->next = NULL;
     set->tail = resultTail;
-    */
-    }
 }
+
 
 ComputationResult computeStateSet(StateSet* set) {
     ComputationResult result = {
