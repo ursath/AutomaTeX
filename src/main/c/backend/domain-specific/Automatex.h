@@ -10,7 +10,6 @@
 #include "../../shared/Logger.h"
 #include "../../shared/Type.h"
 #include <limits.h>
-#include "Table.h"
 #include "utils.h"
 
 /* LOGGER STR */
