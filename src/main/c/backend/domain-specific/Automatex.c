@@ -56,8 +56,9 @@ static boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
 
 
 
- void initializeCalculatorModule() {
+ void initializeAutomatexModule() {
 	_logger = createLogger("Automatex");
+    initializeTable();
 }
 
 

@@ -18,8 +18,8 @@ const int main(const int count, const char ** arguments) {
 	initializeBisonActionsModule();
 	initializeSyntacticAnalyzerModule();
 	initializeAbstractSyntaxTreeModule();
-	//initializeCalculatorModule();
-	//initializeGeneratorModule();
+	initializeAutomatexModule();
+	initializeGeneratorModule();
 	
 	// Logs the arguments of the application.
 	for (int k = 0; k < count; ++k) {
