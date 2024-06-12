@@ -189,7 +189,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
     State * currentState;
     StateNode * finalTail;
     State * initialState; 
-    StateSet * finalSet = malloc(sizeof(StateSet));
+    StateSet * finalSet = calloc(1,sizeof(StateSet));
     while ( currentNode != NULL ){
         currentState =  currentNode->stateExpression->state;
         if ( currentState->isFinal ) {
@@ -394,7 +394,7 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
             return _invalidComputation();
         }
     } 
-    else if ( set->identifier != NULL ) {
+    else if ( set->identifier != NULL && exists(set->identifier)) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
         if ( !result.found )
             return _invalidComputation();
@@ -478,7 +478,7 @@ ComputationResult computeStateSet(StateSet* set) {
         .type = STATE_DEFINITION
     };
     
-    if (set->identifier != NULL) {
+    if (set->identifier != NULL && exists(set->identifier)) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
         if ( !result.found)
             return _invalidComputation();
@@ -523,6 +523,7 @@ ComputationResult computeStateSet(StateSet* set) {
                     }
                 }
                 else{
+                    logError(_logger,"Couldnt create state set");
                     return _invalidComputation();
                 }
             }
@@ -530,6 +531,7 @@ ComputationResult computeStateSet(StateSet* set) {
         }
     }
     deleteRepetitionsFromStateSet(set);
+    logDebugging(_logger,"created state set");
     result.stateSet = set;
     return result;
 }
@@ -541,7 +543,7 @@ ComputationResult computeSymbolSet(SymbolSet* set) {
         .type = ALPHABET_DEFINITION        
     };
     
-    if ( set->identifier != NULL ) {
+    if ( set->identifier != NULL && exists(set->identifier) ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
         if ( !result.found)
             return _invalidComputation();
