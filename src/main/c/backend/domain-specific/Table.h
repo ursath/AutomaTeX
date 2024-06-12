@@ -35,3 +35,5 @@ Value getValue(char * identifier, ValueType type);
 boolean exists(char * identifier, ValueType type );
 
 boolean insert(char * identifier,  ValueType type, Value value );
+
+#endif
