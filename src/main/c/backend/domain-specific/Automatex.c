@@ -60,7 +60,7 @@ static boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
 
 
 ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
-    ComputationResult result {
+    ComputationResult result = {
         .succeed = false,
         .isDefinitionSet = true
     };
@@ -354,15 +354,15 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
         }
     } 
     else if ( set->identifier != NULL ) {
-        Value result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
-        if ( result == NO_RESULT)
+        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
+        if ( !result.found )
             return _invalidComputation();
         StateSet * resultSet;
         if ( set->isFromAutomata ) {
-            Automata * automata =result.value->automata;
+            Automata * automata = result.value.automata;
             resultSet = cpyTransitionSet( automata->transitions->transitionSet);
         } else     
-            resultSet = cpyTransitionSet( result.value->transitionSet);
+            resultSet = cpyTransitionSet( result.value.transitionSet);
         set->first = resultSet->first;
         set->tail = resultSet->tail; 
     }
@@ -411,17 +411,19 @@ static void _filterStates( StateSet * set, StateType type){
         switch ( type ){
             case FINAL: 
                 if ( !currentState->isFinal ) goto next;
+                break;
             case INITIAL: 
                 if ( !currentState->isInitial ) goto next;
+                break;
             default:
                 if ( currentState->isFinal || currentState->isInitial ) goto next;
         }
-        if ( resultTail == NULL ) {
+        if ( resultTail == NULL ) 
             set->first = currentNode;
         else 
             resultTail->next = currentNode;
         resultTail = currentNode; 
-        }
+        
 next:   currentNode = currentNode->next; 
     }
     if ( resultTail != NULL )
@@ -437,12 +439,12 @@ ComputationResult computeStateSet(StateSet* set) {
     };
     
     if ( set->identifier != NULL ) {
-        Value result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
-        if ( result == NO_RESULT)
+        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
+        if ( !result.found)
             return _invalidComputation();
         StateSet * resultSet;
         if ( set->isFromAutomata ) {
-            Automata * automata = value->automata; 
+            Automata * automata = result.value.automata; 
             switch( set->stateType){
                 case FINAL: 
                     resultSet = cpyStateSet( automata->finals->stateSet); break;
@@ -454,13 +456,14 @@ ComputationResult computeStateSet(StateSet* set) {
                     resultSet->tail = node; 
                     break;
                 default: 
-                    resultSet = cpyStateSet( automata->states->stateSet); break;            }
+                    resultSet = cpyStateSet( automata->states->stateSet); break;            
+            }
         } else 
-            resultSet = cpyStateSet( result.value->stateSet);
+            resultSet = cpyStateSet( result.value.stateSet);
         set->first = resultSet->first;
         set->tail = resultSet->tail;
     }
-    if ( (se_t->stateType != MIXED && !set->isFromAutomata) || set->stateType==REGULAR ) {
+    if ( (set->stateType != MIXED && !set->isFromAutomata) || set->stateType==REGULAR ) {
             filterStates(set, set->stateType);
     } else {
         StateNode * currentNode = set->first;
@@ -499,15 +502,15 @@ ComputationResult computeSymbolSet(SymbolSet* set) {
     };
     
     if ( set->identifier != NULL ) {
-        Value result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
-        if ( result == NO_RESULT)
+        EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
+        if ( !result.found)
             return _invalidComputation();
         SymbolSet * resultSet;
         if ( set->isFromAutomata ) {
-            Automata * automata =result.value->automata;
+            Automata * automata =result.value.automata;
             resultSet = cpySymbolSet( automata->alphabet->symbolSet);
         } else     
-            resultSet = cpySymbolSet( result.value->symbolSet);
+            resultSet = cpySymbolSet( result.value.symbolSet);
         set->first = resultSet->first;
         set->tail = resultSet->tail; 
     } else {
