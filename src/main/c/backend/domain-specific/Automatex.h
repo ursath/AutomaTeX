@@ -33,7 +33,7 @@ typedef struct {
         Transition * transition;
         Symbol * symbol;
         State * state;
-    } 
+    };
     boolean isDefinitionSet;
     boolean isSingleElement;
     DefinitionType type;

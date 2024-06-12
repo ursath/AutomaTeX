@@ -9,3 +9,5 @@ SymbolSet * cpySymbolSet(SymbolSet * symbolSet);
 StateSet * cpyStateSet(StateSet * StateSet);
 
 TransitionSet * cpyTransitionSet(TransitionSet * StateSet);
+
+#endif
