@@ -87,45 +87,73 @@ ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
 }
 
 ComputationResult computeDefinition(Definition * definition) {
-    ComputationResult result;
-    result.succeed = true;
+    ComputationResult result = {
+        .isDefinitionSet = true,
+        .succeed = false
+    };
+    // valido si ya existe en la tabla de simbolos
+    // sino luego de computarlo lo inserto
+    Value value;
+    char * identifier;
     switch (definition->type) {
         case AUTOMATA_DEFINITION:
-            result= computeAutomata(definition->automata);
-            definition->automata = result.automata;
+            identifier = definition->automata->identifier;
+            if ( exists(identifier) ) {
+                result= computeAutomata(definition->automata);
+                definition->automata = result.automata;
+                value.automata=definition->automata; 
+            }
             break;
         case TRANSITION_DEFINITION:
-            result = computeTransitionSet(definition->transitionSet);
-            definition->transitionSet = result.transitionSet;
+            identifier = definition->transitionSet->identifier;
+            if ( exists(identifier) ) {
+                result = computeTransitionSet(definition->transitionSet);
+                definition->transitionSet = result.transitionSet;
+                value.transitionSet = definition->transitionSet;
+            }
             break;
         case ALPHABET_DEFINITION:
-            result = computeSymbolSet(definition->symbolSet);
-            definition->symbolSet = result.symbolSet;
+            identifier = definition->symbolSet->identifier;
+            if ( exists(identifier) )
+                result = computeSymbolSet(definition->symbolSet);
+                definition->symbolSet = result.symbolSet;
+                value.symbolSet = definition->symbolSet;
             break;
         case STATE_DEFINITION:
-            result = computeStateSet(definition->stateSet);
-            definition->stateSet = result.stateSet;
+            identifier = definition->stateSet->identifier;
+            if ( exists(identifier) ) {
+                result = computeStateSet(definition->stateSet);
+                definition->stateSet = result.stateSet;
+                value.stateSet = definition->stateSet;
+            }
             break;
         default:
             return _invalidComputation();
     }
+    
+    if ( !result.succeed ) {
+        if ( result.isDefinitionSet )
+            logError(_logger,"There cannot be 2 definitions with the same name");
+        return _invalidComputation();
+    }
+
+    result.succeed = insert(identifier,definition->type,value); 
     return result;
+
 }
 
 ComputationResult computeAutomata(Automata * automata) {
     ComputationResult result = {
         .succeed = false,
         .isDefinitionSet = false,
-        .type = AUTOMATA_DEFINITION,
-        .automata = automata            
     };
     ComputationResult stateSetResult = computeStateExpression(automata->states, true);
     if ( !stateSetResult.succeed ){
         return result;   
     }
     
-    ComputationResult auxResult = _computeFinalAndInitialStates(stateSetResult.stateSet, automata->finals, automata->initials);
-    if ( !auxResult.succeed ){
+    result = _computeFinalAndInitialStates(stateSetResult.stateSet, automata->finals, automata->initials);
+    if ( !result.succeed ){
         return result;   
     }
     ComputationResult symbolSetResult = computeSymbolExpression(automata->alphabet, true);
@@ -138,12 +166,14 @@ ComputationResult computeAutomata(Automata * automata) {
         return result;   
     }
     
-    _checkTransitions(transitionSetResult.transitionSet, transitionSetResult.stateSet, transitionSetResult.symbolSet);
-    if ( !transitionSetResult.succeed ){
+    //TODO: validar si DFA, NFA o LNFA 
+    result = _checkTransitions(transitionSetResult.transitionSet, transitionSetResult.stateSet, transitionSetResult.symbolSet);
+    if ( !result.succeed ){
         return result;   
     }
     
-    //TODO: agrego a tabla
+    result.type = AUTOMATA_DEFINITION,
+    result.automata = automata;
     result.succeed = true;
     return result;
 }
@@ -441,7 +471,7 @@ static void _filterStates( StateSet * set, StateType type){
             set->first = currentNode;
         } else resultTail->next = currentNode;
         resultTail = currentNode; 
-
+//TODO
 /*   copiado en cada caso (revisar que mantenga la lógica)
 next:   currentNode = currentNode->next; 
     }

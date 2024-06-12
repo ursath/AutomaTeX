@@ -5,10 +5,10 @@
 
 
 typedef enum {
-    STATES,
-    ALPHABET,
-    TRANSITIONS,    
-    AUTOMATA
+    STATES = STATE_DEFINITION,
+    ALPHABET =ALPHABET_DEFINITION,
+    TRANSITIONS = TRANSITION_DEFINITION,    
+    AUTOMATA = AUTOMATA_DEFINITION
 } ValueType;
 
 typedef union {
@@ -31,7 +31,7 @@ void initializeTable(void);
  */
 EntryResult getValue(char * identifier, ValueType type);
 
-//boolean exists(char * identifier, ValueType type );
+boolean exists(char * identifier );
 
 boolean insert(char * identifier,  ValueType type, Value value );
 

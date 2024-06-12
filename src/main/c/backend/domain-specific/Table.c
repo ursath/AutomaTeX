@@ -3,7 +3,7 @@
 
 
 typedef struct {
-	Value value;
+	Value value;        //TODO: Node q contiene first, tail=value
     ValueType type;
 } Entry;
 
@@ -31,11 +31,13 @@ EntryResult getValue(char * identifier, ValueType type){
     return result;
 }
 
-// todo 
-//boolean exists(char * identifier ) {
-//    //return hs_exist
-//    return false; 
-//}
+boolean exists(char * identifier ) {
+    khiter_t k = kh_get(myhash, hashTable, identifier);
+    if ( k==kh_end(hashTable) )
+        return false;
+    return true; 
+}
+
 //
 //boolean exists(char * identifier, ValueType type ) {
 //    Entry entry; // = hs_get(identifier);
