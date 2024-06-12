@@ -61,6 +61,11 @@ static boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
     initializeTable();
 }
 
+void shutdownAutomatexModule() {
+    if (_logger != NULL) {
+		destroyLogger(_logger);
+	}
+}
 
 ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
     ComputationResult result = {
@@ -98,7 +103,7 @@ ComputationResult computeDefinition(Definition * definition) {
     switch (definition->type) {
         case AUTOMATA_DEFINITION:
             identifier = definition->automata->identifier;
-            if ( exists(identifier) ) {
+            if ( !exists(identifier) ) {
                 result= computeAutomata(definition->automata);
                 definition->automata = result.automata;
                 value.automata=definition->automata; 
@@ -106,7 +111,7 @@ ComputationResult computeDefinition(Definition * definition) {
             break;
         case TRANSITION_DEFINITION:
             identifier = definition->transitionSet->identifier;
-            if ( exists(identifier) ) {
+            if ( !exists(identifier) ) {
                 result = computeTransitionSet(definition->transitionSet);
                 definition->transitionSet = result.transitionSet;
                 value.transitionSet = definition->transitionSet;
@@ -114,14 +119,14 @@ ComputationResult computeDefinition(Definition * definition) {
             break;
         case ALPHABET_DEFINITION:
             identifier = definition->symbolSet->identifier;
-            if ( exists(identifier) )
+            if ( !exists(identifier) )
                 result = computeSymbolSet(definition->symbolSet);
                 definition->symbolSet = result.symbolSet;
                 value.symbolSet = definition->symbolSet;
             break;
         case STATE_DEFINITION:
             identifier = definition->stateSet->identifier;
-            if ( exists(identifier) ) {
+            if ( !exists(identifier) ) {
                 result = computeStateSet(definition->stateSet);
                 definition->stateSet = result.stateSet;
                 value.stateSet = definition->stateSet;
