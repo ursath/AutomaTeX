@@ -72,6 +72,7 @@ ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
     while (currentNode != definitionSet->tail){
         ComputationResult result1 = computeDefinition(currentNode->definition);
         if ( !result1.succeed ){
+            logError(_logger, "There has been a problem while processing a definition");
             return result;
         }
         currentNode = currentNode->next;
@@ -79,6 +80,7 @@ ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
     //para el ultimo nodo
     ComputationResult result2 = computeDefinition(currentNode->definition);
     if ( !result2.succeed ){
+        logError(_logger, "There has been a problem while processing a definition");
         return result;
     }
     result.succeed = true;
@@ -98,33 +100,54 @@ ComputationResult computeDefinition(Definition * definition) {
     switch (definition->type) {
         case AUTOMATA_DEFINITION:
             identifier = definition->automata->identifier;
-            if ( exists(identifier) ) {
+            if ( !exists(identifier) ) {
                 result= computeAutomata(definition->automata);
+                if (!result.succeed){
+                    return result;
+                }
                 definition->automata = result.automata;
                 value.automata=definition->automata; 
+            
+            }else{
+                //error redefinition
+                return _invalidComputation();
+                /* me gustaría buscar si con un identifier distinto aparece 
+                value = getValue(identifier, AUTOMATA);            else{
+                definition->automata = result.automata;
+                */
             }
             break;
         case TRANSITION_DEFINITION:
             identifier = definition->transitionSet->identifier;
-            if ( exists(identifier) ) {
+            if ( !exists(identifier) ) {
                 result = computeTransitionSet(definition->transitionSet);
                 definition->transitionSet = result.transitionSet;
                 value.transitionSet = definition->transitionSet;
             }
+            else{
+                return _invalidComputation();
+            }
             break;
         case ALPHABET_DEFINITION:
             identifier = definition->symbolSet->identifier;
-            if ( exists(identifier) )
+            if ( !exists(identifier) ){
                 result = computeSymbolSet(definition->symbolSet);
                 definition->symbolSet = result.symbolSet;
                 value.symbolSet = definition->symbolSet;
+            }
+            else{
+                return _invalidComputation();
+            }
             break;
         case STATE_DEFINITION:
             identifier = definition->stateSet->identifier;
-            if ( exists(identifier) ) {
+            if ( !exists(identifier) ) {
                 result = computeStateSet(definition->stateSet);
                 definition->stateSet = result.stateSet;
                 value.stateSet = definition->stateSet;
+            }
+            else{
+                return _invalidComputation();
             }
             break;
         default:
@@ -184,7 +207,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
     State * currentState;
     StateNode * finalTail;
     State * initialState; 
-    StateSet * finalSet = malloc(sizeof(StateSet));
+    StateSet * finalSet = calloc(1, sizeof(StateSet));
     while ( currentNode != NULL ){
         currentState =  currentNode->stateExpression->state;
         if ( currentState->isFinal ) {
@@ -435,51 +458,33 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
 }
 
 
-// REVISAR Lógica
 static void _filterStates( StateSet * set, StateType type){
     StateNode * currentNode = set->first;
     State * currentState;
     StateNode * resultTail;
-    while (currentNode != NULL){
-        currentState =  currentNode->stateExpression->state;
-        switch (type){
-            case FINAL: 
-                if (!currentState->isFinal){
-                    currentNode = currentNode->next; 
-                    if (resultTail != NULL)
-                        resultTail->next = NULL;
-                    set->tail = resultTail;
-                }
-                break;
-            case INITIAL: 
-                if (!currentState->isInitial){
-                    currentNode = currentNode->next; 
-                    if (resultTail != NULL)
-                        resultTail->next = NULL;
-                    set->tail = resultTail;
-                } 
-                break;
-            default:
-                if (currentState->isFinal || currentState->isInitial){
-                    currentNode = currentNode->next; 
-                    if (resultTail != NULL)
-                        resultTail->next = NULL;
-                    set->tail = resultTail;
-                } 
-        }
-        if(resultTail == NULL){
-            set->first = currentNode;
-        } else resultTail->next = currentNode;
-        resultTail = currentNode; 
-//TODO
-/*   copiado en cada caso (revisar que mantenga la lógica)
-next:   currentNode = currentNode->next; 
+    while ( currentNode != NULL ){
+    currentState =  currentNode->stateExpression->state;
+    switch ( type ){
+        case FINAL: 
+            if ( !currentState->isFinal ) goto next;
+            break;
+        case INITIAL: 
+            if ( !currentState->isInitial ) goto next;
+            break;
+        default:
+            if ( currentState->isFinal || currentState->isInitial ) goto next;
+    }
+    if ( resultTail == NULL ) 
+        set->first = currentNode;
+    else 
+        resultTail->next = currentNode;
+    resultTail = currentNode; 
+next:
+    currentNode = currentNode->next; 
     }
     if ( resultTail != NULL )
         resultTail->next = NULL;
     set->tail = resultTail;
-    */
-    }
 }
 
 ComputationResult computeStateSet(StateSet* set) {
@@ -534,6 +539,7 @@ ComputationResult computeStateSet(StateSet* set) {
                     }
                 }
                 else{
+                    logError(_logger, "There has been a problem while processing one state expression");
                     return _invalidComputation();
                 }
             }
