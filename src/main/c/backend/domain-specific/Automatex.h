@@ -10,7 +10,10 @@
 #include "../../shared/Logger.h"
 #include "../../shared/Type.h"
 #include <limits.h>
+
 #include "utils.h"
+#include "Table.h"
+
 
 /* LOGGER STR */
 #define AUTOMATA_NOT_CREATED "The automata cannot be created because"

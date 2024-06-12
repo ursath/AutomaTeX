@@ -2,11 +2,11 @@
 
 SymbolSet * cpySymbolSet(SymbolSet * set) {
     SymbolNode * currentNode = set->first;
-    StateNode * resultTail;
+    SymbolNode * resultTail;
     SymbolNode * node;
-    StateSet * resultSet = malloc(sizeof(StateSet));
+    SymbolSet * resultSet = malloc(sizeof(SymbolSet));
     while ( currentNode != NULL ){
-        node = malloc(sizeof(StateNode));
+        node = malloc(sizeof(SymbolNode));
         node->symbolExpression = currentNode->symbolExpression;
         if ( resultSet->first==NULL )
             resultSet->first = node;
