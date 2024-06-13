@@ -47,9 +47,9 @@ ComputationResult computeAutomata(Automata * automata);
 ComputationResult computeTransitionExpression(TransitionExpression * expression, boolean isSingleElement );
 ComputationResult computeStateExpression(StateExpression * expression, boolean isSingleElement);
 ComputationResult computeSymbolExpression(SymbolExpression * expression, boolean isSingleElement);
-ComputationResult computeTransitionSet(TransitionSet * set);
-ComputationResult computeStateSet(StateSet * set);
-ComputationResult computeSymbolSet(SymbolSet * set);
+ComputationResult computeTransitionSet(TransitionSet * set, boolean isDefinition);
+ComputationResult computeStateSet(StateSet * set, boolean isDefinition);
+ComputationResult computeSymbolSet(SymbolSet * set, boolean isDefinition);
 
 ComputationResult computeTransition(Transition * transition, boolean isSingleElement);
 ComputationResult computeState(State * state, boolean isSingleElement);

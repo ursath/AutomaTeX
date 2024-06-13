@@ -112,7 +112,7 @@ ComputationResult computeDefinition(Definition * definition) {
         case TRANSITION_DEFINITION:
             identifier = definition->transitionSet->identifier;
             if ( !exists(identifier) ) {
-                result = computeTransitionSet(definition->transitionSet);
+                result = computeTransitionSet(definition->transitionSet,true);
                 definition->transitionSet = result.transitionSet;
                 value.transitionSet = definition->transitionSet;
             }
@@ -120,14 +120,14 @@ ComputationResult computeDefinition(Definition * definition) {
         case ALPHABET_DEFINITION:
             identifier = definition->symbolSet->identifier;
             if ( !exists(identifier) )
-                result = computeSymbolSet(definition->symbolSet);
+                result = computeSymbolSet(definition->symbolSet,true);
                 definition->symbolSet = result.symbolSet;
                 value.symbolSet = definition->symbolSet;
             break;
         case STATE_DEFINITION:
             identifier = definition->stateSet->identifier;
             if ( !exists(identifier) ) {
-                result = computeStateSet(definition->stateSet);
+                result = computeStateSet(definition->stateSet,true);
                 definition->stateSet = result.stateSet;
                 value.stateSet = definition->stateSet;
             }
@@ -297,7 +297,7 @@ ComputationResult computeTransitionExpression(TransitionExpression * expression,
                 return _transitionDifference(expression->leftExpression, expression->rightExpression);
                         break;
         case SET_EXPRESSION:
-                return computeTransitionSet(expression->transitionSet);
+                return computeTransitionSet(expression->transitionSet,false);
                         break;
         case ELEMENT_EXPRESSION: 
                 return computeTransition(expression->transition, isSingleElement);
@@ -319,7 +319,7 @@ ComputationResult computeStateExpression(StateExpression * expression,  boolean 
                     return _stateDifference(expression->leftExpression, expression->rightExpression);
                         break;
         case SET_EXPRESSION:
-                return computeStateSet(expression->stateSet);
+                return computeStateSet(expression->stateSet,false);
                         break;
         case ELEMENT_EXPRESSION:
                 return computeState(expression->state, isSingleElement);
@@ -342,7 +342,7 @@ ComputationResult computeSymbolExpression(SymbolExpression * expression, boolean
                 return _symbolDifference(expression->leftExpression, expression->rightExpression);
                         break;
         case SET_EXPRESSION:
-                return computeSymbolSet(expression->symbolSet);
+                return computeSymbolSet(expression->symbolSet,false);
                 break;
         case ELEMENT_EXPRESSION:
                 return computeSymbol(expression->symbol, isSingleElement) ;
@@ -352,7 +352,7 @@ ComputationResult computeSymbolExpression(SymbolExpression * expression, boolean
     }
 }
 
-ComputationResult computeTransitionSet(TransitionSet* set) {
+ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition) {
     ComputationResult result = {
         .succeed = true,
         .isDefinitionSet = false,
@@ -393,8 +393,9 @@ ComputationResult computeTransitionSet(TransitionSet* set) {
         if (!result1.succeed && !result2.succeed){
             return _invalidComputation();
         }
-    } 
-    else if ( set->identifier != NULL && exists(set->identifier)) {
+    }       // states A = { q }
+            
+    else if ( set->identifier != NULL && !isDefinition ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
         if ( !result.found )
             return _invalidComputation();
@@ -471,14 +472,14 @@ next:
 }
 
 
-ComputationResult computeStateSet(StateSet* set) {
+ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
     ComputationResult result = {
         .succeed = true,
         .isDefinitionSet = false,
         .type = STATE_DEFINITION
     };
     
-    if (set->identifier != NULL && exists(set->identifier)) {
+    if (set->identifier != NULL && !isDefinition) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
         if ( !result.found)
             return _invalidComputation();
@@ -536,14 +537,14 @@ ComputationResult computeStateSet(StateSet* set) {
     return result;
 }
 
-ComputationResult computeSymbolSet(SymbolSet* set) {
+ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
     ComputationResult result = {
         .succeed = true,
         .isDefinitionSet = false,
         .type = ALPHABET_DEFINITION        
     };
     
-    if ( set->identifier != NULL && exists(set->identifier) ) {
+    if ( set->identifier != NULL && !isDefinition ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
         if ( !result.found)
             return _invalidComputation();
@@ -705,7 +706,7 @@ static ComputationResult _transitionUnion(TransitionExpression * leftExp, Transi
         result->first = leftSet->first;
         leftSet->tail->next = rightSet->first; 
         result->tail = rightSet->tail;
-        return computeTransitionSet(result);
+        return computeTransitionSet(result,false);
     }
     return _invalidComputation();
 }
@@ -724,7 +725,7 @@ static ComputationResult _stateSetUnion(StateSet * leftSet, StateSet * rightSet)
     result->first = leftSet->first;
     leftSet->tail->next = rightSet->first; 
     result->tail = rightSet->tail;
-    return computeStateSet(result);
+    return computeStateSet(result,false);
 }
 
 static ComputationResult _symbolUnion(SymbolExpression * leftExp, SymbolExpression * rightExp){
@@ -741,7 +742,7 @@ static ComputationResult _symbolSetUnion(SymbolSet * leftSet, SymbolSet * rightS
     result->first = leftSet->first;
     leftSet->tail->next = rightSet->first; 
     result->tail = rightSet->tail;
-    return computeSymbolSet(result);
+    return computeSymbolSet(result,false);
 }
 
 /*------------------------------ INTERSECTION -------------------------------------*/
