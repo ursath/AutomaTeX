@@ -77,6 +77,7 @@ ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
     while (currentNode != definitionSet->tail){
         ComputationResult result1 = computeDefinition(currentNode->definition);
         if ( !result1.succeed ){
+            logError(_logger, "There has been a problem while processing a definition");
             return result;
         }
         currentNode = currentNode->next;
@@ -84,6 +85,7 @@ ComputationResult computeDefinitionSet(DefinitionSet * definitionSet) {
     //para el ultimo nodo
     ComputationResult result2 = computeDefinition(currentNode->definition);
     if ( !result2.succeed ){
+        logError(_logger, "There has been a problem while processing a definition");
         return result;
     }
     result.succeed = true;
@@ -105,8 +107,19 @@ ComputationResult computeDefinition(Definition * definition) {
             identifier = definition->automata->identifier;
             if ( !exists(identifier) ) {
                 result= computeAutomata(definition->automata);
+                if (!result.succeed){
+                    return result;
+                }
                 definition->automata = result.automata;
                 value.automata=definition->automata; 
+            
+            }else{
+                //error redefinition
+                return _invalidComputation();
+                /* me gustaría buscar si con un identifier distinto aparece 
+                value = getValue(identifier, AUTOMATA);            else{
+                definition->automata = result.automata;
+                */
             }
             break;
         case TRANSITION_DEFINITION:
@@ -119,10 +132,11 @@ ComputationResult computeDefinition(Definition * definition) {
             break;
         case ALPHABET_DEFINITION:
             identifier = definition->symbolSet->identifier;
-            if ( !exists(identifier) )
+            if ( !exists(identifier) ) {
                 result = computeSymbolSet(definition->symbolSet,true);
                 definition->symbolSet = result.symbolSet;
                 value.symbolSet = definition->symbolSet;
+            }
             break;
         case STATE_DEFINITION:
             identifier = definition->stateSet->identifier;
@@ -130,6 +144,9 @@ ComputationResult computeDefinition(Definition * definition) {
                 result = computeStateSet(definition->stateSet,true);
                 definition->stateSet = result.stateSet;
                 value.stateSet = definition->stateSet;
+            }
+            else{
+                return _invalidComputation();
             }
             break;
         default:
@@ -189,7 +206,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
     State * currentState;
     StateNode * finalTail;
     State * initialState; 
-    StateSet * finalSet = calloc(1,sizeof(StateSet));
+    StateSet * finalSet = calloc(1, sizeof(StateSet));
     while ( currentNode != NULL ){
         currentState =  currentNode->stateExpression->state;
         if ( currentState->isFinal ) {
