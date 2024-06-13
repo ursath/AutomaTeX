@@ -184,22 +184,23 @@ ComputationResult computeAutomata(Automata * automata) {
     if ( !result.succeed ){
         return result;   
     }
+    logInformation(_logger,"-----computed final and initial states-----");
     ComputationResult symbolSetResult = computeSymbolExpression(automata->alphabet, true);
     if ( !symbolSetResult.succeed ){
         return result;   
     }
-    
+    logInformation(_logger,"-----computed symbols -----");
     ComputationResult transitionSetResult = computeTransitionExpression(automata->transitions, true);
     if ( !transitionSetResult.succeed ){
         return result;   
     }
-    
+    logInformation(_logger,"-----computed transitions-----");
     //TODO: validar si DFA, NFA o LNFA 
-    result = _checkTransitions(transitionSetResult.transitionSet, transitionSetResult.stateSet, transitionSetResult.symbolSet);
+    result = _checkTransitions(transitionSetResult.transitionSet, stateSetResult.stateSet, symbolSetResult.symbolSet);
     if ( !result.succeed ){
         return result;   
     }
-    
+    logInformation(_logger,"-----checked transitions-----");
     result.type = AUTOMATA_DEFINITION,
     result.automata = automata;
     result.succeed = true;
@@ -211,17 +212,17 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
     StateNode * currentNode = set->first;
     State * currentState;
     StateNode * finalTail;
-    State * initialState; 
+    State * initialState = NULL; 
     StateSet * finalSet = calloc(1, sizeof(StateSet));
         logInformation(_logger, "BEFORE WHILE");
     while ( currentNode != NULL ){
-        currentState =  currentNode->stateExpression->state;
+        currentState =  currentNode->state;
             logInformation(_logger, "IN WHILE");
             logInformation(_logger, "value %s",currentState->symbol.value);
         if ( currentState->isFinal ) {
             logInformation(_logger, "found final");
             StateNode * node = (StateNode *)malloc(sizeof(StateNode));
-            node->stateExpression = currentNode->stateExpression;
+            node->state = currentNode->state;
             if ( finalSet->first==NULL )
                 finalSet->first = node;
             else 
@@ -253,6 +254,8 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
     finals = malloc(sizeof(StateExpression));
     finals->stateSet = finalSet; 
     ComputationResult result = { .succeed = true };
+
+
     return result; 
 }
 
@@ -262,9 +265,10 @@ static ComputationResult _checkTransitions(TransitionSet * transitions, StateSet
     StateSet * transitionStateSet;
     SymbolSet * transitionSymbolSet;
     _getTransitionStatesAndSymbols(transitions, transitionStateSet, transitionSymbolSet);
-
+    logInformation(_logger,"-----getTransitionStatesAndSymbols -----");
     ComputationResult result;
     result.succeed = stateSetEquals(transitionStateSet, states) && symbolSetEquals(transitionSymbolSet, alphabet);
+    logInformation(_logger,"----- state set equals-----");
     freeStateSet(transitionStateSet);
     freeSymbolSet(transitionSymbolSet);
     if ( !result.succeed ){
@@ -385,7 +389,7 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
         .isDefinitionSet = false,
         .type = TRANSITION_DEFINITION
     };
-    
+    logInformation(_logger,"-----starting transition set creation -----");
     if ( set->isBothSidesTransition ) {
         ComputationResult result1, result2;
         result1 = computeTransitionExpression(set->first->transitionExpression, true);
@@ -417,10 +421,11 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
                 }
             }
         }
-        if (!result1.succeed && !result2.succeed){
+        if (!result1.succeed || !result2.succeed){
+            logError(_logger, "Error when creating both sides transition");
             return _invalidComputation();
         }
-    }       // states A = { q }
+    }      
             
     else if ( set->identifier != NULL && !isDefinition ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
@@ -438,9 +443,10 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
     else {
         //tengo que procesar todos los nodos para desglosar las transitions
         TransitionNode * currentNode = set->first;
-        while (currentNode != set->tail){
+        logInformation(_logger, "Before while");
+        while (currentNode != NULL){
             if (currentNode->type == EXPRESSION){
-                ComputationResult result = computeTransitionExpression(currentNode->transitionExpression, false);
+                ComputationResult result = computeTransitionExpression(currentNode->transitionExpression, true);
                 if (result.succeed){
                     if (result.isSingleElement){
                         currentNode->transition = result.transition;
@@ -450,7 +456,8 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
                         //cuando se tiene que una transicion representa varias al mismo tiempo
                         //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
                         TransitionNode * originalNext = currentNode->next;
-                        currentNode = result.transitionSet->first; 
+                        currentNode->transition = result.transitionSet->first->transition; 
+                        logInformation(_logger, "Found transition %s", currentNode->transition->symbolExpression->symbol->value );
                         result.transitionSet->tail->next = originalNext;
                         currentNode = result.transitionSet->tail;
                     }
@@ -461,9 +468,14 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
             }
             currentNode = currentNode->next;
         }
+        set->tail = currentNode; 
     }
+    logInformation(_logger, "Transition set created");
     deleteRepetitionsFromTransitionSet(set);
+    logInformation(_logger, "Deleted repetitions from transition set");
+    
     result.transitionSet = set;
+    logInformation(_logger,"-----completed transition set creation -----");
     return result;
 }
 
@@ -505,7 +517,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
         .isDefinitionSet = false,
         .type = STATE_DEFINITION
     };
-    
+    logDebugging(_logger,"starting state set creation");
     if (set->identifier != NULL && !isDefinition) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
         if ( !result.found)
@@ -535,17 +547,18 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
             _filterStates(set, set->stateType);
     } else {
         StateNode * currentNode = set->first;
-        while (currentNode != set->tail){
+        while (currentNode != NULL){
             if (currentNode->type == EXPRESSION){
-                ComputationResult result = computeStateExpression(currentNode->stateExpression, false);
+                ComputationResult result = computeStateExpression(currentNode->stateExpression, true);
                 if (result.succeed){
                     if (result.isSingleElement){
+                        logInformation(_logger, "is single element");
                         currentNode->state= result.state;
                         currentNode->type = ELEMENT;
                     }
                     else{
                         StateNode * originalNext = currentNode->next;
-                        currentNode = result.stateSet->first; 
+                        currentNode->state = result.stateSet->first->state; 
                         result.stateSet->tail->next = originalNext;
                         currentNode = result.stateSet->tail;
                     }
@@ -557,6 +570,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
             }
             currentNode = currentNode->next;
         }
+        set->tail = currentNode;
     }
     deleteRepetitionsFromStateSet(set);
     logDebugging(_logger,"created state set");
@@ -585,9 +599,9 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
         set->tail = resultSet->tail; 
     } else {
         SymbolNode * currentNode = set->first;
-        while (currentNode != set->tail){
+        while (currentNode != NULL){
             if (currentNode->type == EXPRESSION){
-                ComputationResult result = computeSymbolExpression(currentNode->symbolExpression, false);
+                ComputationResult result = computeSymbolExpression(currentNode->symbolExpression, true);
                 if (result.succeed){
                     if (result.isSingleElement){
                         currentNode->symbol= result.symbol;
@@ -595,7 +609,7 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
                     }
                     else{
                         SymbolNode * originalNext = currentNode->next;
-                        currentNode = result.symbolSet->first; 
+                        currentNode->symbol = result.symbolSet->first->symbol; 
                         result.symbolSet->tail->next = originalNext;
                         currentNode = result.symbolSet->tail;
                     }
@@ -606,6 +620,7 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
             }
             currentNode = currentNode->next;
         }
+        set->tail = currentNode;
     }
     deleteRepetitionsFromSymbolSet(set);
     result.symbolSet = set;
@@ -685,9 +700,10 @@ ComputationResult computeSymbol(Symbol* symbol, boolean isSingleElement) {
 
     if ( isSingleElement ){
         computationResult.symbol = symbol;
+        computationResult.isSingleElement = true;
     } else {
         SymbolSet * set = malloc(sizeof(SymbolSet));
-        SymbolNode * node = malloc(sizeof(SymbolNode));
+        SymbolNode * node = calloc(1,sizeof(SymbolNode));
         node->type = ELEMENT;
         set->first = node;  
         set->tail = node;  
@@ -708,7 +724,7 @@ ComputationResult computeState(State* state, boolean isSingleElement ) {
         computationResult.isSingleElement = true;
     } else {
         StateSet * set = malloc(sizeof(StateSet));
-        StateNode * node = malloc(sizeof(StateNode));
+        StateNode * node = calloc(1,sizeof(StateNode));
         node->type = ELEMENT;
         set->first = node;
         set->tail = node;  
@@ -1249,10 +1265,19 @@ static void _symbolDifferenceResolution(SymbolSet * leftSet, SymbolSet * rightSe
 static void deleteRepetitionsFromTransitionSet(TransitionSet * set){
     TransitionNode * current = set->first;
     TransitionNode * next;
+        logInformation(_logger,"STARTING DELETE");
+    if (current->transition != NULL) {
+        logInformation(_logger,"Is not null");
+        logInformation(_logger,"Transition: %s",current->transition);
+    }
     while (current != NULL){
+        if ( current == set->tail)
+            return;
         next = current->next;
         while (next != NULL){
+            logInformation(_logger,"Is deleting..");
             if (transitionEquals(current->transition, next->transition)){
+                logInformation(_logger ,"is equal");
                 current->next = next->next;
                 free(next);
                 next = current->next;
@@ -1343,7 +1368,7 @@ static void freeSymbolSet(SymbolSet * set){
         current = next;
     }
     free(set);
-}
+} 
 
 /*----------------------------------------- SET EQUALS ----------------------------------------------------*/ 
 static boolean transitionSetEquals(TransitionSet * set1, TransitionSet * set2){
@@ -1486,6 +1511,7 @@ static boolean transitionEquals(Transition * trans1, Transition * trans2){
     StateSet * trans2From = trans2->fromExpression->stateSet;
     StateSet * trans1To = trans1->toExpression->stateSet;
     StateSet * trans2To = trans2->toExpression->stateSet;
+    logInformation(_logger,"starting equals");    
     return stateSetEquals(trans1From, trans2From) && stateSetEquals(trans1To, trans2To) && symbolSetEquals(trans1->symbolExpression->symbolSet, trans2->symbolExpression->symbolSet);
 }
 

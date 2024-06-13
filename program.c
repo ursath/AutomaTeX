@@ -3,7 +3,6 @@ DFA AUTOMATA [
 	alphabet: { a, b },
 	transitions: {
         |q|-a->|r| ,  
-        |w|<-b->|r|,      
         |s|-a->|{w,q}|
     }
 ];
