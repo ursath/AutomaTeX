@@ -140,8 +140,10 @@ ComputationResult computeDefinition(Definition * definition) {
             break;
         case STATE_DEFINITION:
             identifier = definition->stateSet->identifier;
+            logWarning(_logger, "Identifier: %s", identifier);
             if ( !exists(identifier) ) {
                 result = computeStateSet(definition->stateSet,true);
+                logInformation(_logger,"Completed creation of set");
                 definition->stateSet = result.stateSet;
                 value.stateSet = definition->stateSet;
             }
@@ -158,8 +160,12 @@ ComputationResult computeDefinition(Definition * definition) {
             logError(_logger,"There cannot be 2 definitions with the same name");
         return _invalidComputation();
     }
-
+    logInformation(_logger,"Completed definition of set");
     result.succeed = insert(identifier,definition->type,value); 
+    if ( result.succeed )
+        logInformation(_logger,"The definition was added to the symbol table");
+    else
+        logError(_logger,"The definition COUDNT BE added to the symbol table");
     return result;
 
 }
@@ -207,9 +213,13 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
     StateNode * finalTail;
     State * initialState; 
     StateSet * finalSet = calloc(1, sizeof(StateSet));
+        logInformation(_logger, "BEFORE WHILE");
     while ( currentNode != NULL ){
         currentState =  currentNode->stateExpression->state;
+            logInformation(_logger, "IN WHILE");
+            logInformation(_logger, "value %s",currentState->symbol.value);
         if ( currentState->isFinal ) {
+            logInformation(_logger, "found final");
             StateNode * node = (StateNode *)malloc(sizeof(StateNode));
             node->stateExpression = currentNode->stateExpression;
             if ( finalSet->first==NULL )

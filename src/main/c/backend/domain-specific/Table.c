@@ -7,6 +7,7 @@ typedef struct {
     ValueType type;
 } Entry;
 
+static Logger * _logger = NULL;
 
 KHASH_MAP_INIT_STR(myhash, Entry)
 
@@ -15,6 +16,7 @@ khash_t(myhash) * hashTable;
 
 void initializeTable(void){
    hashTable = kh_init(myhash);
+   _logger = createLogger("Table");
 }
 
 // EL CPY lo hace el usuario
@@ -46,10 +48,14 @@ boolean exists(char * identifier ) {
 
 boolean insert(char * identifier,  ValueType type, Value value ){
     int ret;
+    logWarning(_logger, "Arrived to insert()");
+    logWarning(_logger, "Identifier: %s", identifier);
+    if ( hashTable != NULL)
+        logWarning(_logger, "Hash table exists");
     khiter_t k = kh_put(myhash, hashTable, identifier, &ret);
     if ( ret <= 0)
         return false;
-
+    logCritical(_logger, "Put key");
     Entry entry = {
         .type = type,
         .value = value

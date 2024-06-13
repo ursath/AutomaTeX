@@ -163,13 +163,13 @@ Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Tok
 
 Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	lexicalAnalyzerContext->semanticValue->token = SYMBOL;
+	lexicalAnalyzerContext->semanticValue->value = lexicalAnalyzerContext->lexeme;
 	return SYMBOL;
 }
 
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	lexicalAnalyzerContext->semanticValue->token = IDENTIFIER;
+	lexicalAnalyzerContext->semanticValue->value = lexicalAnalyzerContext->lexeme;
 	return IDENTIFIER;
 }
 

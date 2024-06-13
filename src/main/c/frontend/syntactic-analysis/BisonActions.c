@@ -437,7 +437,8 @@ Symbol * LambdaSemanticAction() {
 Symbol * SymbolSemanticAction(char * value) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Symbol * symbol = calloc(1, sizeof(Symbol));
-	symbol->value = value;
+	symbol->value = strdup(value);
+	//_logger("Value bison:%s",value);
 	return symbol;
 }
 
