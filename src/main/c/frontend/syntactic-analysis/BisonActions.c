@@ -256,7 +256,11 @@ SymbolSet * NodeSymbolSetSemanticAction(SymbolNode * symbolNode) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolSet * symbolSet = calloc(1, sizeof(SymbolSet));
 	symbolSet->first= symbolNode;
-	symbolSet->tail = symbolNode;
+	SymbolNode * finalNode = symbolNode;
+	while (finalNode->next !=NULL){
+		finalNode = finalNode->next;
+	}
+	symbolSet->tail = finalNode;
 	return symbolSet;
 }
 
@@ -264,7 +268,11 @@ StateSet * NodeStateSetSemanticAction(StateNode * stateNode) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	StateSet * stateSet = calloc(1, sizeof(StateSet));
 	stateSet->first= stateNode;
-	stateSet->tail = stateNode;
+	StateNode * finalNode = stateNode;
+	while (finalNode->next !=NULL){
+		finalNode = finalNode->next;
+	}
+	stateSet->tail = finalNode;
 	return stateSet;
 }
 
@@ -272,7 +280,11 @@ TransitionSet * NodeTransitionSetSemanticAction(TransitionNode * transitionNode)
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	TransitionSet * transitionSet = calloc(1, sizeof(TransitionSet));
 	transitionSet->first= transitionNode;
-	transitionSet->tail = transitionNode;
+	TransitionNode * finalNode = transitionNode;
+	while (finalNode->next != NULL){
+		finalNode = finalNode->next;
+	}
+	transitionSet->tail = finalNode;
 	return transitionSet;
 }
 
