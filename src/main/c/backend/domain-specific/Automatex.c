@@ -354,6 +354,11 @@ ComputationResult computeTransitionExpression(TransitionExpression * expression,
                         break;
         case ELEMENT_EXPRESSION: 
                 ComputationResult resultElement = computeTransition(expression->transition, isSingleElement);
+                if (resultElement.isSingleElement){
+                    expression->transition = resultElement.transition;
+                }else{
+                    expression->transitionSet = resultElement.transitionSet;
+                }
                 return resultElement;
                         break;
         default:
@@ -522,6 +527,7 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
                 //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
                 TransitionNode * originalNext = currentNode->next;
                 currentNode->transition = result.transitionSet->first->transition; 
+                currentNode->next = result.transitionSet->first->next;
                 result.transitionSet->tail->next = originalNext;
                 currentNode = result.transitionSet->tail;
             }
@@ -614,7 +620,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
                 ComputationResult result = computeStateExpression(currentNode->stateExpression, true);
                 if (result.succeed){
                     if (result.isSingleElement){
-                        logInformation(_logger, "is single element, state: %s", result.state);
+                        logInformation(_logger, "is single element, state: %s", result.state->symbol.value);
                         currentNode->state= result.state;
                         currentNode->type = ELEMENT;
                         result.isSingleElement = true;
@@ -776,14 +782,23 @@ ComputationResult computeTransition(Transition* transition, boolean isSingleElem
         TransitionNode * firstNode = calloc(1, sizeof(TransitionNode));
         set->first = firstNode;
 
-        while(pivotFromNode != transition->fromExpression->stateSet->tail && pivotSymbolNode != transition->symbolExpression->symbolSet->tail && pivotToNode != transition->toExpression->stateSet->tail){
-            while(pivotSymbolNode != transition->symbolExpression->symbolSet->tail && pivotToNode != transition->toExpression->stateSet->tail){
-                while(pivotToNode != transition->toExpression->stateSet->tail){
+        while(pivotFromNode != NULL){
+            while(pivotSymbolNode != NULL){
+                while(pivotToNode != NULL){
                     Transition * newTransition = malloc(sizeof(Transition));
-                    newTransition->fromExpression->state = pivotFromNode->state;
-                    logInformation(_logger, "from state: %s",pivotFromNode->state);
-                    newTransition->symbolExpression->symbol = pivotSymbolNode->symbol;
-                    newTransition->toExpression->state = pivotToNode->state;
+                    StateExpression * newFromExpression = calloc(1, sizeof(StateExpression));
+                    SymbolExpression * newSymbolExpression = calloc(1, sizeof(SymbolExpression));
+                    StateExpression* newToExpression = calloc(1, sizeof(StateExpression));
+                    newFromExpression->state = pivotFromNode->state;
+                    newTransition->fromExpression = newFromExpression;
+                    logInformation(_logger, "from state: %s",pivotFromNode->state->symbol.value);
+
+                    newSymbolExpression->symbol = pivotSymbolNode->symbol;
+                    newTransition->symbolExpression = newSymbolExpression;
+
+                    newToExpression->state = pivotToNode->state;
+                    newTransition->toExpression = newToExpression;
+
                     if (firstNode->transition != NULL){
                         TransitionNode * newNode = malloc(sizeof(TransitionNode));
                         newNode->transition = newTransition;
@@ -797,33 +812,17 @@ ComputationResult computeTransition(Transition* transition, boolean isSingleElem
                         firstNode->type = ELEMENT;
                         set->tail = firstNode;
                     }
+                    logInformation(_logger, "transition added: %s -%s-> %s", newTransition->fromExpression->state->symbol.value, newTransition->symbolExpression->symbol->value, newTransition->toExpression->state->symbol.value);
                     pivotToNode = pivotToNode->next;
                 }
                 logInformation(_logger, "All to states were used");
                 pivotSymbolNode = pivotSymbolNode->next;
+                pivotToNode = transition->toExpression->stateSet->first;
             }
             logInformation(_logger, "All symbols were consumed");
             pivotFromNode = pivotFromNode->next;
+            pivotSymbolNode = transition->symbolExpression->symbolSet->first;
         }
-        logInformation(_logger, "Creating Last Node");
-        Transition * lastTransition = malloc(sizeof(Transition));
-        lastTransition->fromExpression->state = pivotFromNode->state;
-        lastTransition->symbolExpression->symbol = pivotSymbolNode->symbol;
-        lastTransition->toExpression->state = pivotToNode->state;
-        if (firstNode->transition == NULL){
-            firstNode->transition = lastTransition;
-            firstNode->type = ELEMENT;
-            set->tail = firstNode;
-        }else {
-            TransitionNode * newNode = calloc(1, sizeof(TransitionNode));
-            newNode->transition = lastTransition;
-            newNode->type = ELEMENT;
-            if (set->tail != NULL){
-                set->tail->next = newNode;
-            }
-            set->tail = newNode;
-        }
-
         computationResult.transitionSet = set;
         computationResult.isSingleElement = set->first == set->tail;
         logInformation(_logger, "all from states were used, preparing to return set");
