@@ -446,6 +446,7 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
         logInformation(_logger, "Before while");
         while (currentNode != NULL){
             if (currentNode->type == EXPRESSION){
+                logInformation(_logger,"\tFound transition expression");
                 ComputationResult result = computeTransitionExpression(currentNode->transitionExpression, true);
                 if (result.succeed){
                     if (result.isSingleElement){
@@ -457,7 +458,7 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
                         //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
                         TransitionNode * originalNext = currentNode->next;
                         currentNode->transition = result.transitionSet->first->transition; 
-                        logInformation(_logger, "Found transition %s", currentNode->transition->symbolExpression->symbol->value );
+                        logInformation(_logger, "\tFound transition %s", currentNode->transition->symbolExpression->symbol->value );
                         result.transitionSet->tail->next = originalNext;
                         currentNode = result.transitionSet->tail;
                     }
@@ -628,7 +629,7 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
 }
 
 ComputationResult computeTransition(Transition* transition, boolean isSingleElement){
-    
+    logInformation(_logger,"im a transition");
     StateExpression * stateExpression = transition->fromExpression;
     ComputationResult result1 = computeStateExpression(stateExpression,true);
     stateExpression->stateSet = result1.stateSet;
