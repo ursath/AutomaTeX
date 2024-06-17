@@ -6,9 +6,11 @@ static Logger * _logger = NULL;
 /*-----------------PRIVATE FUNCTIONS ---------------------------------------------*/
 
 static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpression * finals, StateExpression * initial);
-static ComputationResult _checkTransitions(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
+static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType);
 static void _filterStates( StateSet * set, StateType type);
 static void _getTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
+static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type);
+static ComputationResult _isDFA(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
 
 /*-----------------------------SET OPERATIONS --------------------------------------------*/
 
@@ -40,20 +42,6 @@ static void deleteRepetitionsFromSymbolSet(SymbolSet * set);
 
 /*--------------------------------------------- INVALID OPERATORS -----------------------------------------*/
 static ComputationResult _invalidComputation();
-
-/*-------------------------------------- FREE NODE SETS --------------------*/
-static void freeTransitionSet(TransitionSet * set);
-static void freeStateSet(StateSet * set);
-static void freeSymbolSet(SymbolSet * set);
-
-/*----------------------------------------- SET EQUALS ----------------------------------------------------*/ 
-static boolean transitionSetEquals(TransitionSet * set1, TransitionSet * set2);
-static boolean stateSetEquals(StateSet * set1, StateSet * set2);
-static boolean symbolSetEquals(SymbolSet *set1, SymbolSet *set2);
-static boolean transitionEquals(Transition * trans1, Transition * trans2);
-static boolean stateEquals(State * state1, State * state2);
-static boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
-
 
 
  void initializeAutomatexModule() {
@@ -195,8 +183,7 @@ ComputationResult computeAutomata(Automata * automata) {
         return result;   
     }
     logInformation(_logger,"-----computed transitions-----");
-    //TODO: validar si DFA, NFA o LNFA 
-    result = _checkTransitions(transitionSetResult.transitionSet, stateSetResult.stateSet, symbolSetResult.symbolSet);
+    result = _checkAutomataRequirements(transitionSetResult.transitionSet, stateSetResult.stateSet, symbolSetResult.symbolSet, automata->automataType);
     if ( !result.succeed ){
         return result;   
     }
@@ -279,24 +266,92 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
 
     return result; 
 }
-
+//todo: 
+//  + DFA, LNFA
+//  + state contains 
 /* chequea si los estados y simbolos de las transiciones pertenecen a los del automata */
-static ComputationResult _checkTransitions(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet) {
+static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType) {
 
+    ComputationResult result;
+    
+    if ( automataType!=LNFA_AUTOMATA ) {
+        result = containsLambda(alphabet, automataType);
+        if ( !result.succeed)
+            return result;
+    }
+
+    // Chequeo si los simbolos y estados usados en las transiciones estan la definicion del automata
     StateSet * transitionStateSet;
     SymbolSet * transitionSymbolSet;
     _getTransitionStatesAndSymbols(transitions, transitionStateSet, transitionSymbolSet);
     logInformation(_logger,"-----getTransitionStatesAndSymbols -----");
-    ComputationResult result;
-    result.succeed = stateSetEquals(transitionStateSet, states) && symbolSetEquals(transitionSymbolSet, alphabet);
-    logInformation(_logger,"----- state set equals-----");
-    freeStateSet(transitionStateSet);
-    freeSymbolSet(transitionSymbolSet);
-    if ( !result.succeed ){
-        logError(_logger,"%s its transitions use symbols and states that don't belong to the automata", AUTOMATA_NOT_CREATED);
+    
+    StateSet * auxStateSet = calloc(1,sizeof(StateSet));
+    SymbolSet *auxSymbolSet = calloc(1,sizeof(SymbolSet));
+
+    _stateDifferenceResolution(transitionStateSet, states,auxStateSet);
+    if ( auxStateSet->first != NULL){
+        logError(_logger,"%s its transitions use states that don't belong to the automata", AUTOMATA_NOT_CREATED);
+        return _invalidComputation();
     }
+    _symbolDifferenceResolution(transitionSymbolSet, alphabet,auxSymbolSet);
+    if ( auxSymbolSet->first != NULL){
+        logError(_logger,"%s its transitions use symbols that don't belong to the automata", AUTOMATA_NOT_CREATED);
+        return _invalidComputation();
+    }
+    
+    freeStateSet(transitionStateSet);
+    freeStateSet(auxStateSet);
+    freeSymbolSet(transitionSymbolSet);
+    freeSymbolSet(auxSymbolSet);
+
+    if ( automataType==DFA_AUTOMATA)
+        return _isDFA(transitions,transitionStateSet,transitionSymbolSet);
     return result;
     
+}
+
+static ComputationResult _isDFA(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet) {
+    TransitionNode * currentNode = transitions->first;
+    TransitionNode * otherNode;
+    State * fromState, * toState;
+    Symbol * symbol;
+    Transition * transition;
+    while ( currentNode != NULL ){
+        otherNode = currentNode ->next;
+        transition= currentNode->transition;
+        fromState = transition->fromExpression->state;
+        toState = transition->toExpression->state;
+        symbol = transition->symbolExpression->symbol;
+        while ( otherNode!= NULL ){
+            transition = otherNode->transition;
+            if ( stateEquals(transition->fromExpression->state,fromState) && symbolEquals(transition->symbolExpression->symbol, symbol) 
+                && !stateEquals(transition->toExpression->state,toState) ){    // ! tal vez se pueda sacar si no se sacaron los repetidos
+                logError(_logger,"%s it is not deterministic",AUTOMATA_NOT_CREATED);
+                return _invalidComputation();
+            }
+            otherNode = otherNode->next;
+        }
+        currentNode = currentNode->next; 
+    }
+
+    ComputationResult result = { .succeed = true };
+    return result;
+}
+
+static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type)  {
+    Symbol * lambda = malloc(sizeof(Symbol));
+    lambda->value = LAMBDA_STRING; 
+    ComputationResult result = {
+        .succeed = containsSymbol(alphabet->first,lambda)
+    };
+    free(lambda);
+    if ( !result.succeed ) 
+        return result;
+    
+    logError(_logger, "Lambda symbol was found in a %s automata", type==DFA_AUTOMATA? "DFA":"NFA");
+    result.succeed = false;
+    return result;
 }
 
 static void _getTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet)  {
@@ -1216,7 +1271,7 @@ static void _transitionDifferenceResolution(TransitionSet * leftSet, TransitionS
     TransitionNode * rightCurrentNode = rightSet->first;
     TransitionNode * pivotNode = NULL;
     TransitionNode * resultCurrentNode = NULL; 
-    result->first = resultCurrentNode;
+    result->first = resultCurrentNode;      //todo: se esta guardando? xq parece q queda apuntando a NULL
     int found = 0;
     if (leftSet->tail == NULL){
         return;
@@ -1499,189 +1554,3 @@ static ComputationResult _invalidComputation() {
 	return computationResult;
 }
 
-/*-------------------------------------- FREE NODE SETS --------------------*/
-static void freeTransitionSet(TransitionSet * set){
-    TransitionNode * current = set->first;
-    TransitionNode * next;
-    while (current != NULL){
-        next = current->next;
-        free(current);
-        current = next;
-    }
-    free(set);
-}
-
-static void freeStateSet(StateSet * set){
-    StateNode * current = set->first;
-    StateNode * next;
-    while (current != NULL){
-        next = current->next;
-        free(current);
-        current = next;
-    }
-    free(set);
-}
-
-static void freeSymbolSet(SymbolSet * set){
-    SymbolNode * current = set->first;
-    SymbolNode * next;
-    while (current != NULL){
-        next = current->next;
-        free(current);
-        current = next;
-    }
-    free(set);
-} 
-
-/*----------------------------------------- SET EQUALS ----------------------------------------------------*/ 
-static boolean transitionSetEquals(TransitionSet * set1, TransitionSet * set2){
-    TransitionNode * current1 = set1->first;
-    TransitionNode * current2 = set2->first;
-    TransitionNode * pivot = current1;
-    int found;
-    if (set1->tail == NULL && set2->tail != NULL | set1->tail != NULL && set2->tail == NULL){
-        return false;
-    }
-    found = transitionEquals(pivot->transition, current2->transition);
-    if (!found){
-        do{
-            current2 = current2->next;
-            if (transitionEquals(pivot->transition, current2->transition)){
-                found=1;
-                break;
-            }
-        }while(current2 != set2->tail && found);
-        if (!found){
-            return false;
-        }
-    }
-    current2 = set2->first;
-    do{
-        found = 0;
-        current1 = current1->next;
-        pivot = current1;
-        while (current2 != set2->tail){
-            if (transitionEquals(pivot->transition, current2->transition)){
-                found=1;
-                break;
-            }
-            current2 = current2->next;
-        }
-        if (!found){
-            if (transitionEquals(pivot->transition, current2->transition)){
-                found=1;
-            }
-        }
-        current2 = set2->first;
-    }while(current1 != set1->tail && found);
-    return found;
-}
-
-
-static boolean stateSetEquals(StateSet * set1, StateSet * set2){
-    StateNode * current1 = set1->first;
-    StateNode * current2 = set2->first;
-    StateNode * pivot = current1;
-    int found;
-    if (set1->tail == NULL && set2->tail != NULL | set1->tail != NULL && set2->tail == NULL){
-        return false;
-    }
-    //veo el primer caso aparte porque después me pongo a revisar desde el siguiente en el do-while
-    //Esto lo hago para que me tome el último caso adentro del ciclo
-    found = stateEquals(pivot->state, current2->state);
-    if (!found){
-        do{
-            current2 = current2->next;
-            if (stateEquals(pivot->state, current2->state)){
-                found=1;
-                break;
-            }
-        }while(current2 != set2->tail && found);
-        //si ya hay uno que no está salgo de una sin hacer el siguiente do-while
-        if (!found){
-            return false;
-        }
-    }
-    current2 = set2->first;
-    do{
-        found = 0;
-        current1 = current1->next;
-        pivot = current1;
-        while (current2 != set2->tail){
-            if (stateEquals(pivot->state, current2->state)){
-                found=1;
-                break;
-            }
-            current2 = current2->next;
-        }
-        //veo el caso de que haya llegado al ultimo y no lo encontré antes
-        if (!found){
-            if (stateEquals(pivot->state, current2->state)){
-                found=1;
-            }
-        }
-        current2 = set2->first;
-    }while(current1 != set1->tail && found);
-    return found;
-}
-
-static boolean symbolSetEquals(SymbolSet *set1, SymbolSet *set2){
-    SymbolNode * current1 = set1->first;
-    SymbolNode * current2 = set2->first;
-    SymbolNode * pivot = current1;
-    int found;
-    if (set1->tail == NULL && set2->tail != NULL | set1->tail != NULL && set2->tail == NULL){
-        return false;
-    }
-    found = symbolEquals(pivot->symbol, current2->symbol);
-    if (!found){
-        do{
-            current2 = current2->next;
-            if (symbolEquals(pivot->symbol, current2->symbol)){
-                found=1;
-                break;
-            }
-        }while(current2 != set2->tail && found);
-        if (!found){
-            return false;
-        }
-    }
-    current2 = set2->first;
-    do{
-        found = 0;
-        current1 = current1->next;
-        pivot = current1;
-        while (current2 != set2->tail){
-            if (symbolEquals(pivot->symbol, current2->symbol)){
-                found=1;
-                break;
-            }
-            current2 = current2->next;
-        }
-        if (!found){
-            if (symbolEquals(pivot->symbol, current2->symbol)){
-                found=1;
-            }
-        }
-        current2 = set2->first;
-    }while(current1 != set1->tail && found);
-    return found;
-}
-
-/*------------------- ELEMENT EQUALS --------------------------------------------*/
-static boolean transitionEquals(Transition * trans1, Transition * trans2){
-    StateSet * trans1From = trans1->fromExpression->stateSet;
-    StateSet * trans2From = trans2->fromExpression->stateSet;
-    StateSet * trans1To = trans1->toExpression->stateSet;
-    StateSet * trans2To = trans2->toExpression->stateSet;
-    logInformation(_logger,"starting equals");    
-    return stateSetEquals(trans1From, trans2From) && stateSetEquals(trans1To, trans2To) && symbolSetEquals(trans1->symbolExpression->symbolSet, trans2->symbolExpression->symbolSet);
-}
-
-static boolean stateEquals(State * state1, State * state2){
-    return  symbolEquals(&state1->symbol, &state2->symbol) && state1->isFinal == state2->isFinal && state1->isInitial == state2->isInitial;
-}
-
-static boolean symbolEquals(Symbol * symbol1, Symbol * symbol2){
-    return strcmp(symbol1->value, symbol2->value) == 0;
-}
