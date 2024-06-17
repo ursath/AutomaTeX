@@ -1,6 +1,8 @@
 #ifndef ABSTRACT_SYNTAX_TREE_HEADER
 #define ABSTRACT_SYNTAX_TREE_HEADER
 
+#define LAMBDA_STRING "@"
+
 #include "../../shared/Logger.h"
 #include <stdlib.h>
 #include "../../shared/Type.h"

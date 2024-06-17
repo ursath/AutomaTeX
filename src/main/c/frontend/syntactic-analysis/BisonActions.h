@@ -8,7 +8,7 @@
 #include "SyntacticAnalyzer.h"
 #include <stdlib.h>
 
-#define LAMBDA_STRING "@"
+
 
 /** Initialize module's internal state. */
 void initializeBisonActionsModule();
