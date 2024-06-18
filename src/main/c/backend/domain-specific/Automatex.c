@@ -408,6 +408,7 @@ ComputationResult computeTransitionExpression(TransitionExpression * expression,
                 return resultSet;
                         break;
         case ELEMENT_EXPRESSION: 
+                logInformation(_logger, "computing transition object");
                 ComputationResult resultElement = computeTransition(expression->transition, isSingleElement);
                 if (resultElement.isSingleElement){
                     expression->transition = resultElement.transition;
@@ -488,8 +489,8 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
     logInformation(_logger,"-----starting transition set creation -----");
     if ( set->isBothSidesTransition ) {
         logInformation(_logger, "bothsides transition");
-        logInformation(_logger, "Transition: %s -> %s -> %s", set->first->transitionExpression->transition->fromExpression->stateSet->first->state->symbol.value, set->first->transitionExpression->transition->symbolExpression->symbol->value, set->first->transitionExpression->transition->toExpression->state->symbol.value);
-        logInformation(_logger, "Transition: %s -> %s -> %s", set->tail->transitionExpression->transition->fromExpression->state->symbol.value, set->tail->transitionExpression->transition->symbolExpression->symbol->value, set->tail->transitionExpression->transition->toExpression->state->symbol.value);        
+//        logInformation(_logger, "Transition: %s -> %s -> %s", set->tail->transitionExpression->transition->fromExpression->state->symbol.value, set->tail->transitionExpression->transition->symbolExpression->symbol->value, set->tail->transitionExpression->transition->toExpression->state->symbol.value);        
+//        logInformation(_logger, "Transition: %s -> %s -> %s", set->first->transitionExpression->transitionSet->first->transition->fromExpression->stateSet->first->state->symbol.value, set->first->transitionExpression->transitionSet->first->transition->symbolExpression->symbol->value, set->first->transitionExpression->transition->toExpression->state->symbol.value);
         ComputationResult result1, result2;
         result1 = computeTransitionExpression(set->first->transitionExpression, true);
         if (result1.succeed){
@@ -547,7 +548,8 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
     else {
         //tengo que procesar todos los nodos para desglosar las transitions
         TransitionNode * currentNode = set->first;
-        while (currentNode != set->tail){
+        TransitionNode * previousNode = set->first;
+        while (currentNode != NULL){
             if (currentNode->type == EXPRESSION){
                 logInformation(_logger, "Entering currentNode as expression");
                 ComputationResult result = computeTransitionExpression(currentNode->transitionExpression, true);
@@ -573,34 +575,11 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
                     return _invalidComputation();
                 }
             }
-           
+            previousNode = currentNode; 
             currentNode = currentNode->next;
         } 
-        logInformation(_logger, "Entering LastNode as expression");
-        ComputationResult result = computeTransitionExpression(currentNode->transitionExpression, true);
-        if (result.succeed){
-            if (result.isSingleElement){
-                logInformation(_logger, "Assigning single transition to node");
-                currentNode->transition = result.transition;
-                currentNode->type = ELEMENT;
-                logInformation(_logger, "I'm still standing");
-            }
-            else{
-                logInformation(_logger, "Transforming set to to single transitions");
-                //cuando se tiene que una transicion representa varias al mismo tiempo
-                //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
-                TransitionNode * originalNext = currentNode->next;
-                currentNode->transition = result.transitionSet->first->transition; 
-                currentNode->next = result.transitionSet->first->next;
-                result.transitionSet->tail->next = originalNext;
-                currentNode = result.transitionSet->tail;
-            }
-        }
-        else{
-            logError(_logger, "There has been a problem processing transition expression");
-            return _invalidComputation();
-        }
-        set->tail = currentNode; 
+        
+        set->tail = previousNode; 
     }
     logInformation(_logger, "Transition set created");
 //    deleteRepetitionsFromTransitionSet(set);
@@ -681,18 +660,16 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
         StateNode * currentNode = set->first;
         StateNode * previousNode = set->first;
         while (currentNode != NULL){
-                logInformation(_logger, "enter stateSetCreation");
+            if (currentNode->type == EXPRESSION){
+                logInformation(_logger, "Ready to compute state expression");
                 ComputationResult result = computeStateExpression(currentNode->stateExpression, true);
                 if (result.succeed){
                     if (result.isSingleElement){
-//                        logInformation(_logger, "is single element, state: %s", result.state->symbol.value);
-                        logInformation(_logger, "single state");
                         currentNode->state= result.state;
                         currentNode->type = ELEMENT;
                         result.isSingleElement = true;
                     }
                     else{
-                        logInformation(_logger, "as a set");
                         StateNode * originalNext = currentNode->next;
                         currentNode->state = result.stateSet->first->state; 
                         result.stateSet->tail->next = originalNext;
@@ -702,30 +679,11 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
                     logError(_logger,"Couldnt create state set");
                     return _invalidComputation();
                 }
+            }
             previousNode = currentNode;
             currentNode = currentNode->next;
         }
-        //ultimo nodo
-//        logInformation(_logger, "computing lastNode from stateSet");
-//        ComputationResult result = computeStateExpression(currentNode->stateExpression, true);
-//        if (result.succeed){
-//            if (result.isSingleElement){
-//                logInformation(_logger, "is single element and the state is: %s", result.state->symbol.value);
-//                currentNode->state= result.state;
-//                currentNode->type = ELEMENT;
-//                result.isSingleElement = true;
-//            }
-//            else{
-//                StateNode * originalNext = currentNode->next;
-//                currentNode->state = result.stateSet->first->state; 
-//                result.stateSet->tail->next = originalNext;
-//                currentNode = result.stateSet->tail;
-//            }
-//        }else{
-//            logError(_logger,"Couldnt create state set");
-//            return _invalidComputation();
-//        }
-        set->tail = currentNode;
+        set->tail = previousNode;
     }
 //    deleteRepetitionsFromStateSet(set);
     logDebugging(_logger,"created state set");
@@ -778,23 +736,6 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
             previousNode = currentNode;
             currentNode = currentNode->next;
         }
-//        ComputationResult result = computeSymbolExpression(currentNode->symbolExpression, true);
-//        if (result.succeed){
-//            if (result.isSingleElement){
-//                currentNode->symbol= result.symbol;
-//                currentNode->type = ELEMENT;
-//                result.isSingleElement = true;
-//            }
-//            else{
-//                SymbolNode * originalNext = currentNode->next;
-//                currentNode->symbol = result.symbolSet->first->symbol; 
-//                result.symbolSet->tail->next = originalNext;
-//                currentNode = result.symbolSet->tail;
-//            }
-//        }
-//        else{
-//            return _invalidComputation();
-//        }
         set->tail = previousNode;
     }
 //    deleteRepetitionsFromSymbolSet(set);
@@ -827,9 +768,6 @@ ComputationResult computeTransition(Transition* transition, boolean isSingleElem
 		.succeed = true
 	};
 
-//    boolean withoutExpressionOperators = transition->fromExpression->type == ELEMENT_EXPRESSION && transition->symbolExpression->type == ELEMENT_EXPRESSION && transition->toExpression->type == ELEMENT_EXPRESSION;
-    //acá no uso equals porque es literalmente apuntar a la misma dirección de memoria para indicar que hay un solo elemento
-    //boolean isSimpleTransition = transition->fromExpression->stateSet->first == transition->fromExpression->stateSet->tail && transition->symbolExpression->symbolSet->first == transition->symbolExpression->symbolSet->tail && transition->toExpression->stateSet->first == transition->toExpression->stateSet->tail;
     boolean isSimpleTransition = result1.stateSet->first == result1.stateSet->tail && result2.symbolSet->first == result2.symbolSet->tail && result3.stateSet->first == result3.stateSet->tail;
     if ( isSingleElement && isSimpleTransition){
         logInformation(_logger, "Simple transition detected ready to be returned");
@@ -847,12 +785,12 @@ ComputationResult computeTransition(Transition* transition, boolean isSingleElem
         //necesito desglosar la transicion -> combinatoria
         //por cada elemento en el conjunto de estados de from armo una transicion
         //mi pivot es un nodo de cada conjunto
-        logInformation(_logger, "state initial: %s",transition->fromExpression->stateSet->first->state->symbol.value);
+//        logInformation(_logger, "state initial: %s",transition->fromExpression->stateSet->first->state->symbol.value);
         StateNode * pivotFromNode = transition->fromExpression->stateSet->first;
         SymbolNode * pivotSymbolNode = transition->symbolExpression->symbolSet->first;
-        logInformation(_logger, "symbol initial: %s",transition->symbolExpression->symbolSet->first->symbol->value);
+//        logInformation(_logger, "symbol initial: %s",transition->symbolExpression->symbolSet->first->symbol->value);
         StateNode * pivotToNode = transition->toExpression->stateSet->first;
-        logInformation(_logger, "state initial: %s",transition->toExpression->stateSet->first->state->symbol.value);
+//        logInformation(_logger, "state initial: %s",transition->toExpression->stateSet->first->state->symbol.value);
         TransitionNode * firstNode = calloc(1, sizeof(TransitionNode));
         set->first = firstNode;
 
@@ -865,7 +803,7 @@ ComputationResult computeTransition(Transition* transition, boolean isSingleElem
                     StateExpression* newToExpression = calloc(1, sizeof(StateExpression));
                     newFromExpression->state = pivotFromNode->state;
                     newTransition->fromExpression = newFromExpression;
-                    logInformation(_logger, "from state: %s",pivotFromNode->state->symbol.value);
+ //                   logInformation(_logger, "from state: %s",pivotFromNode->state->symbol.value);
 
                     newSymbolExpression->symbol = pivotSymbolNode->symbol;
                     newTransition->symbolExpression = newSymbolExpression;
