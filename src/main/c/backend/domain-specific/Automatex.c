@@ -271,12 +271,12 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
 //  + state contains 
 /* chequea si los estados y simbolos de las transiciones pertenecen a los del automata */
 static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType) {
-
+    logInformation(_logger, "in _checkAutomataRequirements");
     ComputationResult result;
     
     if ( automataType!=LNFA_AUTOMATA ) {
         result = containsLambda(alphabet, automataType);
-        if ( !result.succeed)
+        if ( result.succeed)
             return result;
     }
 
@@ -340,6 +340,7 @@ static ComputationResult _isDFA(TransitionSet * transitions, StateSet * states, 
 }
 
 static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type)  {
+    logInformation(_logger, "in contains Lambda");
     Symbol * lambda = malloc(sizeof(Symbol));
     lambda->value = LAMBDA_STRING; 
     ComputationResult result = {
@@ -347,6 +348,7 @@ static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type)
     };
     free(lambda);
     if ( !result.succeed ) 
+        logInformation(_logger, "not lambda");
         return result;
     
     logError(_logger, "Lambda symbol was found in a %s automata", type==DFA_AUTOMATA? "DFA":"NFA");
@@ -355,6 +357,7 @@ static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type)
 }
 
 static void _getTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet)  {
+    logInformation(_logger, "entre a _getTransitionStatesAndSymbols");
     TransitionNode * currentNode = transitions->first;
     Transition * transition;
     StateSet * tStateSet;
