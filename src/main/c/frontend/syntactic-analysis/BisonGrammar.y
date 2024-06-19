@@ -153,25 +153,25 @@ automataType: DFA																				{ $$ = DFA_AUTOMATA; }
 	| LNFA																						{ $$ = LNFA_AUTOMATA; }
 	;
 
-transitionExpression:  transitionExpression[left] UNION transitionExpression[right] 			{ $$ = TransitionExpressionSemanticAction($left, $right, UNION); }
-	| transitionExpression[left] DIFFERENCE transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| transitionExpression[left] INTERSECTION transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, INTERSECTION); }																												
+transitionExpression:  transitionExpression[left] UNION transitionExpression[right] 			{ $$ = TransitionExpressionSemanticAction($left, $right, UNION_EXPRESSION); }
+	| transitionExpression[left] DIFFERENCE transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, DIFFERENCE_EXPRESSION); }
+	| transitionExpression[left] INTERSECTION transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, INTERSECTION_EXPRESSION); }																												
 	| transitionSet 																			{ $$ = SetTransitionExpressionSemanticAction($1); }	
 	| transition 																				{ $$ = SingularTransitionExpressionSemanticAction($1); }	
 	| OPEN_PARENTHESIS transitionExpression CLOSE_PARENTHESIS									{ $$ = $2 ;}																														
 	;
 
-stateExpression:  stateExpression[left] UNION stateExpression[right] 							{ $$ = StateExpressionSemanticAction($left, $right, UNION); }
-	| stateExpression[left] DIFFERENCE stateExpression[right] 									{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| stateExpression[left] INTERSECTION stateExpression[right] 								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION); }
+stateExpression:  stateExpression[left] UNION stateExpression[right] 							{ $$ = StateExpressionSemanticAction($left, $right, UNION_EXPRESSION); }
+	| stateExpression[left] DIFFERENCE stateExpression[right] 									{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE_EXPRESSION); }
+	| stateExpression[left] INTERSECTION stateExpression[right] 								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION_EXPRESSION); }
 	| stateSet																					{ $$ = SetStateExpressionSemanticAction($1); }
 	| state																						{ $$ = SingularStateExpressionSemanticAction($1); }	
 	| OPEN_PARENTHESIS stateExpression CLOSE_PARENTHESIS										{ $$ = $2; }
 	;
 
-symbolExpression: symbolExpression[left] UNION symbolExpression[right]							{ $$ = SymbolExpressionSemanticAction($left, $right, UNION); }
-	| symbolExpression[left] DIFFERENCE symbolExpression[right]									{ $$ = SymbolExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| symbolExpression[left] INTERSECTION symbolExpression[right] 								{ $$ = SymbolExpressionSemanticAction($left, $right, INTERSECTION); }
+symbolExpression: symbolExpression[left] UNION symbolExpression[right]							{ $$ = SymbolExpressionSemanticAction($left, $right, UNION_EXPRESSION); }
+	| symbolExpression[left] DIFFERENCE symbolExpression[right]									{ $$ = SymbolExpressionSemanticAction($left, $right, DIFFERENCE_EXPRESSION); }
+	| symbolExpression[left] INTERSECTION symbolExpression[right] 								{ $$ = SymbolExpressionSemanticAction($left, $right, INTERSECTION_EXPRESSION); }
 	| symbolSet 																				{ $$ = SetSymbolExpressionSemanticAction($1); }
 	| symbol																					{ $$ = SingularSymbolExpressionSemanticAction($1); }
 	| OPEN_PARENTHESIS symbolExpression CLOSE_PARENTHESIS										{ $$ = $2; }	
