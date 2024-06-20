@@ -347,7 +347,7 @@ static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transi
     Transition * transition;
     ComputationResult result ={ .succeed=false };
     // todo: state or symbol set vacios =
-    
+            
     while (currentTransNode != NULL) {
         transition = currentTransNode->transition;
     
@@ -575,7 +575,7 @@ static void _filterStates( StateSet * set, StateType type){
     logInformation(_logger, "Filtering...");
     StateNode * currentNode = set->first;
     State * currentState;
-    StateNode * resultTail;
+    StateNode * resultTail = NULL;
     while ( currentNode != NULL ){
     currentState =  currentNode->state;
     switch ( type ){
@@ -672,7 +672,6 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
         logInformation(_logger,"set is null=%d, currentnode is null=%d.", set==NULL, currentNode==NULL );
         set->tail = previousNode;
     }
-    logDebugging(_logger,"GOING TO DELETE repetitions from state set");
     deleteRepetitionsFromStateSet(set);
     logDebugging(_logger,"Deleted repetitions from state set");
     result.stateSet = set;
@@ -1338,16 +1337,18 @@ static void _symbolDifferenceResolution(SymbolSet * leftSet, SymbolSet * rightSe
 static void deleteRepetitionsFromTransitionSet(TransitionSet * set){
     TransitionNode * current = set->first;
     TransitionNode * next;
+    TransitionNode * lastSeen;
+
     while (current != NULL){
-        if ( current == set->tail)
-            return;
         next = current->next;
-        while (next != NULL){
+        lastSeen = current;
+        while(next != NULL){
             if (transitionEquals(current->transition, next->transition)){
-                current->next = next->next;
+                lastSeen->next = next->next;
                 free(next);
-                next = current->next;
+                next = lastSeen->next;
             } else {
+                lastSeen = next;
                 next = next->next;
             }
         }
@@ -1358,14 +1359,21 @@ static void deleteRepetitionsFromTransitionSet(TransitionSet * set){
 static void deleteRepetitionsFromStateSet(StateSet * set){
     StateNode * current = set->first;
     StateNode * next;
+    StateNode * lastSeen;
+
     while (current != NULL){
         next = current->next;
-        while (next != NULL){
+        lastSeen = current;
+        //logInformation(_logger, "current state to check repetitions: %s", current->state->symbol.value);
+        while(next != NULL){
             if (stateEquals(current->state, next->state)){
-                current->next = next->next;
+//                logInformation(_logger, "state to delete: %s", next->state->symbol.value);
+//                logInformation(_logger, "previous state %s", lastSeen->state->symbol.value);
+                lastSeen->next = next->next;
                 free(next);
-                next = current->next;
+                next = lastSeen->next;
             } else {
+                lastSeen = next;
                 next = next->next;
             }
         }
@@ -1376,19 +1384,23 @@ static void deleteRepetitionsFromStateSet(StateSet * set){
 static void deleteRepetitionsFromSymbolSet(SymbolSet * set){
     SymbolNode * current = set->first;
     SymbolNode * next;
+    SymbolNode * lastSeen;
+
     while (current != NULL){
         next = current->next;
-        while (next != NULL){
+        lastSeen = current;
+        while(next != NULL){
             if (symbolEquals(current->symbol, next->symbol)){
-                current->next = next->next;
+                lastSeen->next = next->next;
                 free(next);
-                next = current->next;
+                next = lastSeen->next;
             } else {
+                lastSeen = next;
                 next = next->next;
             }
         }
         current = current->next;
-    }
+    } 
 }
 
 /*--------------------------------------------- INVALID OPERATORS -----------------------------------------*/
