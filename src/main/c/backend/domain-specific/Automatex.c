@@ -625,7 +625,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
             }
         } else 
             resultSet = cpyStateSet( result.value.stateSet);
-        set->first = resultSet->first;
+        set->first = resultSet->first; 
         set->tail = resultSet->tail;
     }
     if ( (set->stateType != MIXED && !set->isFromAutomata) || set->stateType==REGULAR ) {

@@ -45,10 +45,11 @@ SymbolSet * cpySymbolSet(SymbolSet * set) {
     SymbolNode * currentNode = set->first;
     SymbolNode * resultTail;
     SymbolNode * node;
-    SymbolSet * resultSet = malloc(sizeof(SymbolSet));
+    SymbolSet * resultSet = calloc(1,sizeof(SymbolSet));
     while ( currentNode != NULL ){
-        node = malloc(sizeof(SymbolNode));
+        node = calloc(1,sizeof(StateNode));
         node->symbol = currentNode->symbol; 
+        node->type = ELEMENT;
         if ( resultSet->first==NULL )
             resultSet->first = node;
         else 
@@ -65,10 +66,13 @@ StateSet * cpyStateSet(StateSet * set){
     StateNode * currentNode = set->first;
     StateNode * resultTail;
     StateNode * node;
-    StateSet * resultSet = malloc(sizeof(StateSet));
+    initializeLogger();
+    logInformation(_logger,"copying..");
+    StateSet * resultSet = calloc(1,sizeof(StateSet));
     while ( currentNode != NULL ){
-        node = malloc(sizeof(StateNode));
+        node = calloc(1,sizeof(StateNode));
         node->state = currentNode->state;
+        node->type = ELEMENT;
         if ( resultSet->first==NULL )
             resultSet->first = node;
         else 
@@ -86,10 +90,11 @@ TransitionSet * cpyTransitionSet(TransitionSet * set){
     TransitionNode * currentNode = set->first;
     TransitionNode * resultTail;
     TransitionNode * node;
-    TransitionSet * resultSet = malloc(sizeof(TransitionSet));
+    TransitionSet * resultSet = calloc(1,sizeof(TransitionSet));
     while ( currentNode != NULL ){
-        node = malloc(sizeof(TransitionNode));
+        node = calloc(1,sizeof(TransitionNode));
         node->transition = currentNode->transition;
+        node->type = ELEMENT;
         if ( resultSet->first==NULL )
             resultSet->first = node;
         else 
