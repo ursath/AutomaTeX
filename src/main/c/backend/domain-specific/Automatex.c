@@ -5,7 +5,7 @@ static Logger * _logger = NULL;
 
 /*-----------------PRIVATE FUNCTIONS ---------------------------------------------*/
 
-static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpression * finals, StateExpression * initial);
+static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata * automata);
 static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType);
 static void _filterStates( StateSet * set, StateType type);
 static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
@@ -168,7 +168,7 @@ ComputationResult computeAutomata(Automata * automata) {
         return result;   
     }
     
-    result = _computeFinalAndInitialStates(stateSetResult.stateSet, automata->finals, automata->initials);
+    result = _computeFinalAndInitialStates(stateSetResult.stateSet, automata);
     if ( !result.succeed ){
         return result;   
     }
@@ -195,7 +195,7 @@ ComputationResult computeAutomata(Automata * automata) {
 }
 
 /* chequea y arma estados final(es) e inicial */
-static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpression * finals, StateExpression * initial){
+static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata * automata){
     StateNode * currentNode = set->first;
     State * currentState;
     StateNode * finalTail;
@@ -257,21 +257,18 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpr
         return _invalidComputation();
     }
 
-    initial = malloc(sizeof(StateExpression));
-    initial->state = initialState;
-    finals = malloc(sizeof(StateExpression));
-    finals->stateSet = finalSet; 
+    automata->initials = malloc(sizeof(StateExpression));
+    automata->initials->state = initialState;
+    automata->finals = malloc(sizeof(StateExpression));
+    automata->finals->stateSet = finalSet; 
     ComputationResult result = { .succeed = true };
 
 
     return result; 
 }
-//todo: 
-//  + DFA, LNFA
-//  + state contains 
-/* chequea si los estados y simbolos de las transiciones pertenecen a los del automata */
+
 static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType) {
-    logInformation(_logger, "in _checkAutomataRequirements");
+    logInformation(_logger, "checking automata requirements");
     ComputationResult result;
     
     if ( automataType!=LNFA_AUTOMATA ) {
@@ -280,11 +277,9 @@ static ComputationResult _checkAutomataRequirements(TransitionSet * transitions,
             return result;
     }
 
-    // Chequeo si los simbolos y estados usados en las transiciones estan la definicion del automata
     result = _checkTransitionStatesAndSymbols(transitions, states, alphabet);
     if (!result.succeed)
         return result;
-    logInformation(_logger,"-----getTransitionStatesAndSymbols -----");
 
     if ( automataType==DFA_AUTOMATA)
         return _isDFA(transitions);
@@ -308,9 +303,9 @@ static ComputationResult _isDFA(TransitionSet * transitions) {
             transition = otherNode->transition;
             if ( stateSymbolEquals(transition->fromExpression->state,fromState) && symbolEquals(transition->symbolExpression->symbol, symbol) 
                 && !stateSymbolEquals(transition->toExpression->state,toState) ){    // ! tal vez se pueda sacar si no se sacaron los repetidos
-                logError(_logger,"%s it is not deterministic because of the following transitions:",AUTOMATA_NOT_CREATED);
-                logError(_logger, "\t|%s|-%s->|%s|", fromState->symbol.value, symbol->value, toState->symbol.value);
-                logError(_logger, "\t|%s|-%s->|%s|", transition->fromExpression->state->symbol.value, transition->symbolExpression->symbol->value, transition->toExpression->state->symbol.value);
+                logError(_logger,"%s it is not deterministic due to the following transitions:",AUTOMATA_NOT_CREATED);
+                logError(_logger,"\t|%s|-%s->|%s|", fromState->symbol.value, symbol->value, toState->symbol.value);
+                logError(_logger,"\t|%s|-%s->|%s|", transition->fromExpression->state->symbol.value, transition->symbolExpression->symbol->value, transition->toExpression->state->symbol.value);
                 return _invalidComputation();
             }
             otherNode = otherNode->next;
@@ -339,11 +334,12 @@ static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type)
     return result;
 }
 
+/* Chequeo si los simbolos y estados usados en las transiciones estan en la definicion del automata */
 static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet)  {
-    logInformation(_logger, "entre a _getTransitionStatesAndSymbols");
+    logInformation(_logger, "checking transitions");
     TransitionNode * currentTransNode = transitions->first;
     Transition * transition;
-    ComputationResult result ={ .succeed=false};
+    ComputationResult result ={ .succeed=false };
     // todo: state or symbol set vacios =
     
     while (currentTransNode != NULL) {
@@ -438,13 +434,11 @@ ComputationResult computeSymbolExpression(SymbolExpression * expression, boolean
                 return _symbolDifference(expression->leftExpression, expression->rightExpression);
                         break;
         case SET_EXPRESSION:
-                ComputationResult resultSet = computeSymbolSet(expression->symbolSet,false);
                 //if (resultSet.symbolSet->first == resultSet.symbolSet->tail){
                 //    expression->symbol = resultSet.symbolSet->first->symbol;
                 //    logInformation(_logger, "There is only one symbol: %s", expression->symbol->value);
                 //}
-                return resultSet;
-                break;
+                return computeSymbolSet(expression->symbolSet,false);
         case ELEMENT_EXPRESSION:
                 ComputationResult resultElement = computeSymbol(expression->symbol, isSingleElement) ;
                 return resultElement;
@@ -602,11 +596,13 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
         .isDefinitionSet = false,
         .type = STATE_DEFINITION
     };
-    logDebugging(_logger,"starting state set creation");
+    logInformation(_logger,"starting state set creation");
     if (set->identifier != NULL && !isDefinition) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
-        if ( !result.found)
+        if ( !result.found ) { 
+            logError(_logger,"%s", CONST_NOT_DEFINED);
             return _invalidComputation();
+        }
         StateSet * resultSet;
         if (set->isFromAutomata) {
             Automata * automata = result.value.automata; 
@@ -672,7 +668,8 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
         .isDefinitionSet = false,
         .type = ALPHABET_DEFINITION        
     };
-    
+    if ( set->first==NULL)
+        logInformation(_logger,"SET IDENTIF: %s ", set->identifier == NULL? set->identifier:"null" );
     if ( set->identifier != NULL && !isDefinition ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
         if ( !result.found)

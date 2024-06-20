@@ -31,8 +31,6 @@ boolean containsSymbol(SymbolNode *first, Symbol * symbol ) {
 }
 
 /*----------------------------------------- COPY SET ----------------------------------------------------*/ 
-
-//todo 
 SymbolSet * cpySymbolSet(SymbolSet * set) {
     SymbolNode * currentNode = set->first;
     SymbolNode * resultTail;
@@ -40,7 +38,7 @@ SymbolSet * cpySymbolSet(SymbolSet * set) {
     SymbolSet * resultSet = malloc(sizeof(SymbolSet));
     while ( currentNode != NULL ){
         node = malloc(sizeof(SymbolNode));
-        node->symbol = currentNode->symbol; //todo no es directo symbol?
+        node->symbol = currentNode->symbol; 
         if ( resultSet->first==NULL )
             resultSet->first = node;
         else 
