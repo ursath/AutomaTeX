@@ -894,12 +894,22 @@ static ComputationResult _transitionUnion(TransitionExpression * leftExp, Transi
         TransitionSet * leftSet = left.transitionSet;
         TransitionSet * rightSet = right.transitionSet;
         logInformation(_logger, "sets asigned correctly before starting union");
-        result->first = leftSet->first;
-        logInformation(_logger, "%s -%s-> %s", leftSet->first->transition->fromExpression->state->symbol.value, leftSet->first->transition->symbolExpression->symbol->value, leftSet->first->transition->toExpression->state->symbol.value);
-        logInformation(_logger, "%s -%s-> %s", rightSet->first->transition->fromExpression->state->symbol.value, rightSet->first->transition->symbolExpression->symbol->value, rightSet->first->transition->toExpression->state->symbol.value);        
-        leftSet->tail->next = rightSet->first; 
-        result->tail = rightSet->tail;
-        deleteRepetitionsFromTransitionSet(result);
+        if (leftSet->first != NULL){
+            result->first = leftSet->first;
+            logInformation(_logger, "%s -%s-> %s", leftSet->first->transition->fromExpression->state->symbol.value, leftSet->first->transition->symbolExpression->symbol->value, leftSet->first->transition->toExpression->state->symbol.value);
+            logInformation(_logger, "%s -%s-> %s", rightSet->first->transition->fromExpression->state->symbol.value, rightSet->first->transition->symbolExpression->symbol->value, rightSet->first->transition->toExpression->state->symbol.value);        
+            leftSet->tail->next = rightSet->first; 
+        }else{
+            result->first = rightSet->first;
+        }
+        if (rightSet->first != NULL){
+            result->tail = rightSet->tail;
+        }else{
+            result->tail = leftSet->tail;
+        }
+        if (result->first != NULL){
+            deleteRepetitionsFromTransitionSet(result);
+        }
         ComputationResult ret = {
             .succeed = true,
             .transitionSet = result
@@ -920,10 +930,27 @@ static ComputationResult _stateUnion(StateExpression * leftExp, StateExpression 
 
 static ComputationResult _stateSetUnion(StateSet * leftSet, StateSet * rightSet){
     StateSet * result = calloc(1, sizeof(StateSet));
-    result->first = leftSet->first;
-    leftSet->tail->next = rightSet->first; 
-    result->tail = rightSet->tail;
-    deleteRepetitionsFromStateSet(result);
+    if (leftSet->first != NULL){
+        result->first = leftSet->first;
+        leftSet->tail->next = rightSet->first; 
+        logInformation(_logger, "entering first set");
+    }else{
+        result->first = rightSet->first;
+    }
+    if (rightSet->first != NULL){
+        result->tail = rightSet->tail;
+    }else{
+        logInformation(_logger, "The second set was empty");
+        result->tail = leftSet->tail;
+    }    
+
+//    result->first = leftSet->first;
+//    leftSet->tail->next = rightSet->first; 
+//    result->tail = rightSet->tail;
+    if (result->first != NULL){
+        deleteRepetitionsFromStateSet(result);
+    }
+
     ComputationResult ret = {
         .succeed = true,
         .stateSet= result
@@ -943,10 +970,23 @@ static ComputationResult _symbolUnion(SymbolExpression * leftExp, SymbolExpressi
 static ComputationResult _symbolSetUnion(SymbolSet * leftSet, SymbolSet * rightSet){
     logInformation(_logger, "entering SymbolSetUnion");
     SymbolSet * result = calloc(1, sizeof(SymbolSet));
-    result->first = leftSet->first;
-    leftSet->tail->next = rightSet->first; 
-    result->tail = rightSet->tail;
-    deleteRepetitionsFromSymbolSet(result);
+    if (leftSet->first != NULL){
+        result->first = leftSet->first;
+        leftSet->tail->next = rightSet->first; 
+    }else{
+        result->first = rightSet->first;
+    }
+    if (rightSet->first != NULL){
+        result->tail = rightSet->tail;
+    }else{
+        result->tail = leftSet->tail;
+    }
+//    result->first = leftSet->first;
+//    leftSet->tail->next = rightSet->first; 
+//    result->tail = rightSet->tail;
+    if (result->first != NULL){
+        deleteRepetitionsFromSymbolSet(result);
+    }
     ComputationResult ret = {
         .succeed = true,
         .symbolSet= result
