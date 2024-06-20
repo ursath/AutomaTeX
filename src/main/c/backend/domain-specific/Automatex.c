@@ -516,8 +516,8 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
                         //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
                         TransitionNode * originalNext = currentNode->next;
                         currentNode->transition = result.transitionSet->first->transition; 
-                        currentNode->next = result.transitionSet->first->next;
                         result.transitionSet->tail->next = originalNext;
+                        currentNode->next = result.transitionSet->first->next;
                         currentNode = result.transitionSet->tail;
                     }
                 }
@@ -623,11 +623,13 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
                         result.isSingleElement = true;
                     }
                     else{
-                        StateNode * originalNext = currentNode->next;
-                        currentNode->state = result.stateSet->first->state; 
-                        currentNode->next = result.stateSet->first->next;
-                        result.stateSet->tail->next = originalNext;
-                        currentNode = result.stateSet->tail;
+                        if (result.stateSet->first != NULL){
+                            StateNode * originalNext = currentNode->next;
+                            currentNode->state = result.stateSet->first->state; 
+                            result.stateSet->tail->next = originalNext;
+                            currentNode->next = result.stateSet->first->next;
+                            currentNode = result.stateSet->tail;
+                        }
                     }
                 }else{
                     logError(_logger,"Couldnt create state set");
@@ -680,11 +682,13 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
                         result.isSingleElement = true;
                     }
                     else{
-                        SymbolNode * originalNext = currentNode->next;
-                        currentNode->symbol = result.symbolSet->first->symbol; 
-                        currentNode->next = result.symbolSet->first->next;
-                        result.symbolSet->tail->next = originalNext;
-                        currentNode = result.symbolSet->tail;
+                        if (result.symbolSet->first != NULL){
+                            SymbolNode * originalNext = currentNode->next;
+                            currentNode->symbol = result.symbolSet->first->symbol; 
+                            result.symbolSet->tail->next = originalNext;
+                            currentNode->next = result.symbolSet->first->next;
+                            currentNode = result.symbolSet->tail;
+                        }
                     }
                 }
                 else{
@@ -866,6 +870,7 @@ static ComputationResult _transitionUnion(TransitionExpression * leftExp, Transi
         logInformation(_logger, "%s -%s-> %s", rightSet->first->transition->fromExpression->state->symbol.value, rightSet->first->transition->symbolExpression->symbol->value, rightSet->first->transition->toExpression->state->symbol.value);        
         leftSet->tail->next = rightSet->first; 
         result->tail = rightSet->tail;
+        deleteRepetitionsFromTransitionSet(result);
         ComputationResult ret = {
             .succeed = true,
             .transitionSet = result
@@ -889,7 +894,12 @@ static ComputationResult _stateSetUnion(StateSet * leftSet, StateSet * rightSet)
     result->first = leftSet->first;
     leftSet->tail->next = rightSet->first; 
     result->tail = rightSet->tail;
-    return computeStateSet(result,false);
+    deleteRepetitionsFromStateSet(result);
+    ComputationResult ret = {
+        .succeed = true,
+        .stateSet= result
+    };
+    return ret;    
 }
 
 static ComputationResult _symbolUnion(SymbolExpression * leftExp, SymbolExpression * rightExp){
@@ -907,7 +917,12 @@ static ComputationResult _symbolSetUnion(SymbolSet * leftSet, SymbolSet * rightS
     result->first = leftSet->first;
     leftSet->tail->next = rightSet->first; 
     result->tail = rightSet->tail;
-    return computeSymbolSet(result,false);
+    deleteRepetitionsFromSymbolSet(result);
+    ComputationResult ret = {
+        .succeed = true,
+        .symbolSet= result
+    };
+    return ret;    
 }
 
 /*------------------------------ INTERSECTION -------------------------------------*/
