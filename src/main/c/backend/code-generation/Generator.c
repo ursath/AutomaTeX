@@ -42,6 +42,7 @@ void initializeStates(State * states[], StateSet * stateSet);
 void initializeSymbols(Symbol * symbols[], SymbolSet * symbolSet);
 int getStatesCount(StateNode * currentNode);
 int getAlphabetLength(SymbolNode * currentNode);
+boolean stateHasTransition(Symbol stateSymbol, int numStates, int numSymbols, State * states[]);
 void freeTransitionMatrix(int numStates, int numSymbols);
 void freeAutomataMatrix(int numStates);
 void freeStatesAndSymbols(State * states[], int numStates, Symbol * symbols[], int numSymbols);
@@ -115,7 +116,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 		for(int j=0; j<statesCount; j++) {
 			SymbolMatrixNode * currentNode = automataMatrix[i][j].first;
 			if(currentNode != NULL) {
-				_output(0, "%s -> %s [label=", states[i]->symbol.value, states[j]->symbol.value);
+				_output(0, "%s -> %s [label=\"", states[i]->symbol.value, states[j]->symbol.value);
 				while(currentNode != NULL) {
 					_output(0, "%s", currentNode->symbol->value);
 					if(currentNode->next != NULL) {
@@ -123,7 +124,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 					}
  					currentNode = currentNode->next;
 				}
-				_output(0, "];\n");
+				_output(0, "\"];\n");
 			}
 		}
 	}
@@ -131,7 +132,9 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 	// Agrego el doble circulo a todos los estados que sean finales
 	StateNode * currentFinalNode = automata->finals->stateSet->first;
 	while( currentFinalNode != NULL ){
-		_output(0, "%s [shape=doublecircle];\n", currentFinalNode->state->symbol.value);
+		if(stateHasTransition(currentFinalNode->state->symbol, statesCount, symbolsCount, states)) {
+			_output(0, "%s [shape=doublecircle];\n", currentFinalNode->state->symbol.value);
+		}
 		currentFinalNode = currentFinalNode->next;
 	}
 
@@ -139,7 +142,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 	_output(0, "%s",
 	 	"}\n"
 		"\\end{dot2tex}\n"
-		"\\caption{Automata\n}"
+		"\\caption{Automata}\n"
     	"\\label{fig:mi_grafo}\n"
 		"\\end{figure}\n"
 	);
@@ -321,6 +324,27 @@ int getAlphabetLength(SymbolNode * currentNode) {
 		currentNode = currentNode->next;
 	}
 	return count;
+}
+
+boolean stateHasTransition(Symbol stateSymbol, int numStates, int numSymbols, State * states[]) {
+	int stateIndex = getStateIndex(stateSymbol.value, states, numStates);
+
+	for (int i = 0; i < numStates; i++) {
+        for (int j = 0; j < numSymbols; j++) {
+			if(transitionMatrix[i][j].first != NULL) {
+				if(i == stateIndex) {
+					return true;
+				} else {
+					MatrixNode * currentNode = transitionMatrix[i][j].first;
+					while(currentNode != NULL) {
+						if(strcmp(currentNode->state->symbol.value, stateSymbol.value) == 0) return true;
+						currentNode = currentNode->next;
+					}
+				}
+			}
+        }
+    }
+	return false;
 }
 
 void freeTransitionMatrix(int numStates, int numSymbols) {
