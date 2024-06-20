@@ -325,7 +325,7 @@ StateSet * IdentifierStateSetSemanticAction(char * identifier, boolean isFromAut
 	return emptySet;
 }
 
-SymbolSet * IdentifierSymbolSetSemanticAction(char* identifier, boolean isFromAutomata){
+SymbolSet * IdentifierSymbolSetSemanticAction(char * identifier, boolean isFromAutomata){
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	SymbolSet * emptySet = calloc(1, sizeof(SymbolSet));
 	emptySet->isFromAutomata = isFromAutomata;
