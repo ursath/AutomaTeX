@@ -8,7 +8,7 @@ NFA AUTOMATA [
     }
 ];
 alphabet R: { u, a, b, c };
-alphabet M: R;
+alphabet M: a;
 states Q: AUTOMATA.states;
 
 NFA AUTOMATA2 [
