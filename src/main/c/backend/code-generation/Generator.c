@@ -95,7 +95,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 
 	// Apertura del autómata (seteo)
 	_output(0, 
-		"\\begin{figure}\n"
+		"\\begin{figure} [h!]\n"
 		"\\section*{Automata %s}\n"
     	"\\centering\n"
 		"\\begin{dot2tex}[dot,options=-tmath]\n"
@@ -149,7 +149,7 @@ static void _generateTransitionsTable(State * states[], Symbol * symbols[], int 
 
 	// Apertura de la tabla
 	_output(0, "%s", 
-		"\\begin{table}\n"
+		"\\begin{table} [h!]\n"
 		"\\centering\n"
 		"\\begin{tabular}{|c|"
 	);
@@ -357,12 +357,10 @@ void freeStatesAndSymbols(State * states[], int numStates, Symbol * symbols[], i
     for (int i = 0; i < numStates; i++) {
         free(states[i]);
     }
-    free(states);
 
     for (int i = 0; i < numSymbols; i++) {
         free(symbols[i]);
     }
-    free(symbols);
 }
 
 
@@ -389,7 +387,7 @@ static void _generatePrologue(void) {
  * completes a valid Latex document.
  */
 static void _generateEpilogue(const int value) {
-	_output(0, "%s%d%s",
+	_output(0, "%s",
 		"\\end{document}\n\n"
 	);
 }
