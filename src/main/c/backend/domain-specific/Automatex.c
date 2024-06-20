@@ -565,6 +565,7 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
 
 /* Elimina los estados que no son del tipo indicado en type */
 static void _filterStates( StateSet * set, StateType type){
+    logInformation(_logger, "Filtering...");
     StateNode * currentNode = set->first;
     State * currentState;
     StateNode * resultTail;
