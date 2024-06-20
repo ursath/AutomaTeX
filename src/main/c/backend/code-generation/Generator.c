@@ -6,6 +6,8 @@ const char _indentationCharacter = ' ';
 const char _indentationSize = 4;
 static Logger * _logger = NULL;
 
+int automataCount = 0;
+
 TransitionMatrixCell ** transitionMatrix;
 AutomataMatrixCell ** automataMatrix;
 
@@ -65,8 +67,10 @@ static void _generateDefinitionSet(DefinitionSet * definitionSet) {
 }
 
 static void _generateDefinition(Definition * definition) {
-	if (definition->type == AUTOMATA_DEFINITION)  
+	if (definition->type == AUTOMATA_DEFINITION) {
+		automataCount = ++automataCount;
 		_generateAutomataAndTable(definition->automata);
+	}
 }
 
 static void _generateAutomataAndTable(Automata * automata) {
@@ -98,19 +102,20 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 	// Apertura del autómata (seteo)
 	_output(0, 
 		"\\begin{figure} [h!]\n"
-		"\\section*{Automata %s}\n"
+		"\\section*{Automata %d: %s}\n"
     	"\\centering\n"
-		"\\begin{dot2tex}[dot,options=-tmath]\n"
+		"\\begin{tikzpicture}\n"
+		"\\begin{dot2tex}[neato,mathmode]\n"
         "digraph G {\n"
-        "rankdir=LR;\n"
-		"node [shape=circle];\n"
-		"\"\" [shape=none, width=0, height=0];\n", 
-		automata->identifier
+        "edge [lblstyle=\"auto\"];\n"
+		"d2ttikzedgelabels = true;\n"
+		"node [shape=circle];\n",
+		automataCount, automata->identifier
 	);
 
 	// Agrego el estado inicial
 	Symbol initialState = automata->initials->state->symbol;
-	_output(0, "\"\" -> %s [label=start];\n", initialState.value);
+	_output(0, "%s [style=\"initial\"];\n", initialState.value);
 
 	// Agrego todas las transiciones al automata
 	for(int i=0; i<statesCount; i++) {
@@ -119,7 +124,9 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 			if(currentNode != NULL) {
 				_output(0, "%s -> %s [label=\"", states[i]->symbol.value, states[j]->symbol.value);
 				while(currentNode != NULL) {
-					_output(0, "%s", currentNode->symbol->value);
+					if(strcmp(currentNode->symbol->value, "@") == 0) {
+						_output(0, "\\lambda");
+					} else _output(0, "%s", currentNode->symbol->value);
 					if(currentNode->next != NULL) {
 						_output(0, ", ");
 					}
@@ -134,7 +141,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 	StateNode * currentFinalNode = automata->finals->stateSet->first;
 	while( currentFinalNode != NULL ){
 		if(stateHasTransition(currentFinalNode->state->symbol, statesCount, symbolsCount, states)) {
-			_output(0, "%s [shape=doublecircle];\n", currentFinalNode->state->symbol.value);
+			_output(0, "%s [style=\"accepting\"];\n", currentFinalNode->state->symbol.value);
 		}
 		currentFinalNode = currentFinalNode->next;
 	}
@@ -143,6 +150,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 	_output(0, "%s",
 	 	"}\n"
 		"\\end{dot2tex}\n"
+		"\\end{tikzpicture}\n"
 		"\\caption{Automata}\n"
     	"\\label{fig:mi_grafo}\n"
 		"\\end{figure}\n"
@@ -171,7 +179,9 @@ static void _generateTransitionsTable(State * states[], Symbol * symbols[], int 
 
 	// Agrego todos los símbolos del alfabeto al encabezado de la tabla (un símbolo por cada columna)
 	for(int i=0; i<symbolsCount; i++) {
-		_output(0, " & %s", symbols[i]->value);
+		if(strcmp(symbols[i]->value, "@") == 0) {
+			_output(0, " & $\\lambda$");
+		} else _output(0, " & %s", symbols[i]->value);
 	}
 
 	_output(0, "%s",
@@ -420,6 +430,7 @@ static void _generatePrologue(void) {
 		"\\usepackage{caption}\n"
 		"\\usepackage{geometry}\n"
 		"\\usepackage{dot2texi}\n"
+		"\\usetikzlibrary{automata}\n"
 		"\\geometry{a4paper, margin=1in}\n"
 		"\\begin{document}\n"
 	);
