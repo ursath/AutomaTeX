@@ -100,7 +100,13 @@ ComputationResult computeDefinition(Definition * definition) {
                 }
                 definition->automata = result.automata;
                 value.automata=definition->automata; 
-            
+                    Automata * a = result.automata;
+                    logWarning(_logger,"states null=%d",a->states==NULL);
+                    logWarning(_logger,"ini %s",a->initials->state->symbol.value);
+                    logWarning(_logger,"final null=%d",a->finals->stateSet->tail==NULL);
+                    logWarning(_logger,"alpha null=%d",a->alphabet==NULL);
+                    logWarning(_logger,"trans null=%d",a->transitions==NULL);
+                    
             }else{
                 //error redefinition
                 return _invalidComputation();
@@ -157,7 +163,7 @@ ComputationResult computeDefinition(Definition * definition) {
             logError(_logger,"There cannot be 2 definitions with the same name");
         return _invalidComputation();
     }
-    logInformation(_logger,"Completed definition of set");
+    logInformation(_logger,"Completed definition");
     result.succeed = insert(identifier,definition->type,value); 
     if ( result.succeed )
         logInformation(_logger,"The definition was added to the symbol table");
@@ -209,7 +215,7 @@ ComputationResult computeAutomata(Automata * automata) {
 static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata * automata){
     StateNode * currentNode = set->first;
     State * currentState;
-    StateNode * finalTail;
+    StateNode * finalTail =NULL;
     State * initialState = NULL; 
     StateSet * finalSet = calloc(1, sizeof(StateSet));
         logInformation(_logger, "BEFORE WHILE in computeFinalAndInitialStates");
@@ -250,6 +256,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata 
     automata->initials = calloc(1,sizeof(StateExpression));
     automata->initials->state = initialState;
     automata->finals = calloc(1,sizeof(StateExpression));
+    finalSet->tail = finalTail;
     automata->finals->stateSet = finalSet; 
     ComputationResult result = { .succeed = true };
 
@@ -570,7 +577,7 @@ static void _filterStates( StateSet * set, StateType type){
     State * currentState;
     StateNode * resultTail;
     while ( currentNode != NULL ){
-    currentState =  currentNode->stateExpression->state;
+    currentState =  currentNode->state;
     switch ( type ){
         case FINAL: 
             if ( !currentState->isFinal ) goto next;
