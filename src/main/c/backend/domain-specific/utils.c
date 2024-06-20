@@ -1,5 +1,7 @@
 #include "utils.h"
 
+static Logger * _logger = NULL;
+
 
 /*----------------------------------------- SET CONTAINS ----------------------------------------------------*/ 
 boolean containsState(StateNode *first, State * state ) {
@@ -230,11 +232,7 @@ TransitionSet * cpyTransitionSet(TransitionSet * set){
 
 /*------------------- ELEMENT EQUALS --------------------------------------------*/
  boolean transitionEquals(Transition * trans1, Transition * trans2){
-    StateSet * trans1From = trans1->fromExpression->stateSet;
-    StateSet * trans2From = trans2->fromExpression->stateSet;
-    StateSet * trans1To = trans1->toExpression->stateSet;
-    StateSet * trans2To = trans2->toExpression->stateSet;
-    return stateSetEquals(trans1From, trans2From) && stateSetEquals(trans1To, trans2To) && symbolSetEquals(trans1->symbolExpression->symbolSet, trans2->symbolExpression->symbolSet);
+    return stateEquals(trans1->fromExpression->state, trans2->fromExpression->state) && stateEquals(trans1->toExpression->state, trans2->toExpression->state) && symbolEquals(trans1->symbolExpression->symbol, trans2->symbolExpression->symbol);
 }
 
  boolean stateEquals(State * state1, State * state2){

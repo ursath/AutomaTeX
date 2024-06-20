@@ -556,7 +556,7 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
         set->tail = previousNode; 
     }
     logInformation(_logger, "Transition set created");
-//    deleteRepetitionsFromTransitionSet(set);
+    deleteRepetitionsFromTransitionSet(set);
     logInformation(_logger, "Deleted repetitions from transition set");
     
     result.transitionSet = set;
@@ -659,8 +659,9 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
         }
         set->tail = previousNode;
     }
-//    deleteRepetitionsFromStateSet(set);
-    logDebugging(_logger,"created state set");
+    logDebugging(_logger,"GOING TO DELETE repetitions from state set");
+    deleteRepetitionsFromStateSet(set);
+    logDebugging(_logger,"Deleted repetitions from state set");
     result.stateSet = set;
     return result;
 }
@@ -712,7 +713,9 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
         }
         set->tail = previousNode;
     }
-//    deleteRepetitionsFromSymbolSet(set);
+        logDebugging(_logger,"GOING TO DELETE repetitions from symbols set");
+    deleteRepetitionsFromSymbolSet(set);
+        logDebugging(_logger,"Deleted repetitions from symbols set");
     result.symbolSet = set;
     return result;
 }
@@ -1403,19 +1406,12 @@ static void _symbolDifferenceResolution(SymbolSet * leftSet, SymbolSet * rightSe
 static void deleteRepetitionsFromTransitionSet(TransitionSet * set){
     TransitionNode * current = set->first;
     TransitionNode * next;
-        logInformation(_logger,"STARTING DELETE");
-    if (current->transition != NULL) {
-        logInformation(_logger,"Is not null");
-        logInformation(_logger,"Transition: %s",current->transition);
-    }
     while (current != NULL){
         if ( current == set->tail)
             return;
         next = current->next;
         while (next != NULL){
-            logInformation(_logger,"Is deleting..");
             if (transitionEquals(current->transition, next->transition)){
-                logInformation(_logger ,"is equal");
                 current->next = next->next;
                 free(next);
                 next = current->next;
