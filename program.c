@@ -1,10 +1,9 @@
-states O: {hola, buenas, *buenas2};
-alphabet B : {buenas, buenas2, buen};
-DFA AUTOMATA [
-	states: {  r, {O}, j , >s , *w, *q },
-    alphabet:  { a, B, {c, d}},
+NFA AUTOMATA [
+	states: {  r, o, j , >s , *w, *q },
+	alphabet: { @, a, b, c },
 	transitions: {
         |q|-a->|r| ,  
-        |s|-buenas->|{w}|
+        |w|<-b->|r|,      
+        |s|-c->|{w,q}|
     }
 ];
