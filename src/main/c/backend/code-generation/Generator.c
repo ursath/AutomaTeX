@@ -191,9 +191,8 @@ static void _generateTransitionsTable(State * states[], Symbol * symbols[], int 
 
 	// Agrego todas las transiciones a la tabla
 	for(int i=0; i<statesCount; i++) {
-		if(states[i]->isFinal) {
-			_output(0, "%s", "*");
-		}
+		if(states[i]->isInitial) _output(0, "%s", "$\\rightarrow$");
+		if(states[i]->isFinal) _output(0, "%s", "*");
 		_output(0, "%s &", states[i]->symbol.value);
 		for(int j=0; j<symbolsCount; j++) {
 			MatrixNode * currentNode = transitionMatrix[i][j].first;
