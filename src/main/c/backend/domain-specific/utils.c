@@ -7,7 +7,7 @@ boolean containsState(StateNode *first, State * state ) {
     State * currentState;
     while ( currentNode != NULL ){
         currentState = currentNode->state;
-        if ( symbolEquals(&state->symbol,&currentState->symbol) )   // pues no me imp si son final / initial
+        if ( stateSymbolEquals(state,currentState) )   // pues no me imp si son final / initial
             return true; 
         
         currentNode = currentNode->next; 
@@ -239,6 +239,10 @@ TransitionSet * cpyTransitionSet(TransitionSet * set){
 
  boolean stateEquals(State * state1, State * state2){
     return  symbolEquals(&state1->symbol, &state2->symbol) && state1->isFinal == state2->isFinal && state1->isInitial == state2->isInitial;
+}
+
+ boolean stateSymbolEquals(State * state1, State * state2){
+    return  symbolEquals(&state1->symbol, &state2->symbol);
 }
 
  boolean symbolEquals(Symbol * symbol1, Symbol * symbol2){

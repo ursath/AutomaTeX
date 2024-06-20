@@ -25,6 +25,7 @@ boolean stateSetEquals(StateSet * set1, StateSet * set2);
 boolean symbolSetEquals(SymbolSet *set1, SymbolSet *set2);
 boolean transitionEquals(Transition * trans1, Transition * trans2);
 boolean stateEquals(State * state1, State * state2);
+boolean stateSymbolEquals(State * state1, State * state2);      // no me interesa si el state es final o initial
 boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
 
 #endif

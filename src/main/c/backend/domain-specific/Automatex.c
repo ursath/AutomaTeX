@@ -299,16 +299,18 @@ static ComputationResult _isDFA(TransitionSet * transitions) {
     Symbol * symbol;
     Transition * transition;
     while ( currentNode != NULL ){
-        otherNode = currentNode ->next;
         transition= currentNode->transition;
         fromState = transition->fromExpression->state;
         toState = transition->toExpression->state;
         symbol = transition->symbolExpression->symbol;
+        otherNode = currentNode ->next;
         while ( otherNode!= NULL ){
             transition = otherNode->transition;
-            if ( stateEquals(transition->fromExpression->state,fromState) && symbolEquals(transition->symbolExpression->symbol, symbol) 
-                && !stateEquals(transition->toExpression->state,toState) ){    // ! tal vez se pueda sacar si no se sacaron los repetidos
-                logError(_logger,"%s it is not deterministic",AUTOMATA_NOT_CREATED);
+            if ( stateSymbolEquals(transition->fromExpression->state,fromState) && symbolEquals(transition->symbolExpression->symbol, symbol) 
+                && !stateSymbolEquals(transition->toExpression->state,toState) ){    // ! tal vez se pueda sacar si no se sacaron los repetidos
+                logError(_logger,"%s it is not deterministic because of the following transitions:",AUTOMATA_NOT_CREATED);
+                logError(_logger, "\t|%s|-%s->|%s|", fromState->symbol.value, symbol->value, toState->symbol.value);
+                logError(_logger, "\t|%s|-%s->|%s|", transition->fromExpression->state->symbol.value, transition->symbolExpression->symbol->value, transition->toExpression->state->symbol.value);
                 return _invalidComputation();
             }
             otherNode = otherNode->next;
