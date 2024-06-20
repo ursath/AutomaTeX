@@ -165,7 +165,7 @@ ComputationResult computeAutomata(Automata * automata) {
     };
     ComputationResult stateSetResult = computeStateExpression(automata->states, true);
     if ( !stateSetResult.succeed ){
-        return result;   
+        return stateSetResult;   
     }
     
     result = _computeFinalAndInitialStates(stateSetResult.stateSet, automata);
@@ -175,12 +175,12 @@ ComputationResult computeAutomata(Automata * automata) {
     logInformation(_logger,"-----computed final and initial states-----");
     ComputationResult symbolSetResult = computeSymbolExpression(automata->alphabet, true);
     if ( !symbolSetResult.succeed ){
-        return result;   
+        return symbolSetResult;   
     }
     logInformation(_logger,"-----computed symbols -----");
     ComputationResult transitionSetResult = computeTransitionExpression(automata->transitions, true);
     if ( !transitionSetResult.succeed ){
-        return result;   
+        return transitionSetResult;   
     
     }
     logInformation(_logger,"-----computed transitions-----");
@@ -351,8 +351,7 @@ static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transi
             return result;
         }
         if ( !containsSymbol(alphabet->first,transition->symbolExpression->symbol )) {
-                logError(_logger,"%s its transitions use symbol %s ≠ %s that doesn't belong to the automata", AUTOMATA_NOT_CREATED, transition->symbolExpression->symbol->value, alphabet->first->next->symbol->value);
-            //logError(_logger,"%s its transitions use symbol %s that doesn't belong to the automata", AUTOMATA_NOT_CREATED, transition->symbolExpression->symbol->value);
+            logError(_logger,"%s its transitions use symbol %s that doesn't belong to the automata", AUTOMATA_NOT_CREATED, transition->symbolExpression->symbol->value);
             return result;
         }
 
@@ -436,6 +435,7 @@ ComputationResult computeSymbolExpression(SymbolExpression * expression, boolean
                 return _symbolDifference(expression->leftExpression, expression->rightExpression);
                         break;
         case SET_EXPRESSION:
+                logInformation(_logger, "The expression is a symbolSet with id %s", expression->symbolSet->identifier);
                 //if (resultSet.symbolSet->first == resultSet.symbolSet->tail){
                 //    expression->symbol = resultSet.symbolSet->first->symbol;
                 //    logInformation(_logger, "There is only one symbol: %s", expression->symbol->value);
@@ -504,8 +504,10 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
     if ( set->identifier != NULL && !isDefinition ) {
         logInformation(_logger, "Getting value from table");
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : TRANSITIONS );
-        if ( !result.found )
+        if ( !result.found ){
+            logError(_logger,"%s %s",set->identifier, CONST_NOT_DEFINED);
             return _invalidComputation();
+        }
         TransitionSet * resultSet;
         if ( set->isFromAutomata ) {
             Automata * automata = result.value.automata;
@@ -602,7 +604,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
     if (set->identifier != NULL && !isDefinition) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
         if ( !result.found ) { 
-            logError(_logger,"%s", CONST_NOT_DEFINED(set->identifier));
+            logError(_logger,"%s %s",set->identifier, CONST_NOT_DEFINED);
             return _invalidComputation();
         }
         StateSet * resultSet;
@@ -670,12 +672,13 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
         .isDefinitionSet = false,
         .type = ALPHABET_DEFINITION        
     };
-    if ( set->first==NULL)
-        logInformation(_logger,"SET IDENTIF: %s ", set->identifier == NULL? set->identifier:"null" );
+    
     if ( set->identifier != NULL && !isDefinition ) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : ALPHABET );
-        if ( !result.found)
+        if ( !result.found) {
+            logError(_logger,"%s %s",set->identifier, CONST_NOT_DEFINED);
             return _invalidComputation();
+        }
         SymbolSet * resultSet;
         if ( set->isFromAutomata ) {
             Automata * automata =result.value.automata;

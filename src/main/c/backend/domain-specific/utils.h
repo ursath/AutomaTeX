@@ -6,7 +6,7 @@
 
 /*----------------------------------------- SET CONTAINS ----------------------------------------------------*/ 
 boolean containsState(StateNode *first, State * state );
-boolean containsSymbol(const SymbolNode *first,const Symbol * symbol );
+boolean containsSymbol( SymbolNode *first, Symbol * symbol );
 
 /*----------------------------------------- COPY SET ----------------------------------------------------*/ 
 SymbolSet * cpySymbolSet(SymbolSet * symbolSet);

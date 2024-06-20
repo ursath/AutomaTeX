@@ -21,7 +21,7 @@ boolean containsState(StateNode *first, State * state ) {
     return false;
 }
 
-boolean containsSymbol(const SymbolNode *first, const Symbol * s ) {
+boolean containsSymbol(SymbolNode *first, Symbol * s ) {
     SymbolNode * currentNode = first;
     while ( currentNode != NULL ){
     //    initializeLogger();
