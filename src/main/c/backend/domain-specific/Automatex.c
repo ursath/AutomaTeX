@@ -203,7 +203,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata 
     State * initialState = NULL; 
     StateSet * finalSet = calloc(1, sizeof(StateSet));
         logInformation(_logger, "BEFORE WHILE in computeFinalAndInitialStates");
-    while ( currentNode != set->tail){
+    while ( currentNode != NULL){
         currentState =  currentNode->state;
             logInformation(_logger, "IN WHILE in computeFinalAndInitialStates");
             logInformation(_logger, "value %s",currentState->symbol.value);
@@ -223,31 +223,10 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata 
                 return _invalidComputation();
             }
             initialState = currentState;
-        }  
+        }
+        logInformation(_logger, "going to next node");
         currentNode = currentNode->next; 
     }
-    logInformation(_logger, "checking last element");
-    currentState =  currentNode->state;
-            logInformation(_logger, "IN WHILE in computeFinalAndInitialStates");
-            logInformation(_logger, "value %s",currentState->symbol.value);
-        if ( currentState->isFinal ) {
-            logInformation(_logger, "found final state");
-            StateNode * node = malloc(sizeof(StateNode));
-            node->state = currentNode->state;
-            if ( finalSet->first==NULL )
-                finalSet->first = node;
-            else 
-                finalTail->next = node;
-            finalTail = node; 
-        }
-        if ( currentState->isInitial ){
-            if ( initialState != NULL ) {
-                logError(_logger,"%s it has more than one initial state",AUTOMATA_NOT_CREATED);
-                return _invalidComputation();
-            }
-            initialState = currentState;
-        }  
-    finalSet->tail = finalTail;
 
     if ( finalSet->first == NULL ) {
         logError(_logger,"%s it does not have final states", AUTOMATA_NOT_CREATED);
@@ -644,6 +623,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
                     else{
                         StateNode * originalNext = currentNode->next;
                         currentNode->state = result.stateSet->first->state; 
+                        currentNode->next = result.stateSet->first->next;
                         result.stateSet->tail->next = originalNext;
                         currentNode = result.stateSet->tail;
                     }
@@ -699,6 +679,7 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
                     else{
                         SymbolNode * originalNext = currentNode->next;
                         currentNode->symbol = result.symbolSet->first->symbol; 
+                        currentNode->next = result.symbolSet->first->next;
                         result.symbolSet->tail->next = originalNext;
                         currentNode = result.symbolSet->tail;
                     }
@@ -712,9 +693,7 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
         }
         set->tail = previousNode;
     }
-        logDebugging(_logger,"GOING TO DELETE repetitions from symbols set");
     deleteRepetitionsFromSymbolSet(set);
-        logDebugging(_logger,"Deleted repetitions from symbols set");
     result.symbolSet = set;
     return result;
 }
