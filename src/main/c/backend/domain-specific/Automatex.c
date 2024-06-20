@@ -9,7 +9,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata 
 static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType);
 static void _filterStates( StateSet * set, StateType type);
 static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
-static ComputationResult containsLambda(const SymbolSet * alphabet, AutomataType type);
+static ComputationResult _containsLambda(const SymbolSet * alphabet, AutomataType type);
 static ComputationResult _isDFA(TransitionSet * transitions);
 
 /*-----------------------------SET OPERATIONS --------------------------------------------*/
@@ -251,9 +251,19 @@ static ComputationResult _checkAutomataRequirements(TransitionSet * transitions,
     logInformation(_logger, "checking automata requirements");
     ComputationResult result;
     
-    if ( automataType!=LNFA_AUTOMATA ) {
-        result = containsLambda(alphabet, automataType);
-        if ( result.succeed)
+    if ( automataType==LNFA_AUTOMATA ) {
+        // agrego lambda al alphabet
+        Symbol * lambda = calloc(1,sizeof(Symbol));
+        lambda->value = LAMBDA_STRING; 
+        SymbolNode * node = calloc(1,sizeof(SymbolNode));
+        node->symbol = lambda;
+        alphabet->tail->next = node;
+        alphabet->tail = node;
+        if ( alphabet->first == NULL)
+            alphabet->first = node;
+    }else{    
+        result = _containsLambda(alphabet, automataType);
+        if ( !result.succeed)
             return result;
     }
 
@@ -297,21 +307,20 @@ static ComputationResult _isDFA(TransitionSet * transitions) {
     return result;
 }
 
-static ComputationResult containsLambda(const SymbolSet * alphabet, AutomataType type)  {
-    logInformation(_logger, "in contains Lambda");
-    Symbol * lambda = malloc(sizeof(Symbol));
+static ComputationResult _containsLambda(const SymbolSet * alphabet, AutomataType type)  {
+    logInformation(_logger, "looking for lambda..");
+    Symbol * lambda = calloc(1,sizeof(Symbol));
     lambda->value = LAMBDA_STRING; 
     ComputationResult result = {
-        .succeed = containsSymbol(alphabet->first,lambda)
+        .succeed = !containsSymbol(alphabet->first,lambda)
     };
     free(lambda);
-    if ( !result.succeed ) 
-        logInformation(_logger, "not lambda");
-        return result;
     
+    if ( result.succeed )
+        return result;
+
     logError(_logger, "Lambda symbol was found in a %s automata", type==DFA_AUTOMATA? "DFA":"NFA");
-    result.succeed = false;
-    return result;
+    return _invalidComputation();
 }
 
 /* Chequeo si los simbolos y estados usados en las transiciones estan en la definicion del automata */
@@ -329,7 +338,7 @@ static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transi
             logError(_logger,"%s its transitions use states that don't belong to the automata", AUTOMATA_NOT_CREATED);
             return result;
         }
-        if ( !containsSymbol(alphabet->first,transition->symbolExpression->symbol )) {
+        if ( !containsSymbol(alphabet->first,transition->symbolExpression->symbol ) ) {
             logError(_logger,"%s its transitions use symbol %s that doesn't belong to the automata", AUTOMATA_NOT_CREATED, transition->symbolExpression->symbol->value);
             return result;
         }
@@ -516,8 +525,8 @@ ComputationResult computeTransitionSet(TransitionSet* set, boolean isDefinition)
                         //en vez de almacenarlo como un subset tomo los nodos y los conecto con el set al que forman parte como elementos sueltos
                         TransitionNode * originalNext = currentNode->next;
                         currentNode->transition = result.transitionSet->first->transition; 
-                        currentNode->next = result.transitionSet->first->next;
                         result.transitionSet->tail->next = originalNext;
+                        currentNode->next = result.transitionSet->first->next;
                         currentNode = result.transitionSet->tail;
                     }
                 }
@@ -625,8 +634,8 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
                     else{
                         StateNode * originalNext = currentNode->next;
                         currentNode->state = result.stateSet->first->state; 
-                        currentNode->next = result.stateSet->first->next;
                         result.stateSet->tail->next = originalNext;
+                        currentNode->next = result.stateSet->first->next;
                         currentNode = result.stateSet->tail;
                     }
                 }else{
@@ -682,8 +691,8 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
                     else{
                         SymbolNode * originalNext = currentNode->next;
                         currentNode->symbol = result.symbolSet->first->symbol; 
-                        currentNode->next = result.symbolSet->first->next;
                         result.symbolSet->tail->next = originalNext;
+                        currentNode->next = result.symbolSet->first->next;
                         currentNode = result.symbolSet->tail;
                     }
                 }
