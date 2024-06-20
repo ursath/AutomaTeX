@@ -1,11 +1,9 @@
-states O: {hola};
-alphabet B : {buenas};
 NFA AUTOMATA [
-	states: {  r, s, j , >s , *w, *q },
-    alphabet:  { a,@, B, {c, d}},
+	states: {  r, o, j , >s , *w, *q },
+	alphabet: { @, a, b, c },
 	transitions: {
         |q|-a->|r| ,  
-        |s|-buenas->|{w}|
+        |w|<-b->|r|,      
+        |s|-c->|{w,q}|
     }
 ];
-
