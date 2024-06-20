@@ -6,7 +6,7 @@
 
 /*----------------------------------------- SET CONTAINS ----------------------------------------------------*/ 
 boolean containsState(StateNode *first, State * state );
-boolean containsSymbol(SymbolNode *first, Symbol * symbol );
+boolean containsSymbol(const SymbolNode *first,const Symbol * symbol );
 
 /*----------------------------------------- COPY SET ----------------------------------------------------*/ 
 SymbolSet * cpySymbolSet(SymbolSet * symbolSet);
@@ -26,6 +26,6 @@ boolean symbolSetEquals(SymbolSet *set1, SymbolSet *set2);
 boolean transitionEquals(Transition * trans1, Transition * trans2);
 boolean stateEquals(State * state1, State * state2);
 boolean stateSymbolEquals(State * state1, State * state2);      // no me interesa si el state es final o initial
-boolean symbolEquals(Symbol * symbol1, Symbol * symbol2);
+boolean symbolEquals(const Symbol * symbol1, const Symbol * symbol2);
 
 #endif

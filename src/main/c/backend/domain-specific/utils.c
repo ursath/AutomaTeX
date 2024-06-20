@@ -3,6 +3,10 @@
 static Logger * _logger = NULL;
 
 
+void initializeLogger(void){
+   _logger = createLogger("utils");
+}
+
 /*----------------------------------------- SET CONTAINS ----------------------------------------------------*/ 
 boolean containsState(StateNode *first, State * state ) {
     StateNode * currentNode = first;
@@ -17,14 +21,20 @@ boolean containsState(StateNode *first, State * state ) {
     return false;
 }
 
-boolean containsSymbol(SymbolNode *first, Symbol * symbol ) {
+boolean containsSymbol(const SymbolNode *first, const Symbol * s ) {
     SymbolNode * currentNode = first;
-    Symbol * currentSymbol;
     while ( currentNode != NULL ){
-        currentSymbol = currentNode->symbol;
-        if ( symbolEquals(symbol,currentSymbol) )
+    //    initializeLogger();
+    //    logCritical(_logger,"Symbol node %s", currentNode->symbol->value );
+    //    logCritical(_logger,"Symbol compared %s", s->value );
+    
+        if ( symbolEquals(s,currentNode->symbol) ) {
             return true; 
-        
+        }
+    //    logCritical(_logger,"---Post equals---" );    
+    //    logCritical(_logger,"Symbol node %s", currentNode->symbol->value );
+    //    logCritical(_logger,"Symbol compared %s", s->value );
+            
         currentNode = currentNode->next; 
     }
     return false;
@@ -241,7 +251,7 @@ TransitionSet * cpyTransitionSet(TransitionSet * set){
     return  symbolEquals(&state1->symbol, &state2->symbol);
 }
 
- boolean symbolEquals(Symbol * symbol1, Symbol * symbol2){
+ boolean symbolEquals(const Symbol * symbol1,const Symbol * symbol2){
     return strcmp(symbol1->value, symbol2->value) == 0;
 }
 
