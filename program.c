@@ -1,8 +1,8 @@
 DFA AUTOMATA [
 	states: {  r, o, j , >s , *w, *q },
-	alphabet: { a, b, a },
+	alphabet:  { a, b, {c, d}},
 	transitions: {
         |q|-a->|r| ,  
-        |s|-a->|{w}|
+        |s|-b->|{w}|
     }
 ];

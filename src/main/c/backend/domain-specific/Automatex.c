@@ -9,7 +9,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata 
 static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType);
 static void _filterStates( StateSet * set, StateType type);
 static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
-static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type);
+static ComputationResult containsLambda(const SymbolSet * alphabet, AutomataType type);
 static ComputationResult _isDFA(TransitionSet * transitions);
 
 /*-----------------------------SET OPERATIONS --------------------------------------------*/
@@ -181,6 +181,7 @@ ComputationResult computeAutomata(Automata * automata) {
     ComputationResult transitionSetResult = computeTransitionExpression(automata->transitions, true);
     if ( !transitionSetResult.succeed ){
         return result;   
+    
     }
     logInformation(_logger,"-----computed transitions-----");
     result = _checkAutomataRequirements(transitionSetResult.transitionSet, stateSetResult.stateSet, symbolSetResult.symbolSet, automata->automataType);
@@ -317,7 +318,7 @@ static ComputationResult _isDFA(TransitionSet * transitions) {
     return result;
 }
 
-static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type)  {
+static ComputationResult containsLambda(const SymbolSet * alphabet, AutomataType type)  {
     logInformation(_logger, "in contains Lambda");
     Symbol * lambda = malloc(sizeof(Symbol));
     lambda->value = LAMBDA_STRING; 
@@ -350,7 +351,8 @@ static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transi
             return result;
         }
         if ( !containsSymbol(alphabet->first,transition->symbolExpression->symbol )) {
-            logError(_logger,"%s its transitions use symbols that don't belong to the automata", AUTOMATA_NOT_CREATED);
+                logError(_logger,"%s its transitions use symbol %s ≠ %s that doesn't belong to the automata", AUTOMATA_NOT_CREATED, transition->symbolExpression->symbol->value, alphabet->first->next->symbol->value);
+            //logError(_logger,"%s its transitions use symbol %s that doesn't belong to the automata", AUTOMATA_NOT_CREATED, transition->symbolExpression->symbol->value);
             return result;
         }
 
@@ -600,7 +602,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
     if (set->identifier != NULL && !isDefinition) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
         if ( !result.found ) { 
-            logError(_logger,"%s", CONST_NOT_DEFINED);
+            logError(_logger,"%s", CONST_NOT_DEFINED(set->identifier));
             return _invalidComputation();
         }
         StateSet * resultSet;

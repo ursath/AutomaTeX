@@ -17,7 +17,8 @@
 
 /* LOGGER STR */
 #define AUTOMATA_NOT_CREATED "The automata cannot be created because"
-#define CONST_NOT_DEFINED "The requested constant isn't defined" // todo
+#define TO_STRING(x) #x
+#define CONST_NOT_DEFINED(s) "The " TO_STRING(s) "constant isn't defined" // todo
 
 /** Initialize module's internal state. */
 void initializeAutomatexModule();
