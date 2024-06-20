@@ -64,7 +64,7 @@ SymbolSet * cpySymbolSet(SymbolSet * set) {
 
 StateSet * cpyStateSet(StateSet * set){
     StateNode * currentNode = set->first;
-    StateNode * resultTail;
+    StateNode * resultTail = NULL;
     StateNode * node;
     initializeLogger();
     logInformation(_logger,"copying..");

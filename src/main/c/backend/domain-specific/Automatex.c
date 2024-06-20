@@ -209,7 +209,7 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata 
             logInformation(_logger, "value %s",currentState->symbol.value);
         if ( currentState->isFinal ) {
             logInformation(_logger, "found final state");
-            StateNode * node = malloc(sizeof(StateNode));
+            StateNode * node = calloc(1,sizeof(StateNode));
             node->state = currentNode->state;
             if ( finalSet->first==NULL )
                 finalSet->first = node;
@@ -237,9 +237,9 @@ static ComputationResult _computeFinalAndInitialStates(StateSet * set, Automata 
         return _invalidComputation();
     }
 
-    automata->initials = malloc(sizeof(StateExpression));
+    automata->initials = calloc(1,sizeof(StateExpression));
     automata->initials->state = initialState;
-    automata->finals = malloc(sizeof(StateExpression));
+    automata->finals = calloc(1,sizeof(StateExpression));
     automata->finals->stateSet = finalSet; 
     ComputationResult result = { .succeed = true };
 
@@ -593,9 +593,9 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
                 case FINAL: 
                     resultSet = cpyStateSet(automata->finals->stateSet); break;
                 case INITIAL: 
-                    StateNode * node = malloc(sizeof(StateNode));
+                    StateNode * node = calloc(1,sizeof(StateNode));
                     node->stateExpression->state = automata->initials->state;
-                    resultSet = malloc(sizeof(StateSet));
+                    resultSet = calloc(1,sizeof(StateSet));
                     resultSet->first = node;
                     resultSet->tail = node; 
                     break;
