@@ -180,10 +180,17 @@ static void _generateTransitionsTable(State * states[], Symbol * symbols[], int 
 
 	// Agrego todas las transiciones a la tabla
 	for(int i=0; i<statesCount; i++) {
+		if(states[i]->isFinal) {
+			_output(0, "%s", "*");
+		}
 		_output(0, "%s &", states[i]->symbol.value);
 		for(int j=0; j<symbolsCount; j++) {
 			MatrixNode * currentNode = transitionMatrix[i][j].first;
 			while(currentNode != NULL) {
+				// TO DO
+				if(currentNode->state->isFinal) {
+					_output(0, "*");
+				}
 				_output(0, "%s", currentNode->state->symbol.value);
 				if(currentNode->next != NULL) {
 					_output(0, ", ");
