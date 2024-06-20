@@ -7,7 +7,7 @@ boolean containsState(StateNode *first, State * state ) {
     State * currentState;
     while ( currentNode != NULL ){
         currentState = currentNode->state;
-        if ( stateEquals(state,currentState) )
+        if ( symbolEquals(&state->symbol,&currentState->symbol) )   // pues no me imp si son final / initial
             return true; 
         
         currentNode = currentNode->next; 
@@ -38,7 +38,7 @@ SymbolSet * cpySymbolSet(SymbolSet * set) {
     SymbolSet * resultSet = malloc(sizeof(SymbolSet));
     while ( currentNode != NULL ){
         node = malloc(sizeof(SymbolNode));
-        node->symbolExpression = currentNode->symbolExpression; //todo no es directo symbol?
+        node->symbol = currentNode->symbol; //todo no es directo symbol?
         if ( resultSet->first==NULL )
             resultSet->first = node;
         else 
@@ -58,7 +58,7 @@ StateSet * cpyStateSet(StateSet * set){
     StateSet * resultSet = malloc(sizeof(StateSet));
     while ( currentNode != NULL ){
         node = malloc(sizeof(StateNode));
-        node->stateExpression = currentNode->stateExpression;
+        node->state = currentNode->state;
         if ( resultSet->first==NULL )
             resultSet->first = node;
         else 
@@ -79,7 +79,7 @@ TransitionSet * cpyTransitionSet(TransitionSet * set){
     TransitionSet * resultSet = malloc(sizeof(TransitionSet));
     while ( currentNode != NULL ){
         node = malloc(sizeof(TransitionNode));
-        node->transitionExpression = currentNode->transitionExpression;
+        node->transition = currentNode->transition;
         if ( resultSet->first==NULL )
             resultSet->first = node;
         else 

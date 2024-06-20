@@ -8,9 +8,9 @@ static Logger * _logger = NULL;
 static ComputationResult _computeFinalAndInitialStates(StateSet * set, StateExpression * finals, StateExpression * initial);
 static ComputationResult _checkAutomataRequirements(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet, AutomataType automataType);
 static void _filterStates( StateSet * set, StateType type);
-static void _getTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
+static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
 static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type);
-static ComputationResult _isDFA(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet);
+static ComputationResult _isDFA(TransitionSet * transitions);
 
 /*-----------------------------SET OPERATIONS --------------------------------------------*/
 
@@ -281,37 +281,18 @@ static ComputationResult _checkAutomataRequirements(TransitionSet * transitions,
     }
 
     // Chequeo si los simbolos y estados usados en las transiciones estan la definicion del automata
-    StateSet * transitionStateSet;
-    SymbolSet * transitionSymbolSet;
-    _getTransitionStatesAndSymbols(transitions, transitionStateSet, transitionSymbolSet);
+    result = _checkTransitionStatesAndSymbols(transitions, states, alphabet);
+    if (!result.succeed)
+        return result;
     logInformation(_logger,"-----getTransitionStatesAndSymbols -----");
-    
-    StateSet * auxStateSet = calloc(1,sizeof(StateSet));
-    SymbolSet *auxSymbolSet = calloc(1,sizeof(SymbolSet));
-
-    _stateDifferenceResolution(transitionStateSet, states,auxStateSet);
-    if ( auxStateSet->first != NULL){
-        logError(_logger,"%s its transitions use states that don't belong to the automata", AUTOMATA_NOT_CREATED);
-        return _invalidComputation();
-    }
-    _symbolDifferenceResolution(transitionSymbolSet, alphabet,auxSymbolSet);
-    if ( auxSymbolSet->first != NULL){
-        logError(_logger,"%s its transitions use symbols that don't belong to the automata", AUTOMATA_NOT_CREATED);
-        return _invalidComputation();
-    }
-    
-    freeStateSet(transitionStateSet);
-    freeStateSet(auxStateSet);
-    freeSymbolSet(transitionSymbolSet);
-    freeSymbolSet(auxSymbolSet);
 
     if ( automataType==DFA_AUTOMATA)
-        return _isDFA(transitions,transitionStateSet,transitionSymbolSet);
+        return _isDFA(transitions);
     return result;
     
 }
 
-static ComputationResult _isDFA(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet) {
+static ComputationResult _isDFA(TransitionSet * transitions) {
     TransitionNode * currentNode = transitions->first;
     TransitionNode * otherNode;
     State * fromState, * toState;
@@ -356,42 +337,29 @@ static ComputationResult containsLambda(SymbolSet * alphabet, AutomataType type)
     return result;
 }
 
-static void _getTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet)  {
+static ComputationResult _checkTransitionStatesAndSymbols(TransitionSet * transitions, StateSet * states, SymbolSet * alphabet)  {
     logInformation(_logger, "entre a _getTransitionStatesAndSymbols");
-    TransitionNode * currentNode = transitions->first;
+    TransitionNode * currentTransNode = transitions->first;
     Transition * transition;
-    StateSet * tStateSet;
-    SymbolSet * tSymbolSet;
-    ComputationResult result;
-    while (currentNode != NULL) {
-        transition = currentNode->transition;
-        // solo tengo sets en una transicion 
-        tStateSet = cpyStateSet( transition->toExpression->stateSet ) ;
-        if ( states == NULL )
-            states = tStateSet;
-        else {
-            result = _stateSetUnion(states, tStateSet);
-            states = result.stateSet;
-        }
-        free(tStateSet);
-
-        tStateSet = cpyStateSet( transition->fromExpression->stateSet );
-        result = _stateSetUnion(states, tStateSet);
-        states = result.stateSet;
-        free(tStateSet);
-        
-        tSymbolSet = cpySymbolSet( transition->symbolExpression->symbolSet );
-        if ( alphabet==NULL )
-            alphabet = tSymbolSet;
-        else {
-            result = _symbolSetUnion(alphabet, tSymbolSet);
-            alphabet = result.symbolSet;
-        }
-        free(tSymbolSet);
-        
-        currentNode = currentNode->next;
-    }
+    ComputationResult result ={ .succeed=false};
+    // todo: state or symbol set vacios =
     
+    while (currentTransNode != NULL) {
+        transition = currentTransNode->transition;
+    
+        if ( !containsState(states->first,transition->fromExpression->state ) || !containsState(states->first,transition->toExpression->state ) ) {
+            logError(_logger,"%s its transitions use states that don't belong to the automata", AUTOMATA_NOT_CREATED);
+            return result;
+        }
+        if ( !containsSymbol(alphabet->first,transition->symbolExpression->symbol )) {
+            logError(_logger,"%s its transitions use symbols that don't belong to the automata", AUTOMATA_NOT_CREATED);
+            return result;
+        }
+
+        currentTransNode = currentTransNode->next;
+    }
+    result.succeed = true;
+    return result;
 }
 
 ComputationResult computeTransitionExpression(TransitionExpression * expression, boolean isSingleElement ){

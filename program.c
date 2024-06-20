@@ -1,4 +1,4 @@
-DFA AUTOMATA [
+LNFA AUTOMATA [
 	states: {  r, o, j , >s , *w, *q },
 	alphabet: { a, b },
 	transitions: {
