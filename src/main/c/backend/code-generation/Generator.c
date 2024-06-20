@@ -146,14 +146,30 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 		currentFinalNode = currentFinalNode->next;
 	}
 
+	char * automataType;
+	switch (automata->automataType) {
+	case DFA_AUTOMATA:
+		automataType = "DFA";
+		break;
+	case NFA_AUTOMATA:
+		automataType = "NFA";
+		break;
+	case LNFA_AUTOMATA:
+		automataType = "LNFA";
+		break;
+	default:
+		break;
+	}
+
 	// Cierre del autómata
-	_output(0, "%s",
+	_output(0,
 	 	"}\n"
 		"\\end{dot2tex}\n"
 		"\\end{tikzpicture}\n"
-		"\\caption{Automata}\n"
+		"\\caption{%s automata}\n"
     	"\\label{fig:mi_grafo}\n"
-		"\\end{figure}\n"
+		"\\end{figure}\n", 
+		automataType
 	);
 }
 
