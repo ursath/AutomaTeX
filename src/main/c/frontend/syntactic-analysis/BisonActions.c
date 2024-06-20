@@ -122,8 +122,13 @@ Definition * TransitionExpressionDefinitionSemanticAction(char * identifier,Tran
 	if ( transitionExpression->type != SET_EXPRESSION) {
 		first = SingularExpressionTransitionNodeSemanticAction(transitionExpression);
 		set = NodeTransitionSetSemanticAction(first);
-	} else
+	} else{
 		set = transitionExpression->transitionSet;
+		if ( set->identifier!=NULL) {
+			first = SingularExpressionTransitionNodeSemanticAction(transitionExpression);
+			set = NodeTransitionSetSemanticAction(first);
+		}
+	}
 	return TransitionSetDefinitionSemanticAction(identifier,set);
 }
 Definition * SymbolExpressionDefinitionSemanticAction(char * identifier,SymbolExpression * symbolExpression){
@@ -132,8 +137,14 @@ Definition * SymbolExpressionDefinitionSemanticAction(char * identifier,SymbolEx
 	if ( symbolExpression->type != SET_EXPRESSION) {
 		first = SingularExpressionSymbolNodeSemanticAction(symbolExpression);
 		set = NodeSymbolSetSemanticAction(first);
-	} else
+	} else {
 		set = symbolExpression->symbolSet;
+		if ( set->identifier!=NULL ) {
+			first = SingularExpressionSymbolNodeSemanticAction(symbolExpression);
+			set = NodeSymbolSetSemanticAction(first);
+		}
+		
+	}
 	return SymbolSetDefinitionSemanticAction(identifier,set);
 }
 
@@ -143,8 +154,13 @@ Definition * StateExpressionDefinitionSemanticAction(char * identifier,StateExpr
 	if ( stateExpression->type != SET_EXPRESSION) {
 		first = SingularExpressionStateNodeSemanticAction(stateExpression);
 		set = NodeStateSetSemanticAction(first);
-	} else
+	} else{
 		set = stateExpression->stateSet;
+		if ( set->identifier != NULL) {
+			first = SingularExpressionStateNodeSemanticAction(stateExpression);
+			set = NodeStateSetSemanticAction(first);
+		}
+	}
 	return StateSetDefinitionSemanticAction(identifier,set);
 }
 

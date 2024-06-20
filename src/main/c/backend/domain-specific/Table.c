@@ -21,6 +21,7 @@ void initializeTable(void){
 
 // EL CPY lo hace el usuario
 EntryResult getValue(char * identifier, ValueType type){
+    logWarning(_logger, "Getting value with identifier: %s", identifier);
     EntryResult result = { .found=false} ;
     khiter_t k = kh_get(myhash, hashTable, identifier);
     if ( k==kh_end(hashTable) )

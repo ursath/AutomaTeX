@@ -82,6 +82,7 @@ StateSet * cpyStateSet(StateSet * set){
         currentNode = currentNode->next; 
     }
     resultSet->tail = resultTail;
+    logInformation(_logger,"finished copying");
     return resultSet;
 
 }
