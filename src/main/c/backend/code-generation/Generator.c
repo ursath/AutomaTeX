@@ -25,10 +25,11 @@ void shutdownGeneratorModule() {
 
 static void _generateEpilogue(const int value);
 static void _generateDefinitionSet(DefinitionSet * definitionSet);
-static void _generateDefinition(Definition * definition);
+static boolean _generateDefinition(Definition * definition);
 static void _generateAutomataAndTable(Automata * automata);
 static void _generateAutomata(Automata * automata, State * states[], Symbol * symbols[], int statesCount, int symbolsCount);
 static void _generateTransitionsTable(State * states[], Symbol * symbols[], int statesCount, int symbolsCount, StateSet * finalStates);
+static void _generateEmptyPage();
 static void _generateProgram(Program * program);
 static void _generatePrologue(void);
 static char * _indentation(const unsigned int indentationLevel);
@@ -60,17 +61,21 @@ static void _generateProgram(Program * program) {
 
 static void _generateDefinitionSet(DefinitionSet * definitionSet) {	
 	DefinitionNode * currentNode = definitionSet->first;
+	boolean empty = true;
 	while ( currentNode!= NULL ){
-		_generateDefinition(currentNode->definition);
+		if(_generateDefinition(currentNode->definition)) empty = false;
 		currentNode = currentNode->next;
 	}
+	if(empty) _generateEmptyPage();
 }
 
-static void _generateDefinition(Definition * definition) {
+static boolean _generateDefinition(Definition * definition) {
 	if (definition->type == AUTOMATA_DEFINITION) {
 		automataCount = ++automataCount;
 		_generateAutomataAndTable(definition->automata);
+		return true;
 	}
+	return false;
 }
 
 static void _generateAutomataAndTable(Automata * automata) {
@@ -429,6 +434,17 @@ void freeStatesAndSymbols(State * states[], int numStates, Symbol * symbols[], i
     for (int i = 0; i < numSymbols; i++) {
         free(symbols[i]);
     }
+}
+
+
+static void _generateEmptyPage() {
+	_output(0, "%s",
+		"\\vspace*{\\fill}\n"
+		"\\begin{center}\n"
+   		"\\textit{No automata was defined}\n"
+		"\\end{center}\n"
+		"\\vspace*{\\fill}\n"
+	);
 }
 
 
