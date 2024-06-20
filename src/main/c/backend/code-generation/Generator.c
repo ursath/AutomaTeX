@@ -26,7 +26,7 @@ static void _generateDefinitionSet(DefinitionSet * definitionSet);
 static void _generateDefinition(Definition * definition);
 static void _generateAutomataAndTable(Automata * automata);
 static void _generateAutomata(Automata * automata, State * states[], Symbol * symbols[], int statesCount, int symbolsCount);
-static void _generateTransitionsTable(State * states[], Symbol * symbols[], int statesCount, int symbolsCount);
+static void _generateTransitionsTable(State * states[], Symbol * symbols[], int statesCount, int symbolsCount, StateSet * finalStates);
 static void _generateProgram(Program * program);
 static void _generatePrologue(void);
 static char * _indentation(const unsigned int indentationLevel);
@@ -42,6 +42,7 @@ void initializeStates(State * states[], StateSet * stateSet);
 void initializeSymbols(Symbol * symbols[], SymbolSet * symbolSet);
 int getStatesCount(StateNode * currentNode);
 int getAlphabetLength(SymbolNode * currentNode);
+boolean isFinalState(State * state, StateSet * finalStates);
 boolean stateHasTransition(Symbol stateSymbol, int numStates, int numSymbols, State * states[]);
 void freeTransitionMatrix(int numStates, int numSymbols);
 void freeAutomataMatrix(int numStates);
@@ -85,7 +86,7 @@ static void _generateAutomataAndTable(Automata * automata) {
 	setAutomataMatrix(states, automata->transitions->transitionSet, statesCount);
 
 	_generateAutomata(automata, states, symbols, statesCount, alphabetLength);
-	_generateTransitionsTable(states, symbols, statesCount, alphabetLength);
+	_generateTransitionsTable(states, symbols, statesCount, alphabetLength, automata->finals->stateSet);
 
 	freeTransitionMatrix(statesCount, alphabetLength);
 	freeAutomataMatrix(statesCount);
@@ -148,7 +149,7 @@ static void _generateAutomata(Automata * automata, State * states[], Symbol * sy
 	);
 }
 
-static void _generateTransitionsTable(State * states[], Symbol * symbols[], int statesCount, int symbolsCount) {
+static void _generateTransitionsTable(State * states[], Symbol * symbols[], int statesCount, int symbolsCount, StateSet * finalStates) {
 
 	// Apertura de la tabla
 	_output(0, "%s", 
@@ -187,8 +188,7 @@ static void _generateTransitionsTable(State * states[], Symbol * symbols[], int 
 		for(int j=0; j<symbolsCount; j++) {
 			MatrixNode * currentNode = transitionMatrix[i][j].first;
 			while(currentNode != NULL) {
-				// TO DO
-				if(currentNode->state->isFinal) {
+				if(isFinalState(currentNode->state, finalStates)) {
 					_output(0, "*");
 				}
 				_output(0, "%s", currentNode->state->symbol.value);
@@ -332,6 +332,18 @@ int getAlphabetLength(SymbolNode * currentNode) {
 	}
 	return count;
 }
+
+boolean isFinalState(State * state, StateSet * finalStates) {
+	StateNode * currentFinalNode = finalStates->first;
+	while( currentFinalNode != NULL ){
+		if(strcmp(state->symbol.value, currentFinalNode->state->symbol.value) == 0) {
+			return true;
+		}
+		currentFinalNode = currentFinalNode->next;
+	}
+	return false;
+}
+
 
 boolean stateHasTransition(Symbol stateSymbol, int numStates, int numSymbols, State * states[]) {
 	int stateIndex = getStateIndex(stateSymbol.value, states, numStates);
