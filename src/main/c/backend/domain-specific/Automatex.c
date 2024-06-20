@@ -199,6 +199,7 @@ ComputationResult computeAutomata(Automata * automata) {
     }
     logInformation(_logger,"-----checked transitions-----");
     result.type = AUTOMATA_DEFINITION,
+    
     result.automata = automata;
     result.succeed = true;
     return result;
@@ -600,6 +601,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
         .type = STATE_DEFINITION
     };
     logInformation(_logger,"starting state set creation");
+    logInformation(_logger,"is definition: %d",isDefinition);
     if (set->identifier != NULL && !isDefinition) {
         EntryResult result = getValue(set->identifier, set->isFromAutomata? AUTOMATA : STATES );
         if ( !result.found ) { 
@@ -659,6 +661,7 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
             previousNode = currentNode;
             currentNode = currentNode->next;
         }
+        logInformation(_logger,"set is null=%d, currentnode is null=%d.", set==NULL, currentNode==NULL );
         set->tail = previousNode;
     }
     logDebugging(_logger,"GOING TO DELETE repetitions from state set");
