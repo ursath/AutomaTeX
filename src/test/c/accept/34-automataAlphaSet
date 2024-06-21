@@ -10,7 +10,7 @@ DFA AUTOMATA [
 
 alphabet Q: AUTOMATA.alphabet + a;
 
-DFA AUTOMATA [
+DFA AUTOMATA2 [
 	states: {  r, o, j , >s , *w, *q },
 	alphabet: { Q, b, c },
 	transitions: {

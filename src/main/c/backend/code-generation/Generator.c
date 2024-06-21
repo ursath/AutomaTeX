@@ -274,9 +274,10 @@ void setTransitionMatrix(State * states[], Symbol * symbols[], TransitionSet * t
 	int stateIndex = 0;
 	int symbolIndex = 0;
 	while(currentNode != NULL) {
+		
 		stateIndex = getStateIndex(currentNode->transition->fromExpression->state->symbol.value, states, statesCount);
 		symbolIndex = getSymbolIndex(currentNode->transition->symbolExpression->symbol->value, symbols, symbolsCount);
-		MatrixNode * newNode = (MatrixNode *)malloc(sizeof(MatrixNode));
+		MatrixNode * newNode = (MatrixNode *)calloc(1,sizeof(MatrixNode));
 		newNode->state=currentNode->transition->toExpression->state;
 		if(transitionMatrix[stateIndex][symbolIndex].first == NULL) {
 			transitionMatrix[stateIndex][symbolIndex].first = newNode;

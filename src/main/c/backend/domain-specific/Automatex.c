@@ -106,7 +106,12 @@ ComputationResult computeDefinition(Definition * definition) {
                     logWarning(_logger,"final null=%d",a->finals->stateSet->tail==NULL);
                     logWarning(_logger,"alpha null=%d",a->alphabet==NULL);
                     logWarning(_logger,"trans null=%d",a->transitions==NULL);
-                    
+                    SymbolNode * currentState = a->alphabet->symbolSet-> first;
+        while (currentState != NULL){
+        logInformation(_logger, "computed automata alphabet: %s", currentState->symbol->value);
+        currentState = currentState->next;
+        }
+            break;            
             }else{
                 //error redefinition
                 return _invalidComputation();
@@ -196,8 +201,8 @@ ComputationResult computeAutomata(Automata * automata) {
     ComputationResult transitionSetResult = computeTransitionExpression(automata->transitions, true);
     if ( !transitionSetResult.succeed ){
         return transitionSetResult;   
-    
     }
+    
     logInformation(_logger,"-----computed transitions-----");
     result = _checkAutomataRequirements(transitionSetResult.transitionSet, stateSetResult.stateSet, symbolSetResult.symbolSet, automata->automataType);
     if ( !result.succeed ){
@@ -207,6 +212,12 @@ ComputationResult computeAutomata(Automata * automata) {
     result.type = AUTOMATA_DEFINITION,
     
     result.automata = automata;
+    StateExpression * stateExp = calloc(1,sizeof(StateExpression));
+    SymbolExpression * symExp = calloc(1,sizeof(StateExpression));
+    automata->alphabet->type = SET_EXPRESSION;
+    automata->alphabet->symbolSet = symbolSetResult.symbolSet;
+    automata->states->stateSet = stateSetResult.stateSet;
+    automata->transitions->transitionSet = transitionSetResult.transitionSet;
     result.succeed = true;
     return result;
 }
@@ -699,6 +710,13 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
             resultSet = cpySymbolSet( result.value.symbolSet);
         set->first = resultSet->first;
         set->tail = resultSet->tail; 
+        set->identifier = NULL;
+        SymbolNode * currentState = set->first;
+        while (currentState != NULL){
+        logInformation(_logger, "GOT automata alphabet: %s", currentState->symbol->value);
+        currentState = currentState->next;
+        }
+        
     } else {
         SymbolNode * currentNode = set->first;
         SymbolNode * previousNode = set->first;
@@ -732,6 +750,13 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
     }
     deleteRepetitionsFromSymbolSet(set);
     result.symbolSet = set;
+     SymbolNode * currentState = result.symbolSet->first;
+        logInformation(_logger, "AFTER ");
+        while (currentState != NULL){
+        logInformation(_logger, "AFTER DELETE GOT automata alphabet: %s", currentState->symbol->value);
+        currentState = currentState->next;
+        }
+    
     return result;
 }
 

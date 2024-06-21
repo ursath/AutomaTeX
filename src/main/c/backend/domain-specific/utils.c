@@ -47,8 +47,9 @@ SymbolSet * cpySymbolSet(SymbolSet * set) {
     SymbolNode * node;
     SymbolSet * resultSet = calloc(1,sizeof(SymbolSet));
     while ( currentNode != NULL ){
-        node = calloc(1,sizeof(StateNode));
-        node->symbol = currentNode->symbol; 
+        node = calloc(1,sizeof(SymbolNode));
+        node->symbol = calloc(1,sizeof(Symbol));
+        node->symbol->value = currentNode->symbol->value; 
         node->type = ELEMENT;
         if ( resultSet->first==NULL )
             resultSet->first = node;
@@ -71,7 +72,10 @@ StateSet * cpyStateSet(StateSet * set){
     StateSet * resultSet = calloc(1,sizeof(StateSet));
     while ( currentNode != NULL ){
         node = calloc(1,sizeof(StateNode));
-        node->state = currentNode->state;
+        node->state = calloc(1,sizeof(State));
+        node->state->symbol = currentNode->state->symbol;   
+        node->state->isFinal = currentNode->state->isFinal;
+        node->state->isInitial = currentNode->state->isInitial;
         node->type = ELEMENT;
         if ( resultSet->first==NULL )
             resultSet->first = node;
