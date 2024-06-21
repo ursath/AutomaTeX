@@ -1,1 +1,21 @@
-alphabet Q: AUTOMATA2.alphabet + a;
+DFA AUTOMATA [
+	states: {  r, o, j , >s , *w, *q },
+	alphabet: { a, b, c },
+	transitions: {
+        |q|-a->|r| ,  
+        |w|<-b->|r|,      
+        |s|-c->|w|
+    }
+];
+
+alphabet Q: AUTOMATA.alphabet + a;
+
+DFA AUTOMATA2 [
+	states: {  r, o, j , >s , *w, *q },
+	alphabet: { Q, b, c },
+	transitions: {
+        |q|-a->|r| ,  
+        |w|<-b->|r|,      
+        |s|-c->|w|
+    }
+];

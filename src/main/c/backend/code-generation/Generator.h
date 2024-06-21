@@ -8,6 +8,32 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+typedef struct TransitionMatrixCell TransitionMatrixCell;
+typedef struct AutomataMatrixCell AutomataMatrixCell;
+typedef struct SymbolMatrixNode SymbolMatrixNode;
+typedef struct MatrixNode MatrixNode;
+
+struct MatrixNode {
+    State * state;
+    MatrixNode * next;
+};
+
+struct TransitionMatrixCell {
+    MatrixNode * first;
+    MatrixNode * tail;
+};
+
+struct SymbolMatrixNode {
+    Symbol * symbol;
+    SymbolMatrixNode * next;
+};
+
+struct AutomataMatrixCell {
+    SymbolMatrixNode * first;
+    SymbolMatrixNode * tail;
+};
+
+
 /** Initialize module's internal state. */
 void initializeGeneratorModule();
 

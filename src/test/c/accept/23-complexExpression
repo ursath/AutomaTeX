@@ -1,1 +1,4 @@
+states A: {a,b,c};
+states B: {d, r, b, c, f};
+states C: b;
 states SARASA2: (A + ((C ^ B) - {b,c}));

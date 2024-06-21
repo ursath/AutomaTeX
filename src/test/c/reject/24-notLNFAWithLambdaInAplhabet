@@ -1,11 +1,9 @@
-DFA AUTOMATA [
+NFA AUTOMATA [
 	states: {  r, o, j , >s , *w, *q },
-	alphabet: { a, b, c },
+	alphabet: { @, a, b, c },
 	transitions: {
         |q|-a->|r| ,  
         |w|<-b->|r|,      
-        |s|-c->|w|
+        |s|-c->|{w,q}|
     }
 ];
-
-states Q: AUTOMATA.states;

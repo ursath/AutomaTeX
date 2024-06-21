@@ -1,1 +1,11 @@
+DFA A3 [
+	states: {  r, o, j , >s , *w, *q },
+	alphabet: { a, b, c },
+	transitions: {
+        |q|-a->|r| ,  
+        |w|<-b->|r|,      
+        |s|-c->|w|
+    }
+];
+
 transitions Q: {A3.transitions, |q|-a->|q|};

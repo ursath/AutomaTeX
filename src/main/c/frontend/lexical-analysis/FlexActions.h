@@ -38,28 +38,28 @@ void BeginInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCont
 void EndInlineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token AutomataLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 Token StatesKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token TransitionsKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token AlphabetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token StatesSetKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
-Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token SetOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
-Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
-Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
-Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token PeriodLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token TransitionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 Token LambdaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token StateTypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 Token SymbolLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);

@@ -84,20 +84,6 @@
 %token <token> PIPE
 %token <token> UNKNOWN
 
-/*faltarían agregar a flex también
-%token <token> AND
-%token <token> OR
-%token <token> NOT
-%token <token> EQUAL
-%token <token> DEF
-%token <token> IF
-%token <token> ELSE
-%token <token> IN
-%token <token> DO
-%token <token> FOR EVERY
-%token <token> MINIMAL
-*/
-//faltaría ver el caso donde se tiene un automata y se acceden a sus estados iniciales finales y no finales ni iniciales
 
 /** Non-terminals. */
 %type <symbolExpression> symbolExpression
@@ -118,9 +104,6 @@
 %type <stateNode> stateNode
 %type <symbolNode> symbolNode
 %type <transitionNode> transitionNode
-//revisar
-//%type <function> function
-//%type <forLoop> forLoop
 
 /**
  * Precedence and associativity.
@@ -130,8 +113,8 @@
 %left OPEN_PARENTHESIS
 %left CLOSE_PARENTHESIS
 %left DIFFERENCE 
-%left INTERSECTION 
 %left UNION
+%left INTERSECTION 
 
 %%
 
@@ -156,25 +139,25 @@ automataType: DFA																				{ $$ = DFA_AUTOMATA; }
 	| LNFA																						{ $$ = LNFA_AUTOMATA; }
 	;
 
-transitionExpression:  transitionExpression[left] UNION transitionExpression[right] 			{ $$ = TransitionExpressionSemanticAction($left, $right, UNION); }
-	| transitionExpression[left] DIFFERENCE transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| transitionExpression[left] INTERSECTION transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, INTERSECTION); }																												
+transitionExpression:  transitionExpression[left] UNION transitionExpression[right] 			{ $$ = TransitionExpressionSemanticAction($left, $right, UNION_EXPRESSION); }
+	| transitionExpression[left] DIFFERENCE transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, DIFFERENCE_EXPRESSION); }
+	| transitionExpression[left] INTERSECTION transitionExpression[right] 						{ $$ = TransitionExpressionSemanticAction($left, $right, INTERSECTION_EXPRESSION); }																												
 	| transitionSet 																			{ $$ = SetTransitionExpressionSemanticAction($1); }	
 	| transition 																				{ $$ = SingularTransitionExpressionSemanticAction($1); }	
 	| OPEN_PARENTHESIS transitionExpression CLOSE_PARENTHESIS									{ $$ = $2 ;}																														
 	;
 
-stateExpression:  stateExpression[left] UNION stateExpression[right] 							{ $$ = StateExpressionSemanticAction($left, $right, UNION); }
-	| stateExpression[left] DIFFERENCE stateExpression[right] 									{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| stateExpression[left] INTERSECTION stateExpression[right] 								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION); }
+stateExpression:  stateExpression[left] UNION stateExpression[right] 							{ $$ = StateExpressionSemanticAction($left, $right, UNION_EXPRESSION); }
+	| stateExpression[left] DIFFERENCE stateExpression[right] 									{ $$ = StateExpressionSemanticAction($left, $right, DIFFERENCE_EXPRESSION); }
+	| stateExpression[left] INTERSECTION stateExpression[right] 								{ $$ = StateExpressionSemanticAction($left, $right, INTERSECTION_EXPRESSION); }
 	| stateSet																					{ $$ = SetStateExpressionSemanticAction($1); }
 	| state																						{ $$ = SingularStateExpressionSemanticAction($1); }	
 	| OPEN_PARENTHESIS stateExpression CLOSE_PARENTHESIS										{ $$ = $2; }
 	;
 
-symbolExpression: symbolExpression[left] UNION symbolExpression[right]							{ $$ = SymbolExpressionSemanticAction($left, $right, UNION); }
-	| symbolExpression[left] DIFFERENCE symbolExpression[right]									{ $$ = SymbolExpressionSemanticAction($left, $right, DIFFERENCE); }
-	| symbolExpression[left] INTERSECTION symbolExpression[right] 								{ $$ = SymbolExpressionSemanticAction($left, $right, INTERSECTION); }
+symbolExpression: symbolExpression[left] UNION symbolExpression[right]							{ $$ = SymbolExpressionSemanticAction($left, $right, UNION_EXPRESSION); }
+	| symbolExpression[left] DIFFERENCE symbolExpression[right]									{ $$ = SymbolExpressionSemanticAction($left, $right, DIFFERENCE_EXPRESSION); }
+	| symbolExpression[left] INTERSECTION symbolExpression[right] 								{ $$ = SymbolExpressionSemanticAction($left, $right, INTERSECTION_EXPRESSION); }
 	| symbolSet 																				{ $$ = SetSymbolExpressionSemanticAction($1); }
 	| symbol																					{ $$ = SingularSymbolExpressionSemanticAction($1); }
 	| OPEN_PARENTHESIS symbolExpression CLOSE_PARENTHESIS										{ $$ = $2; }	

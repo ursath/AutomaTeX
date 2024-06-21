@@ -1,6 +1,8 @@
 #ifndef ABSTRACT_SYNTAX_TREE_HEADER
 #define ABSTRACT_SYNTAX_TREE_HEADER
 
+#define LAMBDA_STRING "@"
+
 #include "../../shared/Logger.h"
 #include <stdlib.h>
 #include "../../shared/Type.h"
@@ -80,10 +82,10 @@ enum AutomataType {
 };
 
 enum StateType {
+	MIXED,
 	FINAL,
 	INITIAL,
 	REGULAR,
-	MIXED,
 };
 
 /* ----------------------------------------------- DEFINITION SET ----------------------------------------------- */
@@ -186,6 +188,7 @@ struct TransitionSet {
 	TransitionNode * tail;
 	char * identifier;
 	boolean isFromAutomata;
+	boolean isBothSidesTransition;	
 };
 
 
@@ -247,11 +250,5 @@ struct Program {
 	DefinitionSet * definitionSet;
 };
 
-
-/**
- * Node recursive destructors.
- */
-//void releaseExpression(Expression * expression);
-//void releaseProgram(Program * program);
 
 #endif

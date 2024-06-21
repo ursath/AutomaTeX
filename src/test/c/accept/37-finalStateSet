@@ -1,2 +1,3 @@
+states AnotherStateSet: *q;
 states Q: AnotherStateSet.final;                      /* AnotherStateSet no es un automata
                                                         si lo es, el error va a saltar en el back */

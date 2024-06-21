@@ -1,1 +1,5 @@
+states A: b;
+states B: {c, d, e};
+states C: {a, d, f};
+states D: {f};
 states Q: (A^C)+(B-C);

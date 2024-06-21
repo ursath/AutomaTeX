@@ -1,1 +1,2 @@
-transitions SARASAT: |A|<-a-|{q-A}|;
+states A: {b,c, s};
+transitions SARASAT: |A|<-a-|{{q, s}-A}|;
