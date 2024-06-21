@@ -43,6 +43,6 @@ After integration is done, change the badges of this `README.md` to point to the
 * [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
 * [Yash](https://marketplace.visualstudio.com/items?itemName=daohong-emilio.yash)
 
-### External libaries
+## External libaries
 
 * khash.h extracted from https://github.com/attractivechaos/klib/tree/master
