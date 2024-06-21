@@ -1,4 +1,4 @@
-DFA AUTOMATA [
+DFA AnAutomata [
     states: { >*q0, t},
     alphabet: { a, b},
     transitions: {|q0|-a->|q0|}

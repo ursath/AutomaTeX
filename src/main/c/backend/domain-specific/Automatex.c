@@ -711,11 +711,6 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
         set->first = resultSet->first;
         set->tail = resultSet->tail; 
         set->identifier = NULL;
-        SymbolNode * currentState = set->first;
-        while (currentState != NULL){
-        logInformation(_logger, "GOT automata alphabet: %s", currentState->symbol->value);
-        currentState = currentState->next;
-        }
         
     } else {
         SymbolNode * currentNode = set->first;
@@ -750,13 +745,6 @@ ComputationResult computeSymbolSet(SymbolSet* set, boolean isDefinition) {
     }
     deleteRepetitionsFromSymbolSet(set);
     result.symbolSet = set;
-     SymbolNode * currentState = result.symbolSet->first;
-        logInformation(_logger, "AFTER ");
-        while (currentState != NULL){
-        logInformation(_logger, "AFTER DELETE GOT automata alphabet: %s", currentState->symbol->value);
-        currentState = currentState->next;
-        }
-    
     return result;
 }
 

@@ -16,9 +16,9 @@ transitions T: {
 
 alphabet Q: AUTOMATA.alphabet;
 alphabet S: {s,m, a};
-//states SS: {*q, w} ;
+states SS: {*q, w} ;
 DFA AUTOMATA2 [
-	states: {  r, o, j , >s , w, AUTOMATA.states.final },
+	states: {  r, o, j , >s , SS, w, AUTOMATA.states.final },
 	alphabet: {Q, c},
 	transitions: T
 ];
