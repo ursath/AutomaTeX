@@ -84,20 +84,6 @@
 %token <token> PIPE
 %token <token> UNKNOWN
 
-/*faltarían agregar a flex también
-%token <token> AND
-%token <token> OR
-%token <token> NOT
-%token <token> EQUAL
-%token <token> DEF
-%token <token> IF
-%token <token> ELSE
-%token <token> IN
-%token <token> DO
-%token <token> FOR EVERY
-%token <token> MINIMAL
-*/
-//faltaría ver el caso donde se tiene un automata y se acceden a sus estados iniciales finales y no finales ni iniciales
 
 /** Non-terminals. */
 %type <symbolExpression> symbolExpression

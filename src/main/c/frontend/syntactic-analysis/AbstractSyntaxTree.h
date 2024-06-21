@@ -251,10 +251,4 @@ struct Program {
 };
 
 
-/**
- * Node recursive destructors.
- */
-//void releaseExpression(Expression * expression);
-//void releaseProgram(Program * program);
-
 #endif
