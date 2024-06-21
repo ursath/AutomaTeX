@@ -570,10 +570,15 @@ ComputationResult computeStateSet(StateSet* set, boolean isDefinition) {
                     resultSet = cpyStateSet(automata->finals->stateSet); break;
                 case INITIAL: 
                     StateNode * node = calloc(1,sizeof(StateNode));
-                    node->stateExpression->state = automata->initials->state;
+                    node->state = calloc(1,sizeof(State));
+                    node->state->symbol = automata->initials->state->symbol;
+                    node->state->isFinal = automata->initials->state->isFinal;
+                    node->state->isInitial = automata->initials->state->isInitial;
                     resultSet = calloc(1,sizeof(StateSet));
+                    node->type = ELEMENT;
                     resultSet->first = node;
                     resultSet->tail = node; 
+                    
                     break;
                 default: 
                     resultSet = cpyStateSet( automata->states->stateSet); break;            
